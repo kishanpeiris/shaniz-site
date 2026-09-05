@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-cream text-ink font-sans antialiased;
+}
+
+h1, h2, h3, .font-display {
+  @apply font-serif font-semibold text-forestDeep;
+}
+
+/* card image reveal on hover — used by ProductCard */
+.card-media img {
+  transition: transform 0.6s ease;
+}
+.group:hover .card-media img {
+  transform: scale(1.06);
+}
+
+/* Every section that's a nav/anchor scroll target needs breathing room
+   above it so the sticky header (~88px tall at desktop) never covers its
+   heading. Applies to both native anchor jumps and scrollIntoView(). */
+#top,
+#about,
+#products,
+#ritual-video,
+#visit {
+  scroll-margin-top: 6.5rem;
+}
+

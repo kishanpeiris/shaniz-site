@@ -33,7 +33,7 @@ export default function Hero() {
   }, [videoFailed])
 
   return (
-    <section id="top" className="relative flex min-h-[88vh] items-center overflow-hidden bg-forestDeep">
+    <section id="top" className="hero-viewport relative flex items-center overflow-hidden bg-forestDeep">
       {/* Still image — always rendered first. It's the fail-safe: if the
           video can't load or play (slow connection, autoplay blocked,
           unsupported format), this stays visible underneath. */}

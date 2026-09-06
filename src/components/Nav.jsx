@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.jpg'
 import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -16,10 +16,21 @@ const LINKS = [
 export default function Nav() {
   const { totalQty } = useCart()
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [search, setSearch] = useState('')
 
   const accountHref = user ? (['admin', 'superadmin'].includes(user.role) ? '/admin' : '/account') : '/login'
   const accountLabel = user ? (['admin', 'superadmin'].includes(user.role) ? 'Admin Panel' : 'My Account') : 'Sign In'
+
+  const submitSearch = (e) => {
+    e.preventDefault()
+    const q = search.trim()
+    navigate(q ? `/shop?q=${encodeURIComponent(q)}` : '/shop')
+    setSearchOpen(false)
+    setMenuOpen(false)
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-gold/30 bg-cream/90 backdrop-blur">
@@ -48,6 +59,35 @@ export default function Nav() {
         </nav>
 
         <div className="flex items-center gap-2.5 sm:gap-4">
+          {/* Desktop: an expanding search field so it doesn't permanently
+              crowd the nav row. Click the icon to reveal an input. */}
+          <div className="relative hidden items-center md:flex">
+            {searchOpen ? (
+              <form onSubmit={submitSearch} className="flex items-center">
+                <input
+                  autoFocus
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onBlur={() => !search && setSearchOpen(false)}
+                  placeholder="Search products &amp; services…"
+                  className="w-48 rounded-full border border-gold/30 bg-ivory px-3.5 py-1.5 text-xs text-forestDeep placeholder:text-moss/70 focus:w-56 focus:outline-none"
+                />
+              </form>
+            ) : (
+              <button
+                onClick={() => setSearchOpen(true)}
+                aria-label="Search"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-forestDeep hover:bg-gold/15"
+              >
+                <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
+                  <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M14 14L18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
+          </div>
+
           <Link
             to={accountHref}
             className="hidden text-xs uppercase tracking-wide text-moss underline decoration-gold/50 sm:inline"
@@ -77,6 +117,15 @@ export default function Nav() {
 
       {menuOpen && (
         <nav className="flex flex-col border-t border-gold/20 bg-ivory px-5 py-4 md:hidden">
+          <form onSubmit={submitSearch} className="mb-3 flex items-center gap-2">
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products &amp; services…"
+              className="w-full rounded-full border border-gold/30 bg-cream px-4 py-2 text-sm text-forestDeep placeholder:text-moss/70 focus:outline-none"
+            />
+          </form>
           {LINKS.map(([label, href]) => (
             <Link
               key={href}

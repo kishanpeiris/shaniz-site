@@ -33,3 +33,21 @@ h1, h2, h3, .font-display {
   scroll-margin-top: 6.5rem;
 }
 
+/* Mobile browsers compute `vh` against the viewport as if the
+   address-bar/toolbar chrome is fully hidden — but on first load (and
+   often in portrait) that chrome IS visible, so a plain `88vh` hero can
+   be taller than what's actually visible on screen, cropping/pushing
+   content out of view ("out of bounds" on portrait phones, while
+   landscape — where the toolbar takes up proportionally less height —
+   looks fine). `svh` (small viewport height) is defined against the
+   viewport WITH that chrome visible, so it can't overshoot. Falls back
+   to plain vh on the rare browser that doesn't support svh yet. */
+.hero-viewport {
+  min-height: 88vh;
+}
+@supports (height: 88svh) {
+  .hero-viewport {
+    min-height: 88svh;
+  }
+}
+

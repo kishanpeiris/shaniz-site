@@ -54,11 +54,19 @@ export default function LoginPage() {
 
         <div className="relative w-full max-w-sm rounded-sm border border-gold/30 bg-ivory p-9 shadow-brand">
           <div className="mb-7 flex flex-col items-center">
-            <img
-              src={logo}
-              alt="Shani'z"
-              className="mb-3 h-20 w-20 rounded-full border border-gold/40 bg-white p-1"
-            />
+            <div className="mb-4 flex items-center gap-3">
+              <img
+                src={logo}
+                alt="Shani'z logo"
+                className="h-14 w-14 rounded-full border border-gold/40 bg-white object-cover p-0.5"
+              />
+              <span className="font-serif text-2xl font-semibold leading-none text-forestDeep">
+                Shani&rsquo;z
+                <small className="mt-1 block font-sans text-[0.6rem] font-normal tracking-[0.16em] text-moss">
+                  HERBAL HAIR &amp; SKIN CARE
+                </small>
+              </span>
+            </div>
             <h1 className="text-2xl">Sign in</h1>
             <p className="mt-1 text-xs uppercase tracking-wide text-moss">Your account</p>
           </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { apiGet } from '../../api/client.js'
 import { formatLKR as fmt } from '../../lib/currency.js'
 
@@ -91,6 +92,45 @@ export default function DashboardPage() {
               </li>
             ))}
           </ul>
+        </div>
+
+        <div className="rounded-sm border border-gold/30 bg-ivory p-5 md:col-span-2">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-serif text-xl">Security</h3>
+            <Link to="/admin/fraud" className="text-xs uppercase tracking-wide text-forestDeep underline">
+              View fraud alerts →
+            </Link>
+          </div>
+          <div className="mb-4 grid grid-cols-3 gap-3 text-center">
+            <div>
+              <p className={`font-serif text-2xl ${data.security.open_fraud_flags > 0 ? 'text-[#a35a3a]' : 'text-forestDeep'}`}>
+                {data.security.open_fraud_flags}
+              </p>
+              <p className="text-xs uppercase tracking-wide text-moss">Open fraud flags</p>
+            </div>
+            <div>
+              <p className={`font-serif text-2xl ${data.security.failed_admin_logins_24h > 0 ? 'text-[#a35a3a]' : 'text-forestDeep'}`}>
+                {data.security.failed_admin_logins_24h}
+              </p>
+              <p className="text-xs uppercase tracking-wide text-moss">Failed admin logins (24h)</p>
+            </div>
+            <div>
+              <p className="font-serif text-2xl text-forestDeep">{data.security.new_admin_accounts_7d}</p>
+              <p className="text-xs uppercase tracking-wide text-moss">New admins (7d)</p>
+            </div>
+          </div>
+          {data.security.recent_fraud_flags.length === 0 ? (
+            <p className="text-sm text-[#8a8672]">No open fraud flags — nothing needs a look right now.</p>
+          ) : (
+            <ul className="space-y-1.5 text-sm">
+              {data.security.recent_fraud_flags.map((f) => (
+                <li key={f.id} className="flex justify-between gap-3">
+                  <span className={f.severity === 'high' ? 'text-[#a35a3a]' : 'text-[#5c5949]'}>{f.message}</span>
+                  <span className="whitespace-nowrap text-xs uppercase text-moss">{f.severity}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

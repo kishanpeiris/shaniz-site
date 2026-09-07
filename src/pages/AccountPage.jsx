@@ -17,9 +17,60 @@ function Section({ title, children }) {
   )
 }
 
-function ProfileSection() {
+// Shown only to logged-in customers whose email isn't verified yet. Lets
+// them fire off a fresh verification email without leaving the page —
+// useful since the original one (sent at registration) may have expired
+// (24 hours) or landed in spam.
+function VerificationBanner() {
   const { user } = useAuth()
-  const [name, setName] = useState(user?.name || '')
+  const [status, setStatus] = useState('idle') // idle | sending | sent
+  const [error, setError] = useState('')
+
+  if (!user || user.emailVerified) return null
+
+  const resend = async () => {
+    setStatus('sending')
+    setError('')
+    try {
+      await apiPost('/api/auth/resend-verification')
+      setStatus('sent')
+    } catch (err) {
+      setError(err.message)
+      setStatus('idle')
+    }
+  }
+
+  return (
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-[#c9a35c]/50 bg-[#fbf3df] px-5 py-3 text-sm">
+      <div>
+        <p className="font-medium text-[#8a6d3b]">Please verify your email address</p>
+        {status === 'sent' ? (
+          <p className="text-xs text-[#8a6d3b]">
+            Verification email sent to {user.email} — check your inbox (and spam folder).
+          </p>
+        ) : (
+          <p className="text-xs text-[#8a6d3b]">
+            We sent a link to {user.email} when you registered. Didn&rsquo;t get it, or has it expired?
+          </p>
+        )}
+        {error && <p className="text-xs text-[#a35a3a]">{error}</p>}
+      </div>
+      <button
+        onClick={resend}
+        disabled={status === 'sending'}
+        className="whitespace-nowrap rounded-full border border-[#c9a35c] px-4 py-1.5 text-xs uppercase tracking-wide text-[#8a6d3b] disabled:opacity-60"
+      >
+        {status === 'sending' ? 'Sending…' : 'Resend email'}
+      </button>
+    </div>
+  )
+}
+
+function ProfileSection() {
+  const { user, refreshUser } = useAuth()
+  const [firstName, setFirstName] = useState(user?.firstName || '')
+  const [lastName, setLastName] = useState(user?.lastName || '')
+  const [mobile, setMobile] = useState(user?.mobile || '')
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
 
@@ -28,7 +79,12 @@ function ProfileSection() {
     setStatus('saving')
     setError('')
     try {
-      await apiPut('/api/account/profile', { name })
+      await apiPut('/api/account/profile', {
+        firstName,
+        lastName: lastName.trim() || undefined,
+        mobile: mobile.trim() || undefined,
+      })
+      await refreshUser()
       setStatus('saved')
       setTimeout(() => setStatus('idle'), 1500)
     } catch (err) {
@@ -41,10 +97,28 @@ function ProfileSection() {
     <Section title="Profile">
       <form onSubmit={save} className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">Name</label>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">First name</label>
           <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">Last name</label>
+          <input
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Optional"
+            className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">Mobile</label>
+          <input
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value)}
+            placeholder="Optional"
             className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
           />
         </div>
@@ -295,6 +369,7 @@ export default function AccountPage() {
           </button>
         </div>
 
+        <VerificationBanner />
         <ProfileSection />
         <PasswordSection />
         <AddressesSection />

@@ -6,7 +6,14 @@ import { formatLKR as fmt } from '../lib/currency.js'
 export default function ProductCard({ product, large = false }) {
   const { addItem } = useCart()
   const [hovering, setHovering] = useState(false)
-  const displayImage = hovering && product.hoverGif ? product.hoverGif : product.image
+  // Preference order on hover: looping WebM video, then animated WebP,
+  // then the legacy GIF field (older uploads), then just the still photo.
+  // Nothing ever renders broken — a product with none of the first three
+  // simply shows its normal image, same as before this feature existed.
+  const hoverImage = product.hoverWebp || product.hoverGif
+  const showHoverVideo = hovering && product.hoverVideo
+  const displayImage = hovering && hoverImage ? hoverImage : product.image
+  const hasHoverMedia = Boolean(product.hoverVideo || hoverImage)
   const isPreorder = product.availability === 'preorder'
   const isSoldOut = product.availability === 'out_of_stock' || (!isPreorder && product.outOfStock)
 
@@ -23,8 +30,25 @@ export default function ProductCard({ product, large = false }) {
       )}
 
       <Link to={`/product/${product.id}`} className={`card-media relative block overflow-hidden bg-[#e9e2cd] ${large ? 'aspect-[4/5]' : 'aspect-square'}`}>
-        <img src={displayImage} alt={product.name} className="h-full w-full object-cover transition-opacity duration-300" />
-        {!product.hoverGif && product.ingredients?.length > 0 && (
+        {showHoverVideo ? (
+          // key={product.hoverVideo} forces a fresh <video> element per
+          // product, so the browser always starts playback from frame 0
+          // instead of possibly reusing a paused element from another
+          // card if React ever recycled the DOM node.
+          <video
+            key={product.hoverVideo}
+            src={product.hoverVideo}
+            poster={product.image}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <img src={displayImage} alt={product.name} className="h-full w-full object-cover transition-opacity duration-300" />
+        )}
+        {!hasHoverMedia && product.ingredients?.length > 0 && (
           <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-b from-forest/5 to-forestDeep/95 p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-goldLight">
               Inside

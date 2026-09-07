@@ -9,6 +9,8 @@ const LINKS = [
   { to: '/admin/bookings', label: 'Bookings' },
   { to: '/admin/orders', label: 'Orders' },
   { to: '/admin/customers', label: 'Customers' },
+  { to: '/admin/blacklist', label: 'Blacklist' },
+  { to: '/admin/fraud', label: 'Fraud Alerts' },
   { to: '/admin/admins', label: 'Admins', superadminOnly: true },
   { to: '/admin/logs', label: 'Logs' },
   { to: '/admin/settings', label: 'Settings' },

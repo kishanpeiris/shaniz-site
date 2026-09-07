@@ -1,16 +1,58 @@
 import React, { useEffect, useState } from 'react'
 import { apiGet, apiPost, apiPut, apiDelete } from '../../api/client.js'
+import MultiImageUploader from '../../components/admin/MultiImageUploader.jsx'
 import ImageUploader from '../../components/admin/ImageUploader.jsx'
 import { formatLKR } from '../../lib/currency.js'
 import { formatCalendarDate } from '../../lib/date.js'
 
-const emptyForm = { name: '', description: '', price_lkr: '', service_type: 'bookable', duration_minutes: '', image_url: '' }
+const emptyForm = {
+  name: '',
+  description: '',
+  price_lkr: '',
+  service_type: 'bookable',
+  duration_minutes: '',
+  images: [],
+  hover_video_url: '',
+  hover_webp_url: '',
+  hover_gif_url: '',
+}
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+// Same three-slot hover-media picker used in the Products admin page —
+// video tried first on the storefront, then webp, then the legacy gif.
+function HoverMediaFields({ values, onChange }) {
+  return (
+    <div className="col-span-2 grid gap-3 sm:grid-cols-3 md:col-span-6">
+      <ImageUploader
+        label="Hover video (WebM)"
+        value={values.hover_video_url}
+        onChange={(url) => onChange({ hover_video_url: url })}
+        accept="video/webm"
+        kind="video"
+        endpoint="/api/uploads/video"
+      />
+      <ImageUploader
+        label="Hover image (WebP)"
+        value={values.hover_webp_url}
+        onChange={(url) => onChange({ hover_webp_url: url })}
+        accept="image/webp"
+      />
+      <ImageUploader
+        label="Hover GIF (legacy)"
+        value={values.hover_gif_url}
+        onChange={(url) => onChange({ hover_gif_url: url })}
+        accept="image/gif"
+      />
+    </div>
+  )
+}
 
 export default function ServicesPage() {
   const [services, setServices] = useState([])
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
+  const [editingId, setEditingId] = useState(null)
+  const [editForm, setEditForm] = useState(emptyForm)
   const [expanded, setExpanded] = useState(null)
   const [windows, setWindows] = useState({})
   const [newWindow, setNewWindow] = useState({ day_of_week: 1, start_time: '09:00', end_time: '18:00' })
@@ -30,9 +72,52 @@ export default function ServicesPage() {
         price_lkr: Number(form.price_lkr),
         service_type: form.service_type,
         duration_minutes: form.service_type === 'bookable' ? Number(form.duration_minutes) : undefined,
-        images: form.image_url ? [form.image_url] : undefined,
+        images: form.images,
+        hover_video_url: form.hover_video_url || undefined,
+        hover_webp_url: form.hover_webp_url || undefined,
+        hover_gif_url: form.hover_gif_url || undefined,
       })
       setForm(emptyForm)
+      load()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const startEdit = (s) => {
+    setEditingId(s.id)
+    setEditForm({
+      name: s.name,
+      description: s.description || '',
+      price_lkr: s.price_lkr,
+      service_type: s.service_type,
+      duration_minutes: s.duration_minutes || '',
+      images: s.images || [],
+      hover_video_url: s.hover_video_url || '',
+      hover_webp_url: s.hover_webp_url || '',
+      hover_gif_url: s.hover_gif_url || '',
+    })
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditForm(emptyForm)
+  }
+
+  const saveEdit = async (id) => {
+    setError('')
+    try {
+      await apiPut(`/api/services/${id}`, {
+        name: editForm.name,
+        description: editForm.description || undefined,
+        price_lkr: Number(editForm.price_lkr),
+        duration_minutes: editForm.service_type === 'bookable' ? Number(editForm.duration_minutes) : undefined,
+        images: editForm.images,
+        hover_video_url: editForm.hover_video_url || undefined,
+        hover_webp_url: editForm.hover_webp_url || undefined,
+        hover_gif_url: editForm.hover_gif_url || undefined,
+      })
+      cancelEdit()
       load()
     } catch (err) {
       setError(err.message)
@@ -125,22 +210,41 @@ export default function ServicesPage() {
           <input required type="number" placeholder="Duration (min)" value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
         )}
         <input placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-6" />
-        <button type="submit" className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add Service</button>
+
+        <div className="col-span-2 md:col-span-6">
+          <MultiImageUploader images={form.images} onChange={(images) => setForm({ ...form, images })} />
+        </div>
+        <HoverMediaFields values={form} onChange={(patch) => setForm({ ...form, ...patch })} />
+        <p className="col-span-2 text-xs text-[#8a8672] md:col-span-6">
+          On hover, the shop tries the video first, then the WebP, then falls back to this service's main photo.
+        </p>
+
+        <button type="submit" className="col-span-2 rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream md:col-span-6">
+          Add Service
+        </button>
       </form>
 
       <div className="space-y-3">
         {services.map((s) => (
           <div key={s.id} className="rounded-sm border border-gold/30 bg-ivory p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="font-serif text-lg text-forestDeep">{s.name}</p>
-                <p className="text-xs text-[#8a8672]">
-                  {s.service_type} {s.duration_minutes ? `· ${s.duration_minutes} min` : ''} ·{' '}
-                  {formatLKR(s.price_lkr)} ·{' '}
-                  <span className={s.is_active ? 'text-moss' : 'text-[#a35a3a]'}>{s.is_active ? 'Active' : 'Inactive'}</span>
-                </p>
+              <div className="flex items-center gap-3">
+                {s.images?.[0] && (
+                  <img src={s.images[0]} alt="" className="h-12 w-12 rounded-sm border border-gold/30 object-cover" />
+                )}
+                <div>
+                  <p className="font-serif text-lg text-forestDeep">{s.name}</p>
+                  <p className="text-xs text-[#8a8672]">
+                    {s.service_type} {s.duration_minutes ? `· ${s.duration_minutes} min` : ''} ·{' '}
+                    {formatLKR(s.price_lkr)} ·{' '}
+                    <span className={s.is_active ? 'text-moss' : 'text-[#a35a3a]'}>{s.is_active ? 'Active' : 'Inactive'}</span>
+                  </p>
+                </div>
               </div>
               <div className="flex gap-3 text-xs">
+                <button onClick={() => (editingId === s.id ? cancelEdit() : startEdit(s))} className="underline text-forestDeep">
+                  {editingId === s.id ? 'Cancel' : 'Edit'}
+                </button>
                 {s.service_type === 'bookable' && (
                   <button onClick={() => toggleExpand(s)} className="underline text-forestDeep">
                     {expanded === s.id ? 'Hide availability' : 'Manage availability'}
@@ -151,6 +255,26 @@ export default function ServicesPage() {
                 </button>
               </div>
             </div>
+
+            {editingId === s.id && (
+              <div className="mt-4 grid grid-cols-2 gap-3 border-t border-gold/20 pt-4 md:grid-cols-6">
+                <input placeholder="Name" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2" />
+                <input type="number" step="0.01" placeholder="Price (LKR)" value={editForm.price_lkr} onChange={(e) => setEditForm({ ...editForm, price_lkr: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
+                {editForm.service_type === 'bookable' && (
+                  <input type="number" placeholder="Duration (min)" value={editForm.duration_minutes} onChange={(e) => setEditForm({ ...editForm, duration_minutes: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
+                )}
+                <input placeholder="Description" value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-6" />
+
+                <div className="col-span-2 md:col-span-6">
+                  <MultiImageUploader images={editForm.images} onChange={(images) => setEditForm({ ...editForm, images })} />
+                </div>
+                <HoverMediaFields values={editForm} onChange={(patch) => setEditForm({ ...editForm, ...patch })} />
+
+                <button onClick={() => saveEdit(s.id)} className="col-span-2 rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream md:col-span-2">
+                  Save changes
+                </button>
+              </div>
+            )}
 
             {expanded === s.id && (
               <div className="mt-4 border-t border-gold/20 pt-4">

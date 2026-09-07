@@ -52,7 +52,22 @@ export default function BookingsPage() {
                 <td className="p-3">{b.service_name}</td>
                 <td className="p-3">{formatCalendarDate(b.booked_date)}</td>
                 <td className="p-3">{b.booked_time.slice(0, 5)}</td>
-                <td className="p-3">{b.guest_email || b.user_id}</td>
+                <td className="p-3">
+                  {b.user_id ? (
+                    <>
+                      {b.user_name}
+                      <span className="block text-xs text-[#8a8672]">{b.user_email}</span>
+                    </>
+                  ) : (
+                    <>
+                      {b.guest_name || 'Guest'}
+                      <span className="block text-xs text-[#8a8672]">
+                        {b.guest_email}
+                        {b.guest_mobile ? ` · ${b.guest_mobile}` : ''}
+                      </span>
+                    </>
+                  )}
+                </td>
                 <td className="p-3 capitalize">{b.status}</td>
                 <td className="p-3 whitespace-nowrap">
                   {b.status === 'confirmed' && (

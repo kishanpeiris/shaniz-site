@@ -1,11 +1,15 @@
 import React, { useRef, useState } from 'react'
 import { apiUpload } from '../../api/client.js'
 
-// Used in the admin panel to upload a product photo or hover-loop GIF and
-// hand the resulting URL back to the parent form. Handles the upload
-// itself (server re-encodes and validates — see shaniz-api
-// src/lib/uploads.js) so callers just get a URL string back.
-export default function ImageUploader({ label, value, onChange, accept = 'image/*' }) {
+// Used in the admin panel to upload a product photo, hover video, or
+// hover image and hand the resulting URL back to the parent form.
+// Handles the upload itself (server validates/re-encodes — see
+// shaniz-api src/lib/uploads.js) so callers just get a URL string back.
+//
+// kind='video' renders a muted looping <video> preview instead of an
+// <img>, and posts to a different endpoint (video uploads skip the
+// image re-encode pipeline — see uploads.js for why).
+export default function ImageUploader({ label, value, onChange, accept = 'image/*', kind = 'image', endpoint = '/api/uploads' }) {
   const inputRef = useRef(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -16,7 +20,7 @@ export default function ImageUploader({ label, value, onChange, accept = 'image/
     setBusy(true)
     setError('')
     try {
-      const res = await apiUpload('/api/uploads', file)
+      const res = await apiUpload(endpoint, file)
       onChange(res.url)
     } catch (err) {
       setError(err.message)
@@ -30,7 +34,10 @@ export default function ImageUploader({ label, value, onChange, accept = 'image/
     <div>
       {label && <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">{label}</p>}
       <div className="flex items-center gap-3">
-        {value && (
+        {value && kind === 'video' && (
+          <video src={value} muted loop autoPlay playsInline className="h-14 w-14 rounded-sm border border-gold/30 object-cover" />
+        )}
+        {value && kind === 'image' && (
           <img src={value} alt="" className="h-14 w-14 rounded-sm border border-gold/30 object-cover" />
         )}
         <div>

@@ -4,6 +4,54 @@ import MultiImageUploader from '../../components/admin/MultiImageUploader.jsx'
 import ImageUploader from '../../components/admin/ImageUploader.jsx'
 import { formatLKR } from '../../lib/currency.js'
 
+// Ingredient-based only — no web search, so this needs nothing beyond
+// the backend's ANTHROPIC_API_KEY. `hint` is a quick, NOT-saved note
+// (ingredients, key benefit, whatever) typed in just to help the AI —
+// it never gets stored on the product itself, only the name/category
+// already in the form plus whatever's typed here.
+function AiDescriptionButton({ name, category, onGenerated }) {
+  const [hint, setHint] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  const generate = async () => {
+    if (!name) {
+      setError('Enter a product name first.')
+      return
+    }
+    setBusy(true)
+    setError('')
+    try {
+      const res = await apiPost('/api/admin/ai/product-description', { name, category: category || undefined, hint: hint || undefined })
+      onGenerated(res.description)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="col-span-2 flex flex-wrap items-center gap-2 md:col-span-4">
+      <input
+        placeholder="Ingredients / notes for AI (optional)"
+        value={hint}
+        onChange={(e) => setHint(e.target.value)}
+        className="flex-1 rounded-sm border border-gold/30 bg-cream px-3 py-1.5 text-xs"
+      />
+      <button
+        type="button"
+        onClick={generate}
+        disabled={busy}
+        className="whitespace-nowrap rounded-full border border-gold/40 px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep disabled:opacity-60"
+      >
+        {busy ? 'Writing…' : 'Generate description with AI'}
+      </button>
+      {error && <span className="text-xs text-[#a35a3a]">{error}</span>}
+    </div>
+  )
+}
+
 const emptyForm = {
   name: '',
   description: '',
@@ -12,6 +60,8 @@ const emptyForm = {
   category: '',
   images: [],
   hover_gif_url: '',
+  hover_video_url: '',
+  hover_webp_url: '',
   availability_mode: 'in_stock',
   preorder_eta_days: '',
 }
@@ -96,6 +146,8 @@ export default function ProductsPage() {
         category: form.category || undefined,
         images: form.images,
         hover_gif_url: form.hover_gif_url || undefined,
+        hover_video_url: form.hover_video_url || undefined,
+        hover_webp_url: form.hover_webp_url || undefined,
         availability_mode: form.availability_mode,
         preorder_eta_days:
           form.availability_mode === 'preorder' && form.preorder_eta_days
@@ -118,6 +170,8 @@ export default function ProductsPage() {
       category: p.category || '',
       images: p.images || [],
       hover_gif_url: p.hover_gif_url || '',
+      hover_video_url: p.hover_video_url || '',
+      hover_webp_url: p.hover_webp_url || '',
       availability_mode: p.availability_mode || 'out_of_stock',
       preorder_eta_days: p.preorder_eta_days || '',
     })
@@ -133,6 +187,8 @@ export default function ProductsPage() {
         category: editForm.category,
         images: editForm.images,
         hover_gif_url: editForm.hover_gif_url || undefined,
+        hover_video_url: editForm.hover_video_url || undefined,
+        hover_webp_url: editForm.hover_webp_url || undefined,
         availability_mode: editForm.availability_mode,
         preorder_eta_days:
           editForm.availability_mode === 'preorder' && editForm.preorder_eta_days
@@ -184,6 +240,7 @@ export default function ProductsPage() {
         <input required type="number" step="0.01" placeholder="Price (LKR)" value={form.price_lkr} onChange={(e) => setForm({ ...form, price_lkr: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
         <input type="number" placeholder="Stock qty" value={form.stock_qty} onChange={(e) => setForm({ ...form, stock_qty: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
         <input placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-4" />
+        <AiDescriptionButton name={form.name} category={form.category} onGenerated={(description) => setForm({ ...form, description })} />
         <div className="col-span-2 md:col-span-5 border-t border-gold/20 pt-3">
           <AvailabilityFields value={form} onChange={setForm} />
           <p className="mt-1.5 text-[0.65rem] text-[#8a8672]">
@@ -192,7 +249,31 @@ export default function ProductsPage() {
         </div>
         <div className="col-span-2 flex flex-wrap gap-6 border-t border-gold/20 pt-3 md:col-span-5">
           <MultiImageUploader images={form.images} onChange={(images) => setForm({ ...form, images })} />
-          <ImageUploader label="Hover-loop GIF" value={form.hover_gif_url} onChange={(url) => setForm({ ...form, hover_gif_url: url })} accept="image/gif" />
+          <div className="grid gap-3 sm:grid-cols-3">
+            <ImageUploader
+              label="Hover video (WebM)"
+              value={form.hover_video_url}
+              onChange={(url) => setForm({ ...form, hover_video_url: url })}
+              accept="video/webm"
+              kind="video"
+              endpoint="/api/uploads/video"
+            />
+            <ImageUploader
+              label="Hover image (WebP)"
+              value={form.hover_webp_url}
+              onChange={(url) => setForm({ ...form, hover_webp_url: url })}
+              accept="image/webp"
+            />
+            <ImageUploader
+              label="Hover GIF (legacy)"
+              value={form.hover_gif_url}
+              onChange={(url) => setForm({ ...form, hover_gif_url: url })}
+              accept="image/gif"
+            />
+          </div>
+          <p className="text-xs text-[#8a8672]">
+            On hover, the shop tries the video first, then the WebP, then falls back to the product's main photo. The GIF field only matters if you're not using video/WebP.
+          </p>
         </div>
         <button type="submit" className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add Product</button>
       </form>
@@ -217,9 +298,37 @@ export default function ProductsPage() {
                     <td className="p-3">
                       <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-2 py-1" />
                       <input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} placeholder="Description" className="mt-1 w-full rounded-sm border border-gold/30 bg-cream px-2 py-1 text-xs" />
+                      <div className="mt-2">
+                        <AiDescriptionButton
+                          name={editForm.name}
+                          category={editForm.category}
+                          onGenerated={(description) => setEditForm({ ...editForm, description })}
+                        />
+                      </div>
                       <div className="mt-2 flex flex-wrap gap-4">
                         <MultiImageUploader images={editForm.images} onChange={(images) => setEditForm({ ...editForm, images })} />
-                        <ImageUploader label="Hover GIF" value={editForm.hover_gif_url} onChange={(url) => setEditForm({ ...editForm, hover_gif_url: url })} accept="image/gif" />
+                        <div className="grid gap-3 sm:grid-cols-3">
+                          <ImageUploader
+                            label="Hover video (WebM)"
+                            value={editForm.hover_video_url}
+                            onChange={(url) => setEditForm({ ...editForm, hover_video_url: url })}
+                            accept="video/webm"
+                            kind="video"
+                            endpoint="/api/uploads/video"
+                          />
+                          <ImageUploader
+                            label="Hover image (WebP)"
+                            value={editForm.hover_webp_url}
+                            onChange={(url) => setEditForm({ ...editForm, hover_webp_url: url })}
+                            accept="image/webp"
+                          />
+                          <ImageUploader
+                            label="Hover GIF (legacy)"
+                            value={editForm.hover_gif_url}
+                            onChange={(url) => setEditForm({ ...editForm, hover_gif_url: url })}
+                            accept="image/gif"
+                          />
+                        </div>
                       </div>
                     </td>
                     <td className="p-3">

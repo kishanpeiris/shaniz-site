@@ -20,8 +20,17 @@ export function AuthProvider({ children }) {
     return res.user
   }
 
-  const register = async (name, email, password) => {
-    const res = await apiPost('/api/auth/register', { name, email, password })
+  // fields: { firstName, lastName?, email, password, mobile? }
+  const register = async (fields) => {
+    const res = await apiPost('/api/auth/register', fields)
+    setUser(res.user)
+    return res.user
+  }
+
+  // Lets AccountPage refresh `user` in place after a profile edit or an
+  // email-verification confirmation, without a full page reload.
+  const refreshUser = async () => {
+    const res = await apiGet('/api/auth/me')
     setUser(res.user)
     return res.user
   }
@@ -32,7 +41,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

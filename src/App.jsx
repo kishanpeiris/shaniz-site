@@ -16,11 +16,13 @@ import { useScrollToHash } from './hooks/useScrollToHash.js'
 import { useSiteStatus } from './hooks/useSiteStatus.js'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
+import EmailVerifyPage from './pages/EmailVerifyPage.jsx'
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
 import AccountPage from './pages/AccountPage.jsx'
 import ShopPage from './pages/ShopPage.jsx'
 import ProductDetailPage from './pages/ProductDetailPage.jsx'
+import ServiceDetailPage from './pages/ServiceDetailPage.jsx'
 import BasketPage from './pages/BasketPage.jsx'
 import CheckoutPage from './pages/CheckoutPage.jsx'
 import PaymentPage from './pages/PaymentPage.jsx'
@@ -34,6 +36,9 @@ import ServicesPage from './pages/admin/ServicesPage.jsx'
 import BookingsPage from './pages/admin/BookingsPage.jsx'
 import OrdersPage from './pages/admin/OrdersPage.jsx'
 import CustomersPage from './pages/admin/CustomersPage.jsx'
+import CustomerDetailPage from './pages/admin/CustomerDetailPage.jsx'
+import BlacklistPage from './pages/admin/BlacklistPage.jsx'
+import FraudPage from './pages/admin/FraudPage.jsx'
 import AdminsPage from './pages/admin/AdminsPage.jsx'
 import LogsPage from './pages/admin/LogsPage.jsx'
 import SettingsPage from './pages/admin/SettingsPage.jsx'
@@ -44,7 +49,7 @@ import MaintenancePage from './pages/admin/MaintenancePage.jsx'
 // one page (Maintenance) that turns it back off. /login and the password
 // reset flow are included too, since you can't reach /admin without
 // signing in first.
-const MAINTENANCE_BYPASS_EXACT = ['/login', '/register', '/forgot-password', '/reset-password']
+const MAINTENANCE_BYPASS_EXACT = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email']
 function isMaintenanceBypassPath(pathname) {
   return pathname.startsWith('/admin') || MAINTENANCE_BYPASS_EXACT.includes(pathname)
 }
@@ -92,10 +97,12 @@ export default function App() {
         <Route path="/" element={<Storefront />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify-email" element={<EmailVerifyPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/shop" element={<ShopPage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/service/:id" element={<ServiceDetailPage />} />
         <Route path="/basket" element={<BasketPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/payment/:orderId" element={<PaymentPage />} />
@@ -122,6 +129,9 @@ export default function App() {
           <Route path="bookings" element={<BookingsPage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="customers" element={<CustomersPage />} />
+          <Route path="customers/:id" element={<CustomerDetailPage />} />
+          <Route path="blacklist" element={<BlacklistPage />} />
+          <Route path="fraud" element={<FraudPage />} />
           <Route
             path="admins"
             element={

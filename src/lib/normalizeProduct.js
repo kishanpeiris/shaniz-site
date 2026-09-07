@@ -20,6 +20,8 @@ export function normalizeProduct(p) {
     images: uploadedImages || [visual.image],
     image: uploadedImages?.[0] || visual.image,
     hoverGif: p.hover_gif_url || null,
+    hoverVideo: p.hover_video_url || null,
+    hoverWebp: p.hover_webp_url || null,
     badge: visual.badge,
     ingredients: visual.ingredients,
     createdAt: p.created_at,

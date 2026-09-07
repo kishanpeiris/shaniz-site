@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { apiGet, apiPut } from '../../api/client.js'
+import { formatLKR } from '../../lib/currency.js'
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState([])
@@ -29,6 +31,10 @@ export default function CustomersPage() {
             <tr>
               <th className="p-3">Name</th>
               <th className="p-3">Email</th>
+              <th className="p-3">Verified</th>
+              <th className="p-3">Orders</th>
+              <th className="p-3">Spent</th>
+              <th className="p-3">Bookings</th>
               <th className="p-3">Joined</th>
               <th className="p-3">Status</th>
               <th className="p-3">Actions</th>
@@ -37,8 +43,22 @@ export default function CustomersPage() {
           <tbody>
             {customers.map((c) => (
               <tr key={c.id} className="border-b border-gold/15">
-                <td className="p-3">{c.name}</td>
+                <td className="p-3">
+                  <Link to={`/admin/customers/${c.id}`} className="underline decoration-gold/40 hover:text-forestDeep">
+                    {c.name}
+                  </Link>
+                </td>
                 <td className="p-3">{c.email}</td>
+                <td className="p-3">
+                  {c.email_verified ? (
+                    <span className="text-moss">Verified</span>
+                  ) : (
+                    <span className="text-[#8a6d3b]">Unverified</span>
+                  )}
+                </td>
+                <td className="p-3">{c.order_count}</td>
+                <td className="p-3">{formatLKR(c.total_spent_lkr)}</td>
+                <td className="p-3">{c.booking_count}</td>
                 <td className="p-3 text-xs">{new Date(c.created_at).toLocaleDateString()}</td>
                 <td className="p-3">
                   <span className={c.disabled ? 'text-[#a35a3a]' : 'text-moss'}>{c.disabled ? 'Disabled' : 'Active'}</span>
@@ -51,7 +71,7 @@ export default function CustomersPage() {
               </tr>
             ))}
             {customers.length === 0 && (
-              <tr><td colSpan={5} className="p-4 text-center text-[#8a8672]">No customer accounts yet.</td></tr>
+              <tr><td colSpan={9} className="p-4 text-center text-[#8a8672]">No customer accounts yet.</td></tr>
             )}
           </tbody>
         </table>

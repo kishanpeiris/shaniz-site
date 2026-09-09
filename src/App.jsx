@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Nav from './components/Nav.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import Hero from './components/Hero.jsx'
@@ -39,6 +39,7 @@ import CustomersPage from './pages/admin/CustomersPage.jsx'
 import CustomerDetailPage from './pages/admin/CustomerDetailPage.jsx'
 import BlacklistPage from './pages/admin/BlacklistPage.jsx'
 import FraudPage from './pages/admin/FraudPage.jsx'
+import BranchesPage from './pages/admin/BranchesPage.jsx'
 import AdminsPage from './pages/admin/AdminsPage.jsx'
 import LogsPage from './pages/admin/LogsPage.jsx'
 import SettingsPage from './pages/admin/SettingsPage.jsx'
@@ -132,6 +133,10 @@ export default function App() {
           <Route path="customers/:id" element={<CustomerDetailPage />} />
           <Route path="blacklist" element={<BlacklistPage />} />
           <Route path="fraud" element={<FraudPage />} />
+          <Route path="branches" element={<BranchesPage />} />
+          {/* Page content (text, photos, backgrounds) moved into
+              Settings — redirect anyone with the old link bookmarked. */}
+          <Route path="homepage-content" element={<Navigate to="/admin/settings" replace />} />
           <Route
             path="admins"
             element={

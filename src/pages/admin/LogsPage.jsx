@@ -19,7 +19,7 @@ export default function LogsPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <div>
           <h3 className="mb-2 font-serif text-xl">Audit log <span className="text-xs font-sans text-[#8a8672]">(30 days)</span></h3>
-          <div className="max-h-[28rem] overflow-y-auto rounded-sm border border-gold/30 bg-ivory">
+          <div className="max-h-[28rem] overflow-x-auto overflow-y-auto rounded-sm border border-gold/30 bg-ivory">
             <table className="w-full text-left text-xs">
               <tbody>
                 {audit.map((r) => (
@@ -37,7 +37,7 @@ export default function LogsPage() {
 
         <div>
           <h3 className="mb-2 font-serif text-xl">Activity feed <span className="text-xs font-sans text-[#8a8672]">(15 days)</span></h3>
-          <div className="max-h-[28rem] overflow-y-auto rounded-sm border border-gold/30 bg-ivory">
+          <div className="max-h-[28rem] overflow-x-auto overflow-y-auto rounded-sm border border-gold/30 bg-ivory">
             <table className="w-full text-left text-xs">
               <tbody>
                 {activity.map((r) => (

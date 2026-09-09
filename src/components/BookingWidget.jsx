@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { apiGet, apiPost } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { formatLKR } from '../lib/currency.js'
+import { googleMapsUrl } from '../lib/maps.js'
 
 function todayPlus(days) {
   const d = new Date()
@@ -181,6 +182,15 @@ export default function BookingWidget({ service, open, onClose }) {
             <p className="mt-1 text-sm text-[#5c5949]">
               {service.durationMinutes} minutes · {formatLKR(service.price)}
             </p>
+
+            {service.branch && (
+              <p className="mt-1 text-xs text-[#8a8672]">
+                📍 {service.branch.name}, {service.branch.address}{' '}
+                <a href={googleMapsUrl(service.branch)} target="_blank" rel="noopener noreferrer" className="underline text-forestDeep">
+                  Get directions
+                </a>
+              </p>
+            )}
 
             <label className={labelClass}>Pick a date</label>
             <input

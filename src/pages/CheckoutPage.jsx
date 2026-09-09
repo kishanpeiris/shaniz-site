@@ -158,12 +158,10 @@ export default function CheckoutPage() {
       <Nav />
       <PageHeroBand image={ritualScene} eyebrow="Checkout" title="Complete your ritual." compact />
       <div className="relative overflow-hidden">
-        {/* Same unique texture used on the Basket page and cart drawer,
-            applied once across the whole page — not boxed into any one
-            section — so the basket → checkout family reads as one
-            consistent background rather than separate image tiles. */}
+        {/* Same texture family as the Basket page and cart drawer,
+            applied once across the whole page. */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-[0.14]"
+          className="absolute inset-0 bg-cover bg-center opacity-[0.16]"
           style={{ backgroundImage: `url(${herbsCitrus})` }}
           aria-hidden="true"
         />

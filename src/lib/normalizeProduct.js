@@ -7,12 +7,18 @@ import { PRODUCT_VISUALS, DEFAULT_VISUAL } from '../data/catalogAssets.js'
 export function normalizeProduct(p) {
   const visual = PRODUCT_VISUALS[p.name] ?? DEFAULT_VISUAL
   const uploadedImages = p.images?.length ? p.images : null
+  // Admin-set banners (badges TEXT[] from the database) take priority;
+  // the old hardcoded per-name visual.badge is kept only as a fallback
+  // for demo products that predate the real banners feature, so nothing
+  // that already looked right suddenly loses its badge.
+  const badges = p.badges?.length ? p.badges : visual.badge ? [visual.badge] : []
   return {
     id: p.id,
     type: 'product',
     name: p.name,
     tagline: p.category ? p.category.replace('-', ' ') : '',
     category: p.category || 'other',
+    categoryId: p.category_id || null,
     description: p.description,
     price: Number(p.price_lkr),
     stockQty: p.stock_qty,
@@ -22,7 +28,10 @@ export function normalizeProduct(p) {
     hoverGif: p.hover_gif_url || null,
     hoverVideo: p.hover_video_url || null,
     hoverWebp: p.hover_webp_url || null,
-    badge: visual.badge,
+    detailVideo: p.detail_video_url || null,
+    imageFocal: { x: Number(p.image_focal_x ?? 50), y: Number(p.image_focal_y ?? 50) },
+    badges,
+    badge: badges[0] || null,
     ingredients: visual.ingredients,
     createdAt: p.created_at,
     availability: p.availability || (p.out_of_stock ? 'out_of_stock' : 'in_stock'),

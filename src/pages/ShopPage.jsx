@@ -79,20 +79,23 @@ export default function ShopPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search])
 
-  // Categories only ever apply to products — services don't have one, so
-  // the category dropdown disables itself once "Services" is selected
-  // rather than showing an always-empty "all" option.
+  // Categories can apply to both products and services now (each is its
+  // own list in the database — see schema.sql), so the dropdown is built
+  // from whichever type is currently in view rather than being
+  // products-only.
   const categories = useMemo(() => {
-    const set = new Set(products.map((p) => p.category).filter(Boolean))
+    const set = new Set()
+    if (type !== 'service') products.forEach((p) => p.category && set.add(p.category))
+    if (type !== 'product') services.forEach((s) => s.category && set.add(s.category))
     return ['all', ...Array.from(set)]
-  }, [products])
+  }, [products, services, type])
 
   const visible = useMemo(() => {
     let list = []
     if (type !== 'service') list = list.concat(products.map((p) => ({ ...p })))
     if (type !== 'product') list = list.concat(services.map((s) => ({ ...s })))
 
-    if (category !== 'all') list = list.filter((item) => item.type !== 'product' || item.category === category)
+    if (category !== 'all') list = list.filter((item) => item.category === category)
     if (inStockOnly) list = list.filter((item) => item.type !== 'product' || !item.outOfStock)
     if (priceBand !== 'all') list = list.filter((item) => PRICE_BANDS[priceBand].test(item.price))
 
@@ -140,11 +143,7 @@ export default function ShopPage() {
         </label>
         <select
           value={type}
-          onChange={(e) => {
-            const next = e.target.value
-            setType(next)
-            if (next === 'service') setCategory('all')
-          }}
+          onChange={(e) => setType(e.target.value)}
           className={selectClass}
         >
           {Object.entries(TYPES).map(([id, label]) => (
@@ -162,7 +161,6 @@ export default function ShopPage() {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          disabled={type === 'service'}
           className={selectClass}
         >
           {categories.map((c) => (

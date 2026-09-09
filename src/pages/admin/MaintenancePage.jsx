@@ -7,6 +7,7 @@ export default function MaintenancePage() {
   const [error, setError] = useState('')
   const [form, setForm] = useState({ starts_at: '', ends_at: '', reason: '' })
   const [scheduleForm, setScheduleForm] = useState({ starts_at: '', ends_at: '', reason: '' })
+  const [extendTo, setExtendTo] = useState('')
   const [busy, setBusy] = useState(false)
 
   const load = () => {
@@ -17,6 +18,17 @@ export default function MaintenancePage() {
 
   const schedule = status?.maintenance_schedule
   const isScheduledOrActive = Boolean(schedule?.enabled)
+  const now = Date.now()
+  const startsAtMs = schedule?.starts_at ? new Date(schedule.starts_at).getTime() : null
+  const endsAtMs = schedule?.ends_at ? new Date(schedule.ends_at).getTime() : null
+  // The backend computes maintenance_mode live from now vs the
+  // start/end times, so once ends_at passes the site itself is already
+  // back to normal — but the schedule row stays "enabled" until someone
+  // explicitly turns it off. Without this check, "Turn Off Now" (and a
+  // stale "Scheduled — will activate at [a time in the past]" message)
+  // would keep showing indefinitely for an outage that's long over.
+  const hasExpired = isScheduledOrActive && endsAtMs !== null && now > endsAtMs
+  const notYetStarted = isScheduledOrActive && startsAtMs !== null && now < startsAtMs
 
   const scheduleMaintenance = async (e) => {
     e.preventDefault()
@@ -55,6 +67,30 @@ export default function MaintenancePage() {
     }
   }
 
+  // Pushes the existing schedule's end time further out (or removes it
+  // entirely, for "stay on until I turn it off"), keeping the same
+  // starts_at/reason. This is what brings an expired schedule back to
+  // "active" — and with it, the Turn Off Now button.
+  const extendOutage = async (e) => {
+    e.preventDefault()
+    setError('')
+    setBusy(true)
+    try {
+      await apiPut('/api/admin/maintenance-mode', {
+        enabled: true,
+        starts_at: schedule.starts_at,
+        ends_at: extendTo ? new Date(extendTo).toISOString() : undefined,
+        reason: schedule.reason || undefined,
+      })
+      setExtendTo('')
+      load()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const scheduleOutage = async (e) => {
     e.preventDefault()
     setError('')
@@ -77,7 +113,7 @@ export default function MaintenancePage() {
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
       <div className="mb-8 rounded-sm border border-gold/30 bg-ivory p-5">
-        <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="font-serif text-lg text-forestDeep">Maintenance mode</p>
             <p className="text-sm text-[#8a8672]">
@@ -87,20 +123,34 @@ export default function MaintenancePage() {
             </p>
           </div>
           {isScheduledOrActive && (
-            <button
-              onClick={turnOffNow}
-              disabled={busy}
-              className="shrink-0 rounded-full bg-[#a35a3a] px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-cream disabled:opacity-60"
-            >
-              Turn Off Now
-            </button>
+            <div className="flex shrink-0 gap-2">
+              {/* Once the scheduled end time has passed, the site is
+                  already back to normal (see hasExpired above) — Turn
+                  Off Now would just be a no-op, so it's disabled and
+                  labelled to say so, rather than disappearing outright.
+                  Extend is always available while a schedule exists. */}
+              <button
+                onClick={turnOffNow}
+                disabled={busy || hasExpired}
+                title={hasExpired ? 'This schedule already ended \u2014 nothing to turn off.' : undefined}
+                className="rounded-full bg-[#a35a3a] px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-cream disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {hasExpired ? 'Already Ended' : 'Turn Off Now'}
+              </button>
+            </div>
           )}
         </div>
 
         {/* Current status readout */}
         <div className="mb-5 rounded-sm bg-cream px-4 py-3 text-sm">
           {!isScheduledOrActive && <p className="text-[#8a8672]">Currently off — nothing scheduled.</p>}
-          {isScheduledOrActive && status?.maintenance_mode && (
+          {isScheduledOrActive && hasExpired && (
+            <p className="font-semibold text-forestDeep">
+              This scheduled outage ended at {new Date(schedule.ends_at).toLocaleString()} — the site is
+              back to normal. Extend it below if the work isn't actually done yet.
+            </p>
+          )}
+          {isScheduledOrActive && !hasExpired && status?.maintenance_mode && (
             <p className="font-semibold text-[#a35a3a]">
               Active now{schedule?.reason ? ` — ${schedule.reason}` : ''}
               {schedule?.ends_at
@@ -108,13 +158,36 @@ export default function MaintenancePage() {
                 : ' · will stay on until you turn it off'}
             </p>
           )}
-          {isScheduledOrActive && !status?.maintenance_mode && (
+          {isScheduledOrActive && notYetStarted && (
             <p className="font-semibold text-forestDeep">
               Scheduled — will activate at {new Date(schedule.starts_at).toLocaleString()}
               {schedule?.reason ? ` (${schedule.reason})` : ''}
             </p>
           )}
         </div>
+
+        {isScheduledOrActive && (hasExpired || (!notYetStarted && status?.maintenance_mode)) && (
+          <form onSubmit={extendOutage} className="mb-5 flex flex-wrap items-end gap-3 rounded-sm border border-gold/20 bg-cream/60 p-3">
+            <div>
+              <label className="mb-1 block text-xs uppercase tracking-wide text-moss">
+                Extend to (leave blank for "until I turn it off")
+              </label>
+              <input
+                type="datetime-local"
+                value={extendTo}
+                onChange={(e) => setExtendTo(e.target.value)}
+                className="rounded-sm border border-gold/30 bg-ivory px-3 py-2 text-sm"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={busy}
+              className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream disabled:opacity-60"
+            >
+              Extend Outage
+            </button>
+          </form>
+        )}
 
         {/* Scheduling form — the only way to turn it ON; instant on/off is
             gone by design (spec change: must be scheduled). */}

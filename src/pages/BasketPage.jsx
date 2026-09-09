@@ -19,11 +19,8 @@ export default function BasketPage() {
       <Nav />
       <PageHeroBand image={ritualScene} eyebrow="Your Basket" title="Almost there." compact />
       <div className="relative overflow-hidden">
-        {/* Unique texture for the basket → checkout family, distinct from
-            the Home and Shop backgrounds — kept subtle so it never
-            competes with product rows or the summary card. */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-[0.14]"
+          className="absolute inset-0 bg-cover bg-center opacity-[0.16]"
           style={{ backgroundImage: `url(${herbsCitrus})` }}
           aria-hidden="true"
         />

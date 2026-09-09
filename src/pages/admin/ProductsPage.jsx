@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { apiGet, apiPost, apiPut, apiDelete } from '../../api/client.js'
 import MultiImageUploader from '../../components/admin/MultiImageUploader.jsx'
 import ImageUploader from '../../components/admin/ImageUploader.jsx'
+import CategoryPicker from '../../components/admin/CategoryPicker.jsx'
+import BadgesInput from '../../components/admin/BadgesInput.jsx'
+import FocalPointPicker from '../../components/admin/FocalPointPicker.jsx'
+import RichTextEditor from '../../components/admin/RichTextEditor.jsx'
 import { formatLKR } from '../../lib/currency.js'
 
 // Ingredient-based only — no web search, so this needs nothing beyond
-// the backend's ANTHROPIC_API_KEY. `hint` is a quick, NOT-saved note
+// the backend's GEMINI_API_KEY. `hint` is a quick, NOT-saved note
 // (ingredients, key benefit, whatever) typed in just to help the AI —
 // it never gets stored on the product itself, only the name/category
 // already in the form plus whatever's typed here.
@@ -57,11 +61,14 @@ const emptyForm = {
   description: '',
   price_lkr: '',
   stock_qty: '',
-  category: '',
+  category_id: null,
+  badges: [],
   images: [],
-  hover_gif_url: '',
   hover_video_url: '',
   hover_webp_url: '',
+  detail_video_url: '',
+  image_focal_x: 50,
+  image_focal_y: 50,
   availability_mode: 'in_stock',
   preorder_eta_days: '',
 }
@@ -122,6 +129,38 @@ function AvailabilityFields({ value, onChange }) {
   )
 }
 
+// Shared hover/detail media fields for both the create form and the
+// inline edit row.
+function MediaFields({ value, onChange }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-3">
+      <ImageUploader
+        label="Hover video (MP4/WebM)"
+        value={value.hover_video_url}
+        onChange={(url) => onChange({ ...value, hover_video_url: url })}
+        accept="video/mp4,video/webm,video/quicktime"
+        kind="video"
+        endpoint="/api/uploads/video"
+      />
+      <ImageUploader
+        label="Hover image (animated WebP)"
+        value={value.hover_webp_url}
+        onChange={(url) => onChange({ ...value, hover_webp_url: url })}
+        accept="image/webp"
+        endpoint="/api/uploads/hover-image"
+      />
+      <ImageUploader
+        label="Detail page video (optional)"
+        value={value.detail_video_url}
+        onChange={(url) => onChange({ ...value, detail_video_url: url })}
+        accept="video/mp4,video/webm,video/quicktime"
+        kind="video"
+        endpoint="/api/uploads/video"
+      />
+    </div>
+  )
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState([])
   const [error, setError] = useState('')
@@ -130,7 +169,7 @@ export default function ProductsPage() {
   const [editForm, setEditForm] = useState({})
   const [stockDeltas, setStockDeltas] = useState({})
 
-  const load = () => apiGet('/api/products').then((r) => setProducts(r.products)).catch((e) => setError(e.message))
+  const load = () => apiGet('/api/products?all=true').then((r) => setProducts(r.products)).catch((e) => setError(e.message))
 
   useEffect(() => { load() }, [])
 
@@ -143,11 +182,14 @@ export default function ProductsPage() {
         description: form.description || undefined,
         price_lkr: Number(form.price_lkr),
         stock_qty: Number(form.stock_qty || 0),
-        category: form.category || undefined,
+        category_id: form.category_id || null,
+        badges: form.badges,
         images: form.images,
-        hover_gif_url: form.hover_gif_url || undefined,
         hover_video_url: form.hover_video_url || undefined,
         hover_webp_url: form.hover_webp_url || undefined,
+        detail_video_url: form.detail_video_url || null,
+        image_focal_x: form.image_focal_x,
+        image_focal_y: form.image_focal_y,
         availability_mode: form.availability_mode,
         preorder_eta_days:
           form.availability_mode === 'preorder' && form.preorder_eta_days
@@ -167,11 +209,14 @@ export default function ProductsPage() {
       name: p.name,
       description: p.description || '',
       price_lkr: p.price_lkr,
-      category: p.category || '',
+      category_id: p.category_id || null,
+      badges: p.badges || [],
       images: p.images || [],
-      hover_gif_url: p.hover_gif_url || '',
       hover_video_url: p.hover_video_url || '',
       hover_webp_url: p.hover_webp_url || '',
+      detail_video_url: p.detail_video_url || '',
+      image_focal_x: p.image_focal_x ?? 50,
+      image_focal_y: p.image_focal_y ?? 50,
       availability_mode: p.availability_mode || 'out_of_stock',
       preorder_eta_days: p.preorder_eta_days || '',
     })
@@ -184,11 +229,14 @@ export default function ProductsPage() {
         name: editForm.name,
         description: editForm.description,
         price_lkr: Number(editForm.price_lkr),
-        category: editForm.category,
+        category_id: editForm.category_id || null,
+        badges: editForm.badges,
         images: editForm.images,
-        hover_gif_url: editForm.hover_gif_url || undefined,
         hover_video_url: editForm.hover_video_url || undefined,
         hover_webp_url: editForm.hover_webp_url || undefined,
+        detail_video_url: editForm.detail_video_url || null,
+        image_focal_x: editForm.image_focal_x,
+        image_focal_y: editForm.image_focal_y,
         availability_mode: editForm.availability_mode,
         preorder_eta_days:
           editForm.availability_mode === 'preorder' && editForm.preorder_eta_days
@@ -216,6 +264,19 @@ export default function ProductsPage() {
     }
   }
 
+  // Permanent delete — only reachable once a product is already
+  // deactivated (the backend enforces this too, see products.routes.js).
+  const permanentDelete = async (p) => {
+    if (!window.confirm(`Permanently delete "${p.name}"? This can't be undone.`)) return
+    setError('')
+    try {
+      await apiDelete(`/api/products/${p.id}/permanent`)
+      load()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   const applyStockDelta = async (id) => {
     const delta = Number(stockDeltas[id])
     if (!delta) return
@@ -236,11 +297,18 @@ export default function ProductsPage() {
 
       <form onSubmit={handleCreate} className="mb-8 grid grid-cols-2 gap-3 rounded-sm border border-gold/30 bg-ivory p-5 md:grid-cols-5">
         <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2" />
-        <input placeholder="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
+        <div>
+          <CategoryPicker kind="product" value={form.category_id} onChange={(category_id) => setForm({ ...form, category_id })} />
+        </div>
         <input required type="number" step="0.01" placeholder="Price (LKR)" value={form.price_lkr} onChange={(e) => setForm({ ...form, price_lkr: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
         <input type="number" placeholder="Stock qty" value={form.stock_qty} onChange={(e) => setForm({ ...form, stock_qty: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
-        <input placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-4" />
-        <AiDescriptionButton name={form.name} category={form.category} onGenerated={(description) => setForm({ ...form, description })} />
+        <div className="col-span-2 md:col-span-4">
+          <RichTextEditor value={form.description} onChange={(description) => setForm({ ...form, description })} placeholder="Description" rows={5} />
+        </div>
+        <AiDescriptionButton name={form.name} category={form.category_id} onGenerated={(description) => setForm({ ...form, description })} />
+        <div className="col-span-2 md:col-span-5 border-t border-gold/20 pt-3">
+          <BadgesInput value={form.badges} onChange={(badges) => setForm({ ...form, badges })} />
+        </div>
         <div className="col-span-2 md:col-span-5 border-t border-gold/20 pt-3">
           <AvailabilityFields value={form} onChange={setForm} />
           <p className="mt-1.5 text-[0.65rem] text-[#8a8672]">
@@ -249,30 +317,16 @@ export default function ProductsPage() {
         </div>
         <div className="col-span-2 flex flex-wrap gap-6 border-t border-gold/20 pt-3 md:col-span-5">
           <MultiImageUploader images={form.images} onChange={(images) => setForm({ ...form, images })} />
-          <div className="grid gap-3 sm:grid-cols-3">
-            <ImageUploader
-              label="Hover video (WebM)"
-              value={form.hover_video_url}
-              onChange={(url) => setForm({ ...form, hover_video_url: url })}
-              accept="video/webm"
-              kind="video"
-              endpoint="/api/uploads/video"
-            />
-            <ImageUploader
-              label="Hover image (WebP)"
-              value={form.hover_webp_url}
-              onChange={(url) => setForm({ ...form, hover_webp_url: url })}
-              accept="image/webp"
-            />
-            <ImageUploader
-              label="Hover GIF (legacy)"
-              value={form.hover_gif_url}
-              onChange={(url) => setForm({ ...form, hover_gif_url: url })}
-              accept="image/gif"
-            />
-          </div>
+          <FocalPointPicker
+            imageUrl={form.images[0]}
+            x={form.image_focal_x}
+            y={form.image_focal_y}
+            onChange={(image_focal_x, image_focal_y) => setForm({ ...form, image_focal_x, image_focal_y })}
+          />
+          <MediaFields value={form} onChange={setForm} />
           <p className="text-xs text-[#8a8672]">
-            On hover, the shop tries the video first, then the WebP, then falls back to the product's main photo. The GIF field only matters if you're not using video/WebP.
+            On the Shop grid, hover tries the video first, then the animated WebP, then falls back to the main photo.
+            The detail-page video (optional) shows in the gallery on the product page alongside the photos.
           </p>
         </div>
         <button type="submit" className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add Product</button>
@@ -297,38 +351,31 @@ export default function ProductsPage() {
                   <>
                     <td className="p-3">
                       <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-2 py-1" />
-                      <input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} placeholder="Description" className="mt-1 w-full rounded-sm border border-gold/30 bg-cream px-2 py-1 text-xs" />
+                      <div className="mt-2">
+                        <CategoryPicker kind="product" value={editForm.category_id} onChange={(category_id) => setEditForm({ ...editForm, category_id })} />
+                      </div>
+                      <div className="mt-2">
+                        <RichTextEditor value={editForm.description} onChange={(description) => setEditForm({ ...editForm, description })} placeholder="Description" rows={5} />
+                      </div>
                       <div className="mt-2">
                         <AiDescriptionButton
                           name={editForm.name}
-                          category={editForm.category}
+                          category={editForm.category_id}
                           onGenerated={(description) => setEditForm({ ...editForm, description })}
                         />
                       </div>
+                      <div className="mt-2">
+                        <BadgesInput value={editForm.badges} onChange={(badges) => setEditForm({ ...editForm, badges })} />
+                      </div>
                       <div className="mt-2 flex flex-wrap gap-4">
                         <MultiImageUploader images={editForm.images} onChange={(images) => setEditForm({ ...editForm, images })} />
-                        <div className="grid gap-3 sm:grid-cols-3">
-                          <ImageUploader
-                            label="Hover video (WebM)"
-                            value={editForm.hover_video_url}
-                            onChange={(url) => setEditForm({ ...editForm, hover_video_url: url })}
-                            accept="video/webm"
-                            kind="video"
-                            endpoint="/api/uploads/video"
-                          />
-                          <ImageUploader
-                            label="Hover image (WebP)"
-                            value={editForm.hover_webp_url}
-                            onChange={(url) => setEditForm({ ...editForm, hover_webp_url: url })}
-                            accept="image/webp"
-                          />
-                          <ImageUploader
-                            label="Hover GIF (legacy)"
-                            value={editForm.hover_gif_url}
-                            onChange={(url) => setEditForm({ ...editForm, hover_gif_url: url })}
-                            accept="image/gif"
-                          />
-                        </div>
+                        <FocalPointPicker
+                          imageUrl={editForm.images[0]}
+                          x={editForm.image_focal_x}
+                          y={editForm.image_focal_y}
+                          onChange={(image_focal_x, image_focal_y) => setEditForm({ ...editForm, image_focal_x, image_focal_y })}
+                        />
+                        <MediaFields value={editForm} onChange={setEditForm} />
                       </div>
                     </td>
                     <td className="p-3">
@@ -354,6 +401,15 @@ export default function ProductsPage() {
                         <div>
                           <p className="font-medium text-forestDeep">{p.name}</p>
                           <p className="text-xs text-[#8a8672]">{p.category}</p>
+                          {p.badges?.length > 0 && (
+                            <p className="mt-0.5 flex flex-wrap gap-1">
+                              {p.badges.map((b) => (
+                                <span key={b} className="rounded-full bg-gold/25 px-1.5 py-0.5 text-[0.55rem] uppercase tracking-wide text-forestDeep">
+                                  {b}
+                                </span>
+                              ))}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -381,9 +437,14 @@ export default function ProductsPage() {
                     </td>
                     <td className="p-3 whitespace-nowrap">
                       <button onClick={() => startEdit(p)} className="mr-2 text-xs underline text-forestDeep">Edit</button>
-                      <button onClick={() => toggleActive(p)} className="text-xs underline text-[#a35a3a]">
+                      <button onClick={() => toggleActive(p)} className="mr-2 text-xs underline text-[#a35a3a]">
                         {p.is_active ? 'Deactivate' : 'Reactivate'}
                       </button>
+                      {!p.is_active && (
+                        <button onClick={() => permanentDelete(p)} className="text-xs font-semibold underline text-[#a35a3a]">
+                          Delete permanently
+                        </button>
+                      )}
                     </td>
                   </>
                 )}

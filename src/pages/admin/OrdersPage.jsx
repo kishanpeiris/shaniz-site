@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { apiGet, apiPut } from '../../api/client.js'
+import { apiGet, apiPut, API_URL } from '../../api/client.js'
 import { formatLKR } from '../../lib/currency.js'
 
 const STATUSES = ['pending', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
@@ -46,6 +46,7 @@ export default function OrdersPage() {
               <th className="p-3">Gateway</th>
               <th className="p-3">Status</th>
               <th className="p-3">Placed</th>
+              <th className="p-3">Invoice</th>
             </tr>
           </thead>
           <tbody>
@@ -61,10 +62,24 @@ export default function OrdersPage() {
                   </select>
                 </td>
                 <td className="p-3 text-xs">{new Date(o.created_at).toLocaleString()}</td>
+                <td className="p-3 text-xs">
+                  {o.status === 'pending' ? (
+                    <span className="text-[#8a8672]">—</span>
+                  ) : (
+                    <a
+                      href={`${API_URL}/api/orders/${o.id}/invoice`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold uppercase tracking-wide text-gold underline"
+                    >
+                      Download
+                    </a>
+                  )}
+                </td>
               </tr>
             ))}
             {orders.length === 0 && (
-              <tr><td colSpan={6} className="p-4 text-center text-[#8a8672]">No orders yet.</td></tr>
+              <tr><td colSpan={7} className="p-4 text-center text-[#8a8672]">No orders yet.</td></tr>
             )}
           </tbody>
         </table>

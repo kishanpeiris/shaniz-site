@@ -2,14 +2,16 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
+import { toPlainText } from './RichText.jsx'
 
 export default function ProductCard({ product, large = false }) {
   const { addItem } = useCart()
   const [hovering, setHovering] = useState(false)
-  // Preference order on hover: looping WebM video, then animated WebP,
-  // then the legacy GIF field (older uploads), then just the still photo.
-  // Nothing ever renders broken — a product with none of the first three
-  // simply shows its normal image, same as before this feature existed.
+  // Preference order on hover: looping WebM/MP4 video, then animated
+  // WebP, then the legacy GIF field (older uploads), then just the
+  // still photo. Nothing ever renders broken — a product with none of
+  // the first three simply shows its normal image, same as before this
+  // feature existed.
   const hoverImage = product.hoverWebp || product.hoverGif
   const showHoverVideo = hovering && product.hoverVideo
   const displayImage = hovering && hoverImage ? hoverImage : product.image
@@ -17,19 +19,39 @@ export default function ProductCard({ product, large = false }) {
   const isPreorder = product.availability === 'preorder'
   const isSoldOut = product.availability === 'out_of_stock' || (!isPreorder && product.outOfStock)
 
+  // Touch devices have no hover state, so "hover to preview" needs an
+  // explicit stand-in: press and hold the thumbnail to play the video
+  // (or show the alternate hover image), release to go back to the
+  // normal photo. Mouse and touch both just flip the same `hovering`
+  // flag, so the rest of the card's logic above doesn't need to know
+  // which input triggered it.
+  const touchProps = {
+    onTouchStart: () => setHovering(true),
+    onTouchEnd: () => setHovering(false),
+    onTouchCancel: () => setHovering(false),
+  }
+
   return (
     <div
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       className="group relative flex flex-col overflow-hidden rounded-sm border border-gold/30 bg-cream transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-brand"
     >
-      {product.badge && (
-        <span className="absolute left-3.5 top-3.5 z-10 rounded-full bg-gold px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-wide text-forestDeep">
-          {product.badge}
-        </span>
+      {product.badges?.length > 0 && (
+        <div className="absolute left-3.5 top-3.5 z-10 flex flex-wrap gap-1.5">
+          {product.badges.map((b) => (
+            <span key={b} className="rounded-full bg-gold px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-wide text-forestDeep">
+              {b}
+            </span>
+          ))}
+        </div>
       )}
 
-      <Link to={`/product/${product.id}`} className={`card-media relative block overflow-hidden bg-[#e9e2cd] ${large ? 'aspect-[4/5]' : 'aspect-square'}`}>
+      <Link
+        to={`/product/${product.id}`}
+        {...touchProps}
+        className={`card-media relative block overflow-hidden bg-[#e9e2cd] ${large ? 'aspect-[4/5]' : 'aspect-square'}`}
+      >
         {showHoverVideo ? (
           // key={product.hoverVideo} forces a fresh <video> element per
           // product, so the browser always starts playback from frame 0
@@ -46,7 +68,12 @@ export default function ProductCard({ product, large = false }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <img src={displayImage} alt={product.name} className="h-full w-full object-cover transition-opacity duration-300" />
+          <img
+            src={displayImage}
+            alt={product.name}
+            style={{ objectPosition: `${product.imageFocal.x}% ${product.imageFocal.y}%` }}
+            className="h-full w-full object-cover transition-opacity duration-300"
+          />
         )}
         {!hasHoverMedia && product.ingredients?.length > 0 && (
           <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-b from-forest/5 to-forestDeep/95 p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -79,7 +106,7 @@ export default function ProductCard({ product, large = false }) {
         <Link to={`/product/${product.id}`}>
           <h3 className={`font-serif text-forestDeep hover:text-moss ${large ? 'text-3xl' : 'text-2xl'}`}>{product.name}</h3>
         </Link>
-        <p className="flex-1 text-sm text-[#6a6656]">{product.description}</p>
+        <p className="flex-1 text-sm text-[#6a6656]">{toPlainText(product.description)}</p>
         {isPreorder && (
           <p className="text-xs text-[#8a6d1f]">
             Ships in ~{product.preorderEtaDays || 14} days

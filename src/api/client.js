@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 // Every mutating request needs this header — the backend's CSRF
 // middleware (src/middleware/csrf.js in shaniz-api) rejects POST/PUT/

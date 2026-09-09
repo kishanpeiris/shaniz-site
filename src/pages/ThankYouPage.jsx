@@ -6,7 +6,7 @@ import AyubowanGraphic from '../components/AyubowanGraphic.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { formatCalendarDate } from '../lib/date.js'
-import { apiGet } from '../api/client.js'
+import { apiGet, API_URL } from '../api/client.js'
 import ritualScene from '../assets/textures/thankyou-candles.jpg'
 
 
@@ -85,6 +85,16 @@ export default function ThankYouPage() {
               <p className="mt-3 text-xs text-[#8a8672]">
                 A receipt has been sent to {order.customer_email}.
               </p>
+              {order.status !== 'pending' && (
+                <a
+                  href={`${API_URL}/api/orders/${order.id}/invoice${guestEmail ? `?email=${encodeURIComponent(guestEmail)}` : ''}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-block text-xs font-semibold uppercase tracking-wide text-forestDeep underline"
+                >
+                  Download Invoice
+                </a>
+              )}
             </div>
           ) : (
             <p className="mb-10 text-sm text-cream/70">Loading your order summary…</p>

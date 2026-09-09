@@ -29,9 +29,25 @@ export function CartProvider({ children }) {
   // from a previous session and merge it with whatever's in this browser
   // right now (e.g. items added before signing in), so nothing is lost
   // either way. Runs once per login, not on every render.
+  //
+  // IMPORTANT: this only ADOPTS items the browser doesn't already have —
+  // it never adds server quantity on top of an item already present
+  // locally. The local basket is kept in sync with the server on every
+  // change (see the effect below), so if an item is already here its
+  // quantity is already the freshest one. The previous version added
+  // server qty on top of local qty every time, which meant every plain
+  // page refresh while logged in silently doubled your basket, since
+  // this effect re-runs on every fresh mount (mergedForUserRef resets
+  // whenever the whole app remounts, i.e. any full page load).
   useEffect(() => {
     if (authLoading) return
     if (!user) {
+      // Just logged out (or never logged in). If we'd previously merged
+      // a basket for a real account in this browser session, clear it —
+      // otherwise a different person logging in on the same computer
+      // could inherit the previous account's items. A guest who never
+      // logged in keeps their basket as normal.
+      if (mergedForUserRef.current) setItems({})
       mergedForUserRef.current = null
       return
     }
@@ -45,10 +61,9 @@ export function CartProvider({ children }) {
         setItems((prev) => {
           const merged = { ...prev }
           for (const si of serverItems) {
-            const existing = merged[si.id]
-            merged[si.id] = existing
-              ? { ...existing, qty: existing.qty + si.qty }
-              : { id: si.id, type: si.type, name: si.name, price: si.price, qty: si.qty }
+            if (!merged[si.id]) {
+              merged[si.id] = { id: si.id, type: si.type, name: si.name, price: si.price, qty: si.qty }
+            }
           }
           return merged
         })

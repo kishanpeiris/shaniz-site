@@ -1,6 +1,7 @@
 import React from 'react'
 import mask from '../assets/mask.jpg'
 import fernTea from '../assets/textures/fern-tea.jpg'
+import { useHomepageContent } from '../hooks/useHomepageContent.js'
 
 const INGREDIENTS = [
   ['Amla', 'Strengthens from root to tip'],
@@ -10,15 +11,17 @@ const INGREDIENTS = [
 ]
 
 export default function About() {
+  const content = useHomepageContent()
+  const backgroundTexture = content.about_background_url || fernTea
+  const sideImage = content.about_image_url || mask
   return (
     <section id="about" className="relative overflow-hidden bg-cream py-24">
-      {/* Dried-herb-tea photo, at a modest but genuinely visible opacity
-          directly against the section's own cream base (no extra tint
-          layer stacked on top — that combination compounds
-          multiplicatively and crushes it to imperceptible). */}
+      {/* Dried-herb-tea photo. Kept subtle enough that dark text sitting
+          directly on top of it (no card/box behind the text — tried
+          that, didn't like the look) stays comfortably readable. */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.14]"
-        style={{ backgroundImage: `url(${fernTea})` }}
+        className="absolute inset-0 bg-cover bg-center opacity-[0.16]"
+        style={{ backgroundImage: `url(${backgroundTexture})` }}
         aria-hidden="true"
       />
       <div className="relative mx-auto max-w-6xl px-7">
@@ -30,23 +33,10 @@ export default function About() {
 
         <div className="grid items-center gap-16 md:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">Our story</p>
-            <h2 className="mt-3 text-4xl leading-snug">
-              Rooted in the same soil
-              <br />
-              as ayurveda itself.
-            </h2>
-            <p className="mt-5 max-w-md text-[#4a473c]">
-              Shani&rsquo;z started at a kitchen table, boiling curry leaf and rosemary the way it
-              had been done in our family for three generations — not as a trend, but as a habit
-              of care. Every batch is still small enough to stir by hand, so the herbs stay whole
-              and the oils stay honest.
-            </p>
-            <p className="mt-4 max-w-md text-[#4a473c]">
-              We don&rsquo;t chase long ingredient lists. We chase the ones that work: amla for
-              strength, neem for the scalp, curry leaf for shine, rosemary for growth. Nothing
-              else needs to be in the jar.
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">{content.about_eyebrow}</p>
+            <h2 className="mt-3 whitespace-pre-line text-4xl leading-snug">{content.about_headline}</h2>
+            <p className="mt-5 max-w-md text-[#4a473c]">{content.about_paragraph1}</p>
+            <p className="mt-4 max-w-md text-[#4a473c]">{content.about_paragraph2}</p>
 
             <div className="mt-8 grid grid-cols-2 gap-5">
               {INGREDIENTS.map(([name, blurb]) => (
@@ -67,7 +57,7 @@ export default function About() {
           <div className="relative">
             <div className="pointer-events-none absolute -inset-3.5 -z-10 rounded-sm border border-gold" />
             <img
-              src={mask}
+              src={sideImage}
               alt="Shani'z Premium Herbal Hair Mask surrounded by fresh amla, rosemary and curry leaves"
               className="rounded-sm shadow-brand"
             />

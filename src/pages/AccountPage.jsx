@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { apiGet, apiPost, apiPut, apiDelete } from '../api/client.js'
+import { apiGet, apiPost, apiPut, apiDelete, API_URL } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { formatCalendarDate } from '../lib/date.js'
@@ -101,7 +101,7 @@ function ProfileSection() {
           <input
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+            className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto"
           />
         </div>
         <div>
@@ -110,7 +110,7 @@ function ProfileSection() {
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             placeholder="Optional"
-            className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+            className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto"
           />
         </div>
         <div>
@@ -119,7 +119,7 @@ function ProfileSection() {
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
             placeholder="Optional"
-            className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+            className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto"
           />
         </div>
         <div>
@@ -127,10 +127,10 @@ function ProfileSection() {
           <input
             value={user?.email || ''}
             disabled
-            className="rounded-sm border border-gold/30 bg-cream/60 px-3 py-2 text-sm text-[#8a8672]"
+            className="w-full rounded-sm border border-gold/30 bg-cream/60 px-3 py-2 text-sm text-[#8a8672] sm:w-auto"
           />
         </div>
-        <button className="rounded-full bg-forestDeep px-5 py-2 text-xs uppercase tracking-wide text-cream">
+        <button className="w-full rounded-full bg-forestDeep px-5 py-2.5 text-xs uppercase tracking-wide text-cream sm:w-auto sm:py-2">
           {status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved ✓' : 'Save'}
         </button>
       </form>
@@ -171,7 +171,7 @@ function PasswordSection() {
             required
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+            className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto"
           />
         </div>
         <div>
@@ -181,10 +181,10 @@ function PasswordSection() {
             required
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+            className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto"
           />
         </div>
-        <button className="rounded-full bg-forestDeep px-5 py-2 text-xs uppercase tracking-wide text-cream">
+        <button className="w-full rounded-full bg-forestDeep px-5 py-2.5 text-xs uppercase tracking-wide text-cream sm:w-auto sm:py-2">
           {status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved ✓' : 'Change password'}
         </button>
       </form>
@@ -225,7 +225,7 @@ function AddressesSection() {
       {addresses.length === 0 && <p className="mb-4 text-sm text-[#8a8672]">No saved addresses yet.</p>}
       <ul className="mb-4 space-y-2">
         {addresses.map((a) => (
-          <li key={a.id} className="flex items-center justify-between rounded-sm border border-gold/20 bg-cream px-4 py-2.5 text-sm">
+          <li key={a.id} className="flex flex-col gap-2 rounded-sm border border-gold/20 bg-cream px-4 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between">
             <span>
               {a.line1}, {a.city} {a.postal_code} {a.phone ? `· ${a.phone}` : ''}
             </span>
@@ -237,9 +237,9 @@ function AddressesSection() {
       </ul>
       <form onSubmit={add} className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <input required placeholder="Address line 1" value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
-        <input required placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
-        <input placeholder="Postal code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
-        <input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
+        <input required placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto" />
+        <input placeholder="Postal code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto" />
+        <input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto" />
         <button className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add address</button>
       </form>
       {error && <p className="mt-2 text-sm text-[#a35a3a]">{error}</p>}
@@ -270,7 +270,7 @@ function PaymentMethodsSection() {
       ) : (
         <ul className="space-y-2">
           {methods.map((m) => (
-            <li key={m.id} className="flex items-center justify-between rounded-sm border border-gold/20 bg-cream px-4 py-2.5 text-sm">
+            <li key={m.id} className="flex flex-col gap-2 rounded-sm border border-gold/20 bg-cream px-4 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between">
               <span className="capitalize">
                 {m.gateway.replace('_', ' ')} •••• {m.last4} {m.expiry ? `(exp ${m.expiry})` : ''}
               </span>
@@ -303,6 +303,16 @@ function OrderHistorySection() {
                 <span className="font-medium text-forestDeep">Order {o.id.slice(0, 8)}</span>
                 <span className="capitalize text-moss">{o.status}</span>
               </div>
+              {o.status !== 'pending' && (
+                <a
+                  href={`${API_URL}/api/orders/${o.id}/invoice`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 inline-block text-xs font-semibold uppercase tracking-wide text-gold underline"
+                >
+                  Download Invoice
+                </a>
+              )}
               <p className="mt-1 text-xs text-[#8a8672]">
                 {new Date(o.created_at).toLocaleDateString()} · {fmt(o.total_lkr)} · via {o.gateway_used}
               </p>
@@ -339,7 +349,7 @@ function BookingsSection() {
       ) : (
         <ul className="space-y-2">
           {bookings.map((b) => (
-            <li key={b.id} className="flex items-center justify-between rounded-sm border border-gold/20 bg-cream px-4 py-2.5 text-sm">
+            <li key={b.id} className="flex flex-col gap-2 rounded-sm border border-gold/20 bg-cream px-4 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between">
               <span>
                 {b.service_name} — {formatCalendarDate(b.booked_date)} at {b.booked_time.slice(0, 5)}
               </span>
@@ -358,13 +368,13 @@ export default function AccountPage() {
   return (
     <>
       <Nav />
-      <div className="mx-auto max-w-3xl px-6 py-10">
-        <div className="mb-8 flex items-center justify-between">
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl">My Account</h1>
             <p className="text-sm text-[#8a8672]">Signed in as {user?.email}</p>
           </div>
-          <button onClick={logout} className="text-xs uppercase tracking-wide text-[#a35a3a] underline">
+          <button onClick={logout} className="self-start text-xs uppercase tracking-wide text-[#a35a3a] underline sm:self-auto">
             Sign out
           </button>
         </div>

@@ -23,11 +23,14 @@ export default function CartDrawer() {
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Same unique texture used on the Basket page and Checkout
-            sidebar, kept very subtle behind the ivory so list rows and
-            buttons stay fully legible. */}
+        {/* Same texture used on the Basket page and Checkout sidebar,
+            but kept much more subtle here specifically — this panel is
+            narrow and packed with small text (item names, prices, qty
+            controls) with no per-row card to sit on, unlike those
+            pages, so there's much less room for a busy background
+            before it starts fighting with the text. */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-[0.14]"
+          className="absolute inset-0 bg-cover bg-center opacity-[0.12]"
           style={{ backgroundImage: `url(${herbsCitrus})` }}
           aria-hidden="true"
         />

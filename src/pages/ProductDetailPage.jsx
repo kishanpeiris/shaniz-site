@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
+import RichText from '../components/RichText.jsx'
 import { useProduct } from '../hooks/useProduct.js'
 import { useCart } from '../context/CartContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
@@ -25,10 +26,11 @@ function AvailabilityNote({ product }) {
   return null
 }
 
-// Full-screen viewer: click the main image to open, arrow through every
-// photo, close before doing anything else (matches "maximize and scroll
-// through multiple images before next close").
-function Lightbox({ images, index, onClose, onNavigate }) {
+// Full-screen viewer: click the main image/video to open, arrow through
+// every item (photos and, if the product has one, its detail video),
+// close before doing anything else.
+function Lightbox({ media, index, onClose, onNavigate }) {
+  const item = media[index]
   return (
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center bg-forestDeep/95 p-6"
@@ -44,42 +46,53 @@ function Lightbox({ images, index, onClose, onNavigate }) {
         &times;
       </button>
 
-      {images.length > 1 && (
+      {media.length > 1 && (
         <button
           onClick={(e) => {
             e.stopPropagation()
             onNavigate(-1)
           }}
-          aria-label="Previous image"
+          aria-label="Previous"
           className="absolute left-3 top-1/2 -translate-y-1/2 px-3 py-4 text-3xl text-cream sm:left-6"
         >
           ‹
         </button>
       )}
 
-      <img
-        src={images[index]}
-        alt=""
-        onClick={(e) => e.stopPropagation()}
-        className="max-h-[85vh] max-w-[90vw] rounded-sm object-contain shadow-2xl"
-      />
+      {item.type === 'video' ? (
+        <video
+          src={item.src}
+          controls
+          autoPlay
+          playsInline
+          onClick={(e) => e.stopPropagation()}
+          className="max-h-[85vh] max-w-[90vw] rounded-sm shadow-2xl"
+        />
+      ) : (
+        <img
+          src={item.src}
+          alt=""
+          onClick={(e) => e.stopPropagation()}
+          className="max-h-[85vh] max-w-[90vw] rounded-sm object-contain shadow-2xl"
+        />
+      )}
 
-      {images.length > 1 && (
+      {media.length > 1 && (
         <button
           onClick={(e) => {
             e.stopPropagation()
             onNavigate(1)
           }}
-          aria-label="Next image"
+          aria-label="Next"
           className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-4 text-3xl text-cream sm:right-6"
         >
           ›
         </button>
       )}
 
-      {images.length > 1 && (
+      {media.length > 1 && (
         <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs uppercase tracking-wide text-cream/70">
-          {index + 1} / {images.length}
+          {index + 1} / {media.length}
         </p>
       )}
     </div>
@@ -90,7 +103,7 @@ export default function ProductDetailPage() {
   const { id } = useParams()
   const { loading, error, product } = useProduct(id)
   const { addItem } = useCart()
-  const [activeImage, setActiveImage] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(0)
   const [qty, setQty] = useState(1)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
@@ -122,10 +135,17 @@ export default function ProductDetailPage() {
 
   const isPreorder = product.availability === 'preorder'
   const isSoldOut = product.availability === 'out_of_stock'
-  const images = product.images
+  // A single media list — photos plus the optional detail video at the
+  // end — so the gallery, thumbnails, and lightbox all share one set of
+  // prev/next navigation instead of juggling two separate lists.
+  const media = [
+    ...product.images.map((src) => ({ type: 'image', src })),
+    ...(product.detailVideo ? [{ type: 'video', src: product.detailVideo }] : []),
+  ]
+  const active = media[activeIndex] || media[0]
 
   const navigateLightbox = (dir) => {
-    setActiveImage((i) => (i + dir + images.length) % images.length)
+    setActiveIndex((i) => (i + dir + media.length) % media.length)
   }
 
   return (
@@ -144,38 +164,58 @@ export default function ProductDetailPage() {
               className="block aspect-square w-full overflow-hidden rounded-sm border border-gold/30 bg-[#e9e2cd]"
               aria-label="View full size"
             >
-              <img src={images[activeImage]} alt={product.name} className="h-full w-full object-cover" />
+              {active.type === 'video' ? (
+                <video src={active.src} muted loop autoPlay playsInline className="h-full w-full object-cover" />
+              ) : (
+                <img
+                  src={active.src}
+                  alt={product.name}
+                  style={activeIndex === 0 ? { objectPosition: `${product.imageFocal.x}% ${product.imageFocal.y}%` } : undefined}
+                  className="h-full w-full object-cover"
+                />
+              )}
             </button>
-            {images.length > 1 && (
+            {media.length > 1 && (
               <div className="mt-3 flex flex-wrap gap-2.5">
-                {images.map((src, i) => (
+                {media.map((m, i) => (
                   <button
-                    key={src + i}
-                    onClick={() => setActiveImage(i)}
-                    className={`h-16 w-16 overflow-hidden rounded-sm border-2 ${
-                      i === activeImage ? 'border-gold' : 'border-gold/25'
+                    key={m.src + i}
+                    onClick={() => setActiveIndex(i)}
+                    className={`relative h-16 w-16 overflow-hidden rounded-sm border-2 ${
+                      i === activeIndex ? 'border-gold' : 'border-gold/25'
                     }`}
                   >
-                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    {m.type === 'video' ? (
+                      <>
+                        <video src={m.src} muted className="h-full w-full object-cover" />
+                        <span className="absolute inset-0 flex items-center justify-center bg-forestDeep/30 text-cream">▶</span>
+                      </>
+                    ) : (
+                      <img src={m.src} alt="" className="h-full w-full object-cover" />
+                    )}
                   </button>
                 ))}
               </div>
             )}
-            <p className="mt-2 text-xs text-[#8a8672]">Click the photo to view full size and scroll through all images.</p>
+            <p className="mt-2 text-xs text-[#8a8672]">Click to view full size and navigate through all photos{product.detailVideo ? ' and the video' : ''}.</p>
           </div>
 
           {/* Details */}
           <div>
-            {product.badge && (
-              <span className="mb-3 inline-block rounded-full bg-gold px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-wide text-forestDeep">
-                {product.badge}
-              </span>
+            {product.badges?.length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {product.badges.map((b) => (
+                  <span key={b} className="inline-block rounded-full bg-gold px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-wide text-forestDeep">
+                    {b}
+                  </span>
+                ))}
+              </div>
             )}
             <span className="block text-xs uppercase tracking-[0.14em] text-moss">{product.tagline}</span>
             <h1 className="mt-1 text-4xl">{product.name}</h1>
             <p className="mt-4 text-2xl font-semibold text-forestDeep">{fmt(product.price)}</p>
 
-            <p className="mt-5 text-[#5c5949]">{product.description}</p>
+            <RichText text={product.description} className="mt-5 text-[#5c5949]" />
 
             {product.ingredients?.length > 0 && (
               <div className="mt-5">
@@ -227,8 +267,8 @@ export default function ProductDetailPage() {
 
       {lightboxOpen && (
         <Lightbox
-          images={images}
-          index={activeImage}
+          media={media}
+          index={activeIndex}
           onClose={() => setLightboxOpen(false)}
           onNavigate={navigateLightbox}
         />

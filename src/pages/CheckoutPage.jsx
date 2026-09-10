@@ -157,14 +157,18 @@ export default function CheckoutPage() {
     <>
       <Nav />
       <PageHeroBand image={ritualScene} eyebrow="Checkout" title="Complete your ritual." compact />
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-forestDeep">
         {/* Same texture family as the Basket page and cart drawer,
-            applied once across the whole page. */}
+            applied once across the whole page, same treatment as "See
+            It Made" — strong photo opacity + dark tint. Every piece of
+            text on this page sits inside its own ivory card, so there's
+            nothing here that needs a text-color change to match. */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-[0.16]"
+          className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
           style={{ backgroundImage: `url(${herbsCitrus})` }}
           aria-hidden="true"
         />
+        <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />
         <div className="relative mx-auto max-w-5xl px-6 py-12">
         {!user && (
           <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-gold/30 bg-ivory px-5 py-4 text-sm">

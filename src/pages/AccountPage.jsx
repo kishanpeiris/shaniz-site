@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiGet, apiPost, apiPut, apiDelete, API_URL } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { LANGUAGES } from '../i18n/translations.js'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { formatCalendarDate } from '../lib/date.js'
 import Nav from '../components/Nav.jsx'
@@ -362,6 +364,38 @@ function BookingsSection() {
   )
 }
 
+function LanguageSection() {
+  const { language, setLanguage, t } = useLanguage()
+  const [saved, setSaved] = useState(false)
+
+  const handleChange = (lang) => {
+    setLanguage(lang)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1800)
+  }
+
+  return (
+    <Section title={t('account_language')}>
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(LANGUAGES).map(([code, { native }]) => (
+          <button
+            key={code}
+            onClick={() => handleChange(code)}
+            className={`rounded-full border px-4 py-2 text-sm ${
+              language === code
+                ? 'border-forestDeep bg-forestDeep text-cream'
+                : 'border-gold/30 text-forestDeep hover:bg-gold/10'
+            }`}
+          >
+            {native}
+          </button>
+        ))}
+      </div>
+      {saved && <p className="mt-2 text-xs text-moss">{t('account_language_saved')}</p>}
+    </Section>
+  )
+}
+
 export default function AccountPage() {
   const { user, logout } = useAuth()
 
@@ -381,6 +415,7 @@ export default function AccountPage() {
 
         <VerificationBanner />
         <ProfileSection />
+        <LanguageSection />
         <PasswordSection />
         <AddressesSection />
         <PaymentMethodsSection />

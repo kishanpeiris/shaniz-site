@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { toPlainText } from './RichText.jsx'
 
 export default function ServiceCard({ service, onReserve }) {
   const { addItem } = useCart()
+  const { t } = useLanguage()
   const [hovering, setHovering] = useState(false)
   const isBookable = service.serviceType === 'bookable'
 
@@ -74,7 +76,7 @@ export default function ServiceCard({ service, onReserve }) {
             onClick={() => (isBookable ? onReserve?.() : addItem(service))}
             className="rounded-full bg-forestDeep px-4 py-2.5 text-[0.72rem] uppercase tracking-wide text-cream transition-colors hover:bg-gold hover:text-forestDeep"
           >
-            {isBookable ? 'Reserve a Slot' : 'Add to Basket'}
+            {isBookable ? t('reserve_a_slot') : t('add_to_basket')}
           </button>
         </div>
       </div>

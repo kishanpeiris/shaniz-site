@@ -10,6 +10,7 @@ import RitualVideo from './components/RitualVideo.jsx'
 import Visit from './components/Visit.jsx'
 import Footer from './components/Footer.jsx'
 import CartDrawer from './components/CartDrawer.jsx'
+import WhatsAppButton from './components/WhatsAppButton.jsx'
 import OutageBanner from './components/OutageBanner.jsx'
 import MaintenancePlaceholder from './components/MaintenancePlaceholder.jsx'
 import { useScrollToHash } from './hooks/useScrollToHash.js'
@@ -67,7 +68,6 @@ function Storefront() {
       <RitualVideo />
       <Visit />
       <Footer />
-      <CartDrawer />
     </>
   )
 }
@@ -150,6 +150,13 @@ export default function App() {
           <Route path="maintenance" element={<MaintenancePage />} />
         </Route>
       </Routes>
+      {/* Rendered once at the top level (outside all routes) so they
+          show on every page — Shop, checkout, account, anywhere — not
+          just the homepage. CartDrawer used to only be mounted inside
+          Storefront, so "Add to Basket" from any other page silently
+          did nothing visible; moved here to fix that. */}
+      <CartDrawer />
+      <WhatsAppButton />
     </>
   )
 }

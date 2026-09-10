@@ -3,26 +3,56 @@ import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.jpg'
 import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { LANGUAGES } from '../i18n/translations.js'
 
-const LINKS = [
-  ['Home', '/'],
-  ['Shop', '/shop'],
-  ['Our Story', '/#about'],
-  ['The Ritual', '/#products'],
-  ['Watch', '/#ritual-video'],
-  ['Visit Us', '/#visit'],
+const LINK_KEYS = [
+  ['nav_home', '/'],
+  ['nav_shop', '/shop'],
+  ['nav_our_story', '/#about'],
+  ['nav_the_ritual', '/#products'],
+  ['nav_watch', '/#ritual-video'],
+  ['nav_visit_us', '/#visit'],
 ]
+
+// A small dropdown — flag-free, just the language's own name in its own
+// script (easier to recognize than a flag would be, since Sinhala and
+// Tamil don't map to a single country flag anyway) — English, Sinhala,
+// or Tamil. Persists to the account if logged in, otherwise just this
+// browser (see LanguageContext.jsx).
+function LanguageSwitcher({ className = '' }) {
+  const { language, setLanguage } = useLanguage()
+  return (
+    <select
+      value={language}
+      onChange={(e) => setLanguage(e.target.value)}
+      aria-label="Language"
+      className={`rounded-full border border-gold/30 bg-transparent px-2 py-1 text-xs text-forestDeep ${className}`}
+    >
+      {Object.entries(LANGUAGES).map(([code, { native }]) => (
+        <option key={code} value={code}>
+          {native}
+        </option>
+      ))}
+    </select>
+  )
+}
 
 export default function Nav() {
   const { totalQty } = useCart()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [search, setSearch] = useState('')
 
   const accountHref = user ? (['admin', 'superadmin'].includes(user.role) ? '/admin' : '/account') : '/login'
-  const accountLabel = user ? (['admin', 'superadmin'].includes(user.role) ? 'Admin Panel' : 'My Account') : 'Sign In'
+  const accountLabel = user
+    ? ['admin', 'superadmin'].includes(user.role)
+      ? t('nav_admin_panel')
+      : t('nav_my_account')
+    : t('nav_sign_in')
 
   const submitSearch = (e) => {
     e.preventDefault()
@@ -50,15 +80,16 @@ export default function Nav() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {LINKS.map(([label, href]) => (
+          {LINK_KEYS.map(([key, href]) => (
             <Link key={href} to={href} className="group relative text-sm text-forestDeep">
-              {label}
+              {t(key)}
               <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-gold transition-all group-hover:w-full" />
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-2.5 sm:gap-4">
+          <LanguageSwitcher className="hidden sm:inline-block" />
           {/* Desktop: an expanding search field so it doesn't permanently
               crowd the nav row. Click the icon to reveal an input. */}
           <div className="relative hidden items-center md:flex">
@@ -70,7 +101,7 @@ export default function Nav() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onBlur={() => !search && setSearchOpen(false)}
-                  placeholder="Search products &amp; services…"
+                  placeholder={t('nav_search_placeholder')}
                   className="w-48 rounded-full border border-gold/30 bg-ivory px-3.5 py-1.5 text-xs text-forestDeep placeholder:text-moss/70 focus:w-56 focus:outline-none"
                 />
               </form>
@@ -98,7 +129,7 @@ export default function Nav() {
             to="/basket"
             className="flex items-center gap-2 rounded-full bg-forestDeep px-3.5 py-2 text-xs uppercase tracking-wide text-cream sm:px-4"
           >
-            <span className="hidden sm:inline">Basket</span>
+            <span className="hidden sm:inline">{t('nav_basket')}</span>
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[0.7rem] font-semibold text-forestDeep">
               {totalQty}
             </span>
@@ -122,18 +153,18 @@ export default function Nav() {
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search products &amp; services…"
+              placeholder={t('nav_search_placeholder')}
               className="w-full rounded-full border border-gold/30 bg-cream px-4 py-2 text-sm text-forestDeep placeholder:text-moss/70 focus:outline-none"
             />
           </form>
-          {LINKS.map(([label, href]) => (
+          {LINK_KEYS.map(([key, href]) => (
             <Link
               key={href}
               to={href}
               onClick={() => setMenuOpen(false)}
               className="border-b border-gold/10 py-3 text-sm text-forestDeep last:border-0"
             >
-              {label}
+              {t(key)}
             </Link>
           ))}
           <Link
@@ -143,6 +174,10 @@ export default function Nav() {
           >
             {accountLabel}
           </Link>
+          <div className="mt-3 flex items-center gap-2 border-t border-gold/10 pt-3">
+            <span className="text-xs uppercase tracking-wide text-moss">{t('account_language')}</span>
+            <LanguageSwitcher />
+          </div>
         </nav>
       )}
     </header>

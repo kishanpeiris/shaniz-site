@@ -15,28 +15,31 @@ export default function About() {
   const backgroundTexture = content.about_background_url || fernTea
   const sideImage = content.about_image_url || mask
   return (
-    <section id="about" className="relative overflow-hidden bg-cream py-24">
-      {/* Dried-herb-tea photo. Kept subtle enough that dark text sitting
-          directly on top of it (no card/box behind the text — tried
-          that, didn't like the look) stays comfortably readable. */}
+    <section id="about" className="relative overflow-hidden bg-forestDeep py-24 text-cream">
+      {/* Same treatment as "See It Made": photo at a strong, clearly
+          visible opacity with a dark tint on top, and light-colored text
+          throughout — rather than a faint photo behind dark text, which
+          is what kept causing legibility complaints no matter how the
+          opacity was tuned. */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.16]"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
         style={{ backgroundImage: `url(${backgroundTexture})` }}
         aria-hidden="true"
       />
+      <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />
       <div className="relative mx-auto max-w-6xl px-7">
         <div className="mx-auto mb-10 flex w-fit items-center gap-3">
           <svg viewBox="0 0 110 20" className="h-5 w-28">
-            <path d="M0 10H110" stroke="#b8934a" strokeWidth="1" />
+            <path d="M0 10H110" stroke="#e3c98a" strokeWidth="1" />
           </svg>
         </div>
 
         <div className="grid items-center gap-16 md:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">{content.about_eyebrow}</p>
-            <h2 className="mt-3 whitespace-pre-line text-4xl leading-snug">{content.about_headline}</h2>
-            <p className="mt-5 max-w-md text-[#4a473c]">{content.about_paragraph1}</p>
-            <p className="mt-4 max-w-md text-[#4a473c]">{content.about_paragraph2}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-goldLight">{content.about_eyebrow}</p>
+            <h2 className="mt-3 whitespace-pre-line text-4xl leading-snug text-ivory">{content.about_headline}</h2>
+            <p className="mt-5 max-w-md text-cream/80">{content.about_paragraph1}</p>
+            <p className="mt-4 max-w-md text-cream/80">{content.about_paragraph2}</p>
 
             <div className="mt-8 grid grid-cols-2 gap-5">
               {INGREDIENTS.map(([name, blurb]) => (

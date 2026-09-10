@@ -6,6 +6,7 @@ const FALLBACK = {
   email: 'hello@shaniz.lk',
   address: 'Colombo, Sri Lanka',
   facebook_url: 'https://www.facebook.com/share/r/18w79k89Zo/',
+  whatsapp_number: '',
 }
 
 // Business info is editable from the admin Settings page — this hook is

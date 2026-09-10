@@ -2,9 +2,11 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../assets/logo.jpg'
 import { useBusinessInfo } from '../hooks/useBusinessInfo.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 export default function Footer() {
   const info = useBusinessInfo()
+  const { t } = useLanguage()
   return (
     <footer className="bg-forestDeep pb-6 pt-12 text-cream/70">
       <div className="mx-auto max-w-6xl px-7">
@@ -20,19 +22,19 @@ export default function Footer() {
 
           <div className="flex flex-wrap gap-10">
             <div>
-              <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">Shop</h5>
+              <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">{t('footer_shop')}</h5>
               <Link to="/#products" className="block py-0.5 text-sm hover:text-goldLight">Hair Oil</Link>
               <Link to="/#products" className="block py-0.5 text-sm hover:text-goldLight">Hair Mask</Link>
               <Link to="/#products" className="block py-0.5 text-sm hover:text-goldLight">Scalp Ritual</Link>
             </div>
             <div>
-              <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">Company</h5>
-              <Link to="/#about" className="block py-0.5 text-sm hover:text-goldLight">Our Story</Link>
-              <Link to="/#ritual-video" className="block py-0.5 text-sm hover:text-goldLight">Watch</Link>
-              <Link to="/#visit" className="block py-0.5 text-sm hover:text-goldLight">Visit Us</Link>
+              <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">{t('footer_company')}</h5>
+              <Link to="/#about" className="block py-0.5 text-sm hover:text-goldLight">{t('nav_our_story')}</Link>
+              <Link to="/#ritual-video" className="block py-0.5 text-sm hover:text-goldLight">{t('nav_watch')}</Link>
+              <Link to="/#visit" className="block py-0.5 text-sm hover:text-goldLight">{t('nav_visit_us')}</Link>
             </div>
             <div>
-              <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">Follow</h5>
+              <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">{t('footer_follow')}</h5>
               <a href={info.facebook_url} target="_blank" rel="noopener noreferrer" className="block py-0.5 text-sm hover:text-goldLight">
                 Facebook
               </a>
@@ -41,8 +43,8 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-wrap justify-between gap-2 pt-5 text-xs">
-          <span>© {new Date().getFullYear()} Shani&rsquo;z Herbal Hair &amp; Skin Care. All rights reserved.</span>
-          <span>Made in Sri Lanka 🇱🇰</span>
+          <span>© {new Date().getFullYear()} Shani&rsquo;z Herbal Hair &amp; Skin Care. {t('footer_rights')}</span>
+          <span>{t('footer_made_in_sl')} 🇱🇰</span>
         </div>
       </div>
     </footer>

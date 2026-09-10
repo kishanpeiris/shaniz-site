@@ -5,6 +5,7 @@ import Footer from '../components/Footer.jsx'
 import PageHeroBand from '../components/PageHeroBand.jsx'
 import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import ritualScene from '../assets/textures/spice-spoons.jpg'
 import herbsCitrus from '../assets/textures/herbs-citrus.jpg'
 import { formatLKR as fmt } from '../lib/currency.js'
@@ -13,19 +14,27 @@ import { formatLKR as fmt } from '../lib/currency.js'
 export default function BasketPage() {
   const { items, subtotal, totalQty, changeQty, removeItem } = useCart()
   const { user } = useAuth()
+  const { t } = useLanguage()
 
   return (
     <>
       <Nav />
       <PageHeroBand image={ritualScene} eyebrow="Your Basket" title="Almost there." compact />
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-forestDeep">
+        {/* Same treatment as "See It Made": photo at a strong, clearly
+            visible opacity with a dark tint on top, light-colored text
+            for anything sitting directly on it. The ivory cards (item
+            rows, summary box, sign-in banner) keep their own bright
+            background and dark text — self-contained, unaffected by the
+            page background behind them. */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-[0.16]"
+          className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
           style={{ backgroundImage: `url(${herbsCitrus})` }}
           aria-hidden="true"
         />
+        <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />
         <div className="relative mx-auto min-h-[50vh] max-w-4xl px-6 py-12">
-        <p className="mb-8 text-sm text-[#8a8672]">
+        <p className="mb-8 text-sm text-cream/80">
           {totalQty === 0 ? 'Nothing here yet.' : `${totalQty} item${totalQty === 1 ? '' : 's'} ready for checkout.`}
         </p>
 
@@ -42,12 +51,12 @@ export default function BasketPage() {
 
         {items.length === 0 ? (
           <div className="rounded-sm border border-gold/30 bg-ivory p-12 text-center">
-            <p className="mb-5 text-[#8a8672]">Your basket is empty.</p>
+            <p className="mb-5 text-[#8a8672]">{t('basket_empty')}</p>
             <Link
               to="/shop"
               className="inline-block rounded-full bg-forestDeep px-6 py-3 text-xs uppercase tracking-wide text-cream"
             >
-              Browse the Shop
+              {t('browse_the_shop')}
             </Link>
           </div>
         ) : (
@@ -89,14 +98,14 @@ export default function BasketPage() {
                   </li>
                 ))}
               </ul>
-              <Link to="/shop" className="mt-4 inline-block text-sm text-forestDeep underline">
-                ← Continue shopping
+              <Link to="/shop" className="mt-4 inline-block text-sm text-goldLight underline">
+                ← {t('continue_shopping')}
               </Link>
             </div>
 
             <div className="h-fit rounded-sm border border-gold/30 bg-ivory p-6">
               <div className="mb-2 flex items-center justify-between text-sm text-[#5c5949]">
-                <span>Subtotal</span>
+                <span>{t('subtotal')}</span>
                 <span>{fmt(subtotal)}</span>
               </div>
               <p className="mb-5 text-xs text-[#8a8672]">
@@ -106,7 +115,7 @@ export default function BasketPage() {
                 to="/checkout"
                 className="block w-full rounded-full bg-forestDeep py-3.5 text-center text-sm uppercase tracking-wide text-cream"
               >
-                Proceed to Checkout
+                {t('proceed_to_checkout')}
               </Link>
             </div>
           </div>

@@ -9,6 +9,53 @@ import RichTextEditor from '../../components/admin/RichTextEditor.jsx'
 import { formatLKR } from '../../lib/currency.js'
 import { formatCalendarDate } from '../../lib/date.js'
 
+// Same AI description helper as the Products page — the backend
+// endpoint already writes naturally for either a retail product or a
+// bookable service (see lib/ai.js), so this is just the same button
+// wired to the Services form's name/category instead.
+function AiDescriptionButton({ name, category, onGenerated }) {
+  const [hint, setHint] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  const generate = async () => {
+    if (!name) {
+      setError('Enter a service name first.')
+      return
+    }
+    setBusy(true)
+    setError('')
+    try {
+      const res = await apiPost('/api/admin/ai/product-description', { name, category: category || undefined, hint: hint || undefined })
+      onGenerated(res.description)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <input
+        placeholder="What's included / notes for AI (optional)"
+        value={hint}
+        onChange={(e) => setHint(e.target.value)}
+        className="flex-1 rounded-sm border border-gold/30 bg-cream px-3 py-1.5 text-xs"
+      />
+      <button
+        type="button"
+        onClick={generate}
+        disabled={busy}
+        className="whitespace-nowrap rounded-full border border-gold/40 px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep disabled:opacity-60"
+      >
+        {busy ? 'Writing…' : 'Generate description with AI'}
+      </button>
+      {error && <span className="text-xs text-[#a35a3a]">{error}</span>}
+    </div>
+  )
+}
+
 const emptyForm = {
   name: '',
   description: '',
@@ -258,6 +305,9 @@ export default function ServicesPage() {
         <div className="col-span-2 md:col-span-6">
           <RichTextEditor value={form.description} onChange={(description) => setForm({ ...form, description })} placeholder="Description" rows={5} />
         </div>
+        <div className="col-span-2 md:col-span-6">
+          <AiDescriptionButton name={form.name} category={form.category_id} onGenerated={(description) => setForm({ ...form, description })} />
+        </div>
 
         <select value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2">
           <option value="">No branch / location set</option>
@@ -350,6 +400,13 @@ export default function ServicesPage() {
                 </div>
                 <div className="col-span-2 md:col-span-6">
                   <RichTextEditor value={editForm.description} onChange={(description) => setEditForm({ ...editForm, description })} placeholder="Description" rows={5} />
+                </div>
+                <div className="col-span-2 md:col-span-6">
+                  <AiDescriptionButton
+                    name={editForm.name}
+                    category={editForm.category_id}
+                    onGenerated={(description) => setEditForm({ ...editForm, description })}
+                  />
                 </div>
 
                 <select value={editForm.branch_id} onChange={(e) => setEditForm({ ...editForm, branch_id: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2">

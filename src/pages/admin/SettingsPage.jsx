@@ -50,7 +50,7 @@ function VideoListField({ label, hint, value = [], onChange, max = 9 }) {
 }
 
 function BusinessInfoForm() {
-  const [form, setForm] = useState({ phone: '', email: '', address: '', facebook_url: '' })
+  const [form, setForm] = useState({ phone: '', email: '', address: '', facebook_url: '', whatsapp_number: '' })
   const [status, setStatus] = useState('idle') // idle | saving | saved | error
   const [error, setError] = useState('')
 
@@ -116,6 +116,18 @@ function BusinessInfoForm() {
             onChange={(e) => setForm({ ...form, facebook_url: e.target.value })}
             className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
           />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-moss">WhatsApp number</label>
+          <input
+            value={form.whatsapp_number || ''}
+            onChange={(e) => setForm({ ...form, whatsapp_number: e.target.value.replace(/[^\d]/g, '') })}
+            placeholder="94771234567"
+            className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+          />
+          <p className="mt-1 text-xs text-[#8a8672]">
+            Digits only, with country code, no + or spaces. Leave blank to hide the WhatsApp button on the site.
+          </p>
         </div>
 
         <div className="sm:col-span-2">

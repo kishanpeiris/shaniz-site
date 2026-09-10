@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { toPlainText } from './RichText.jsx'
 
 export default function ProductCard({ product, large = false }) {
   const { addItem } = useCart()
+  const { t } = useLanguage()
   const [hovering, setHovering] = useState(false)
   // Preference order on hover: looping WebM/MP4 video, then animated
   // WebP, then the legacy GIF field (older uploads), then just the
@@ -89,7 +91,7 @@ export default function ProductCard({ product, large = false }) {
         )}
         {isSoldOut && (
           <span className="absolute bottom-3 left-3 rounded-full bg-forestDeep/90 px-2.5 py-1 text-[0.62rem] uppercase tracking-wide text-cream">
-            Out of stock
+            {t('out_of_stock')}
           </span>
         )}
         {isPreorder && (
@@ -121,7 +123,7 @@ export default function ProductCard({ product, large = false }) {
             disabled={isSoldOut}
             className="rounded-full bg-forestDeep px-4 py-2.5 text-[0.72rem] uppercase tracking-wide text-cream transition-colors hover:bg-gold hover:text-forestDeep disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {isSoldOut ? 'Out of Stock' : isPreorder ? 'Pre-order Now' : 'Add to Basket'}
+            {isSoldOut ? t('out_of_stock') : isPreorder ? t('preorder_now') : t('add_to_basket')}
           </button>
         </div>
       </div>

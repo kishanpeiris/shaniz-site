@@ -146,6 +146,52 @@ function BusinessInfoForm() {
   )
 }
 
+function BookingRemindersForm() {
+  const [enabled, setEnabled] = useState(true)
+  const [status, setStatus] = useState('idle') // idle | saving | saved | error
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    apiGet('/api/admin/settings/booking-reminders').then((r) => setEnabled(r.booking_reminders?.enabled !== false))
+  }, [])
+
+  const handleToggle = async (next) => {
+    setEnabled(next) // update the switch immediately, then save in the background
+    setStatus('saving')
+    setError('')
+    try {
+      await apiPut('/api/admin/settings/booking-reminders', { enabled: next })
+      setStatus('saved')
+      setTimeout(() => setStatus('idle'), 2000)
+    } catch (err) {
+      setStatus('error')
+      setError(err.message)
+      setEnabled(!next) // saving failed — put the switch back
+    }
+  }
+
+  return (
+    <section className="mb-10 rounded-sm border border-gold/30 bg-ivory p-6">
+      <h3 className="mb-2 text-xl">Booking Reminder Emails</h3>
+      <p className="mb-4 max-w-2xl text-sm text-[#8a8672]">
+        When on, customers with a confirmed appointment automatically get a reminder email the day
+        before their booking — sent once a day, no action needed from you.
+      </p>
+      <label className="flex max-w-2xl items-center gap-3">
+        <input
+          type="checkbox"
+          checked={enabled}
+          onChange={(e) => handleToggle(e.target.checked)}
+          className="h-5 w-5 accent-forestDeep"
+        />
+        <span className="text-sm">{enabled ? 'On — reminders will be sent' : 'Off — no reminders will be sent'}</span>
+      </label>
+      {status === 'error' && <p className="mt-3 text-sm text-[#a35a3a]">{error}</p>}
+      {status === 'saved' && <p className="mt-3 text-sm text-moss">Saved.</p>}
+    </section>
+  )
+}
+
 function Field({ label, value, onChange, textarea, hint }) {
   const Tag = textarea ? 'textarea' : 'input'
   return (
@@ -325,6 +371,7 @@ export default function SettingsPage() {
     <div>
       <h2 className="mb-6 text-3xl">Settings</h2>
       <BusinessInfoForm />
+      <BookingRemindersForm />
       <PageContentEditor />
     </div>
   )

@@ -1,4 +1,11 @@
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+// In local dev, .env sets this to http://localhost:4000 (a real address,
+// since your React dev server and API run on different ports on your own
+// machine). In production, this is set to an EMPTY string on purpose —
+// see shaniz-site/vercel.json — so requests go to THIS site's own /api/
+// path instead of a different domain, and Vercel forwards them to the
+// real backend behind the scenes. `??` (not `||`) matters here: an
+// intentionally empty string must NOT fall back to localhost.
+export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000'
 
 // Every mutating request needs this header — the backend's CSRF
 // middleware (src/middleware/csrf.js in shaniz-api) rejects POST/PUT/

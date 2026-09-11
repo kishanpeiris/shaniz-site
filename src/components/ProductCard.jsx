@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { toPlainText } from './RichText.jsx'
+import BadgeRow from './BadgeRow.jsx'
 
 export default function ProductCard({ product, large = false }) {
   const { addItem } = useCart()
@@ -40,12 +41,8 @@ export default function ProductCard({ product, large = false }) {
       className="group relative flex flex-col overflow-hidden rounded-sm border border-gold/30 bg-cream transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-brand"
     >
       {product.badges?.length > 0 && (
-        <div className="absolute left-3.5 top-3.5 z-10 flex flex-wrap gap-1.5">
-          {product.badges.map((b) => (
-            <span key={b} className="rounded-full bg-gold px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-wide text-forestDeep">
-              {b}
-            </span>
-          ))}
+        <div className="absolute left-3.5 right-3.5 top-3.5 z-10">
+          <BadgeRow badges={product.badges} />
         </div>
       )}
 

@@ -18,6 +18,25 @@ const LINKS = [
   { to: '/admin/maintenance', label: 'Maintenance' },
 ]
 
+// One link, two color variants: 'bar' sits on the dark mobile top bar
+// (needs light text/border), 'panel' sits on the cream admin content
+// area (needs dark text/border). No target="_blank" — this stays a
+// normal in-app navigation back to the storefront, not a new tab.
+function ViewStoreLink({ variant = 'panel' }) {
+  const colors =
+    variant === 'bar'
+      ? 'border-cream/50 px-3 py-1 text-[11px] text-cream hover:bg-cream hover:text-forestDeep'
+      : 'border-forestDeep/30 px-4 py-1.5 text-xs text-forestDeep hover:bg-forestDeep hover:text-cream'
+  return (
+    <NavLink
+      to="/"
+      className={`rounded-full border font-semibold uppercase tracking-wide transition-colors ${colors}`}
+    >
+      View Store
+    </NavLink>
+  )
+}
+
 export default function AdminLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -62,9 +81,6 @@ export default function AdminLayout() {
         <button onClick={handleLogout} className="mt-2 underline text-cream/70 hover:text-cream">
           Sign out
         </button>
-        <NavLink to="/" className="mt-1 block underline text-cream/70 hover:text-cream">
-          View storefront
-        </NavLink>
       </div>
     </>
   )
@@ -81,9 +97,7 @@ export default function AdminLayout() {
           ☰
         </button>
         <span className="font-serif text-lg">{currentLabel}</span>
-        <NavLink to="/" className="text-xs underline text-cream/70">
-          Storefront
-        </NavLink>
+        <ViewStoreLink variant="bar" />
       </div>
 
       {/* Backdrop, mobile only, shown while the drawer is open. */}
@@ -114,15 +128,8 @@ export default function AdminLayout() {
         {/* Sits above every admin page's own heading — a quick way back
             to see the site as a customer would, without digging into
             the sidebar. */}
-        <div className="mb-4 flex justify-end">
-          <NavLink
-            to="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full border border-forestDeep/30 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-forestDeep hover:bg-forestDeep hover:text-cream"
-          >
-            View Store ↗
-          </NavLink>
+        <div className="mb-4 hidden justify-end md:flex">
+          <ViewStoreLink variant="panel" />
         </div>
         <Outlet />
       </main>

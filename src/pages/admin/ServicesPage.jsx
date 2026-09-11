@@ -123,6 +123,14 @@ export default function ServicesPage() {
   useEffect(() => { load() }, [])
   useEffect(() => { apiGet('/api/branches').then((r) => setBranches(r.branches)).catch(() => {}) }, [])
 
+  // Same reasoning as ProductsPage.jsx's cancelCreate — only interrupts
+  // with a confirmation if there's actually something typed to lose.
+  const isFormEmpty = (f) => JSON.stringify(f) === JSON.stringify(emptyForm)
+  const cancelCreate = () => {
+    if (!isFormEmpty(form) && !window.confirm('Discard this new service? Anything you\u2019ve entered will be lost.')) return
+    setForm(emptyForm)
+  }
+
   const handleCreate = async (e) => {
     e.preventDefault()
     setError('')
@@ -335,9 +343,12 @@ export default function ServicesPage() {
           The detail-page video (optional) shows in the gallery on the service page.
         </p>
 
-        <button type="submit" className="col-span-2 rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream md:col-span-6">
-          Add Service
-        </button>
+        <div className="col-span-2 flex items-center gap-3 md:col-span-6">
+          <button type="submit" className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">
+            Add Service
+          </button>
+          <button type="button" onClick={cancelCreate} className="text-xs underline text-[#8a8672]">Cancel</button>
+        </div>
       </form>
 
       <div className="space-y-3">

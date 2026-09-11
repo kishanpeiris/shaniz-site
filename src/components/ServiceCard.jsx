@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { toPlainText } from './RichText.jsx'
+import BadgeRow from './BadgeRow.jsx'
 
 export default function ServiceCard({ service, onReserve }) {
   const { addItem } = useCart()
@@ -36,12 +37,8 @@ export default function ServiceCard({ service, onReserve }) {
         className="relative block aspect-square overflow-hidden bg-forestDeep"
       >
         {service.badges?.length > 0 && (
-          <div className="absolute left-3.5 top-3.5 z-10 flex flex-wrap gap-1.5">
-            {service.badges.map((b) => (
-              <span key={b} className="rounded-full bg-gold px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-wide text-forestDeep">
-                {b}
-              </span>
-            ))}
+          <div className="absolute left-3.5 right-3.5 top-3.5 z-10">
+            <BadgeRow badges={service.badges} />
           </div>
         )}
         {showHoverVideo ? (

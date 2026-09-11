@@ -42,20 +42,26 @@ export default function Hero() {
     <section id="top" className="hero-viewport relative flex items-center overflow-hidden bg-forestDeep">
       {/* Still image — always rendered first. It's the fail-safe: if the
           video can't load or play (slow connection, autoplay blocked,
-          unsupported format), this stays visible underneath. On mobile
-          this uses object-contain (full frame visible, letterboxed)
-          instead of object-cover, since a cover-cropped frame on a tall
-          narrow screen was cutting off the moving leaves in the
-          bottom-right corner of the shot — sm: and up go back to the
-          full-bleed cover treatment where there's room to crop safely. */}
+          unsupported format), this stays visible underneath.
+
+          The source photo is landscape (864x496) and this section is
+          tall/narrow on phones, so a `cover` crop only ever trims the
+          LEFT and RIGHT edges — full height always shows, nothing is
+          cropped top-to-bottom. The default centered crop was cutting
+          off the moving leaves sitting in the photo's bottom-right
+          corner. Shifting the crop's horizontal focus point to 78%
+          (instead of the 50% center) keeps those leaves in frame while
+          staying a full-bleed close-up "cover" shot on phones too — sm:
+          and up go back to the plain centered crop, where there's
+          enough width for the leaves to already be in view. */}
       <div
-        className="absolute inset-0 bg-contain bg-center bg-no-repeat saturate-[0.95] sm:bg-cover"
+        className="absolute inset-0 bg-cover bg-[78%_center] bg-no-repeat saturate-[0.95] sm:bg-center"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       />
       {!videoFailed && (
         <video
           ref={videoRef}
-          className="absolute inset-0 h-full w-full object-contain saturate-[0.95] sm:object-cover"
+          className="absolute inset-0 h-full w-full object-cover object-[78%_center] saturate-[0.95] sm:object-center"
           src={videoSrc}
           poster={backgroundImage}
           autoPlay

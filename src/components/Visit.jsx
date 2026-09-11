@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
 import { useBusinessInfo } from '../hooks/useBusinessInfo.js'
+import { useBranches } from '../hooks/useBranches.js'
 import { apiPost } from '../api/client.js'
+import BranchLocator from './BranchLocator.jsx'
 
 export default function Visit() {
   const info = useBusinessInfo()
+  const branches = useBranches()
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
   const [error, setError] = useState('')
@@ -115,6 +118,8 @@ export default function Visit() {
             </form>
           )}
         </div>
+
+        <BranchLocator branches={branches} />
       </div>
     </section>
   )

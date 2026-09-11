@@ -27,12 +27,20 @@ export default function OrdersPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <h2 className="text-3xl">Orders</h2>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-sm border border-gold/30 bg-ivory px-3 py-2 text-sm">
-          <option value="">All statuses</option>
-          {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+        <div className="flex items-center gap-3">
+          <a
+            href={`${API_URL}/api/admin/export/orders.csv`}
+            className="rounded-full border border-forestDeep/30 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-forestDeep hover:bg-forestDeep hover:text-cream"
+          >
+            Export CSV
+          </a>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-sm border border-gold/30 bg-ivory px-3 py-2 text-sm">
+            <option value="">All statuses</option>
+            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
       </div>
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 

@@ -11,7 +11,7 @@ export default function BadgesInput({ value = [], onChange }) {
 
   const add = (label) => {
     const clean = label.trim()
-    if (!clean || value.includes(clean) || value.length >= 6) return
+    if (!clean || value.includes(clean)) return
     onChange([...value, clean])
     setText('')
   }
@@ -23,7 +23,7 @@ export default function BadgesInput({ value = [], onChange }) {
   return (
     <div>
       <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-wide text-moss">
-        Special banners (up to 6)
+        Special banners
       </p>
       {value.length > 0 && (
         <div className="mb-1.5 flex flex-wrap gap-1.5">

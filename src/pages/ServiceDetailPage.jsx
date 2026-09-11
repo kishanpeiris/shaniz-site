@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import RichText from '../components/RichText.jsx'
+import BadgeRow from '../components/BadgeRow.jsx'
 import { useService } from '../hooks/useService.js'
 import { useCart } from '../context/CartContext.jsx'
 import BookingWidget from '../components/BookingWidget.jsx'
@@ -149,12 +150,8 @@ export default function ServiceDetailPage() {
 
           <div>
             {service.badges?.length > 0 && (
-              <div className="mb-3 flex flex-wrap gap-1.5">
-                {service.badges.map((b) => (
-                  <span key={b} className="inline-block rounded-full bg-gold px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-wide text-forestDeep">
-                    {b}
-                  </span>
-                ))}
+              <div className="mb-3">
+                <BadgeRow badges={service.badges} />
               </div>
             )}
             <span className="block text-xs uppercase tracking-[0.14em] text-moss">{service.tagline}</span>

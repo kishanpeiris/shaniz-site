@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { apiGet, apiPut } from '../../api/client.js'
+import { apiGet, apiPut, API_URL } from '../../api/client.js'
 import { formatLKR } from '../../lib/currency.js'
 
 export default function CustomersPage() {
@@ -22,7 +22,15 @@ export default function CustomersPage() {
 
   return (
     <div>
-      <h2 className="mb-6 text-3xl">Customers</h2>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <h2 className="text-3xl">Customers</h2>
+        <a
+          href={`${API_URL}/api/admin/export/customers.csv`}
+          className="rounded-full border border-forestDeep/30 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-forestDeep hover:bg-forestDeep hover:text-cream"
+        >
+          Export CSV
+        </a>
+      </div>
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
       <div className="overflow-x-auto rounded-sm border border-gold/30 bg-ivory">

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import RichText from '../components/RichText.jsx'
+import BadgeRow from '../components/BadgeRow.jsx'
 import { useProduct } from '../hooks/useProduct.js'
 import { useCart } from '../context/CartContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
@@ -203,12 +204,8 @@ export default function ProductDetailPage() {
           {/* Details */}
           <div>
             {product.badges?.length > 0 && (
-              <div className="mb-3 flex flex-wrap gap-1.5">
-                {product.badges.map((b) => (
-                  <span key={b} className="inline-block rounded-full bg-gold px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-wide text-forestDeep">
-                    {b}
-                  </span>
-                ))}
+              <div className="mb-3">
+                <BadgeRow badges={product.badges} />
               </div>
             )}
             <span className="block text-xs uppercase tracking-[0.14em] text-moss">{product.tagline}</span>

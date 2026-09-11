@@ -173,6 +173,15 @@ export default function ProductsPage() {
 
   useEffect(() => { load() }, [])
 
+  // Only asks for confirmation if there's actually something to lose —
+  // clicking Cancel on an already-empty form shouldn't interrupt anyone
+  // with a pointless dialog.
+  const isFormEmpty = (f) => JSON.stringify(f) === JSON.stringify(emptyForm)
+  const cancelCreate = () => {
+    if (!isFormEmpty(form) && !window.confirm('Discard this new product? Anything you\u2019ve entered will be lost.')) return
+    setForm(emptyForm)
+  }
+
   const handleCreate = async (e) => {
     e.preventDefault()
     setError('')
@@ -329,7 +338,10 @@ export default function ProductsPage() {
             The detail-page video (optional) shows in the gallery on the product page alongside the photos.
           </p>
         </div>
-        <button type="submit" className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add Product</button>
+        <div className="col-span-2 flex items-center gap-3 md:col-span-5">
+          <button type="submit" className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add Product</button>
+          <button type="button" onClick={cancelCreate} className="text-xs underline text-[#8a8672]">Cancel</button>
+        </div>
       </form>
 
       <div className="overflow-x-auto rounded-sm border border-gold/30 bg-ivory">

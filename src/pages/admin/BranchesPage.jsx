@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { apiGet, apiPost, apiPut, apiDelete } from '../../api/client.js'
+import LocationPicker from '../../components/admin/LocationPicker.jsx'
 
 const emptyForm = { name: '', address: '', latitude: '', longitude: '', phone: '' }
 
@@ -76,6 +77,12 @@ export default function BranchesPage() {
         <input placeholder="Latitude (optional)" value={form.latitude} onChange={(e) => setForm({ ...form, latitude: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
         <input placeholder="Longitude (optional)" value={form.longitude} onChange={(e) => setForm({ ...form, longitude: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
         <input placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
+        <LocationPicker
+          latitude={form.latitude}
+          longitude={form.longitude}
+          address={form.address}
+          onChange={(lat, lng) => setForm({ ...form, latitude: lat, longitude: lng })}
+        />
         <button className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add branch</button>
       </form>
 
@@ -89,6 +96,12 @@ export default function BranchesPage() {
                 <input value={editForm.latitude} onChange={(e) => setEditForm({ ...editForm, latitude: e.target.value })} placeholder="Latitude" className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
                 <input value={editForm.longitude} onChange={(e) => setEditForm({ ...editForm, longitude: e.target.value })} placeholder="Longitude" className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
                 <input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} placeholder="Phone" className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
+                <LocationPicker
+                  latitude={editForm.latitude}
+                  longitude={editForm.longitude}
+                  address={editForm.address}
+                  onChange={(lat, lng) => setEditForm({ ...editForm, latitude: lat, longitude: lng })}
+                />
                 <div className="col-span-2 flex gap-3 md:col-span-5">
                   <button onClick={() => saveEdit(b.id)} className="rounded-full bg-forestDeep px-4 py-1.5 text-xs uppercase tracking-wide text-cream">Save</button>
                   <button onClick={() => setEditingId(null)} className="text-xs underline text-moss">Cancel</button>

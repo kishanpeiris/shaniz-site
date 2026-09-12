@@ -57,10 +57,45 @@ export const TRANSLATIONS = {
   // Account — language setting itself
   account_language: { en: 'Language', si: 'භාෂාව', ta: 'மொழி' },
   account_language_saved: { en: 'Saved.', si: 'සුරකින ලදී.', ta: 'சேமிக்கப்பட்டது.' },
+
+  // Thank You page
+  thankyou_title: { en: 'Thank you for your purchase.', si: 'ඔබගේ මිලදී ගැනීම සඳහා ස්තුතියි.', ta: 'உங்கள் கொள்முதலுக்கு நன்றி.' },
+  thankyou_subtitle: {
+    en: 'May this ritual bring you the same care our grandmothers put into every batch. Please visit us again.',
+    si: 'මෙම චාරිත්‍රය අපගේ ආච්චිලා සෑම නිෂ්පාදනයකටම කැප කළ ආදරය ඔබටත් ගෙන එනු ඇතැයි අප විශ්වාස කරමු. නැවතත් අප වෙත පිවිසෙන්න.',
+    ta: 'எங்கள் பாட்டிமார்கள் ஒவ்வொரு தொகுப்பிலும் காட்டிய அதே அக்கறையை இந்த சடங்கு உங்களுக்கும் தரட்டும். மீண்டும் எங்களைப் பார்வையிடவும்.',
+  },
+  order_label: { en: 'Order', si: 'ඇණවුම', ta: 'ஆர்டர்' },
+  thankyou_preorder_arrival: {
+    en: 'Pre-order — est. arrival {date}',
+    si: 'කලින් ඇණවුම — ළඟාවීමේ අපේක්ෂිත දිනය {date}',
+    ta: 'முன்பதிவு — வரவு தேதி (தோராயம்) {date}',
+  },
+  delivery_label: { en: 'Delivery', si: 'බෙදාහැරීම', ta: 'விநியோகம்' },
+  free_pickup: { en: 'Free / Pickup', si: 'නොමිලේ / රැගෙන යාම', ta: 'இலவசம் / பிக்அப்' },
+  total_label: { en: 'Total', si: 'එකතුව', ta: 'மொத்தம்' },
+  thankyou_receipt_sent: {
+    en: 'A receipt has been sent to {email}.',
+    si: 'රිසිට්පත {email} වෙත යවා ඇත.',
+    ta: 'ரசீது {email} க்கு அனுப்பப்பட்டுள்ளது.',
+  },
+  download_invoice: { en: 'Download Invoice', si: 'ඉන්වොයිසිය බාගන්න', ta: 'விவரப்பட்டியலைப் பதிவிறக்கவும்' },
+  thankyou_loading_order: {
+    en: 'Loading your order summary…',
+    si: 'ඔබේ ඇණවුම් සාරාංශය පූරණය වෙමින්…',
+    ta: 'உங்கள் ஆர்டர் சுருக்கம் ஏற்றப்படுகிறது…',
+  },
+  view_my_orders: { en: 'View My Orders', si: 'මගේ ඇණවුම් බලන්න', ta: 'எனது ஆர்டர்களைப் பார்க்க' },
+  create_an_account: { en: 'Create an Account', si: 'ගිණුමක් සාදන්න', ta: 'கணக்கு உருவாக்கவும்' },
 }
 
-export function translate(key, lang) {
+// vars is optional — e.g. translate('thankyou_receipt_sent', 'si', { email:
+// 'x@y.com' }) replaces {email} in the translated string. Falls back to
+// leaving {name} untouched if a var wasn't passed, rather than throwing —
+// a missing var is a bug worth noticing in the UI, not a crash.
+export function translate(key, lang, vars) {
   const entry = TRANSLATIONS[key]
-  if (!entry) return key
-  return entry[lang] || entry.en || key
+  const template = entry ? entry[lang] || entry.en || key : key
+  if (!vars) return template
+  return template.replace(/\{(\w+)\}/g, (match, name) => (vars[name] !== undefined ? vars[name] : match))
 }

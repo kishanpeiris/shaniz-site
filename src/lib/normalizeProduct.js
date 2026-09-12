@@ -16,10 +16,14 @@ export function normalizeProduct(p) {
     id: p.id,
     type: 'product',
     name: p.name,
+    name_si: p.name_si || null,
+    name_ta: p.name_ta || null,
     tagline: p.category ? p.category.replace('-', ' ') : '',
     category: p.category || 'other',
     categoryId: p.category_id || null,
     description: p.description,
+    description_si: p.description_si || null,
+    description_ta: p.description_ta || null,
     price: Number(p.price_lkr),
     stockQty: p.stock_qty,
     outOfStock: p.out_of_stock,
@@ -37,5 +41,7 @@ export function normalizeProduct(p) {
     availability: p.availability || (p.out_of_stock ? 'out_of_stock' : 'in_stock'),
     preorderEtaDays: p.preorder_eta_days || null,
     unitsSold: Number(p.units_sold) || 0,
+    avgRating: Number(p.avg_rating) || 0,
+    reviewCount: Number(p.review_count) || 0,
   }
 }

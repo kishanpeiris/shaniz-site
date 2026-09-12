@@ -4,8 +4,10 @@ import { apiGet } from '../api/client.js'
 const FALLBACK = {
   phone: '+94 XX XXX XXXX',
   email: 'hello@shaniz.lk',
-  address: 'Colombo, Sri Lanka',
   facebook_url: 'https://www.facebook.com/share/r/18w79k89Zo/',
+  instagram_url: '',
+  tiktok_url: '',
+  linkedin_url: '',
   whatsapp_number: '',
 }
 

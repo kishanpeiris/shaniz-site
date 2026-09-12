@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { apiGet } from '../../api/client.js'
+import { apiGet, API_URL } from '../../api/client.js'
 
 export default function LogsPage() {
   const [audit, setAudit] = useState([])
@@ -18,7 +18,12 @@ export default function LogsPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div>
-          <h3 className="mb-2 font-serif text-xl">Audit log <span className="text-xs font-sans text-[#8a8672]">(30 days)</span></h3>
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="font-serif text-xl">Audit log <span className="text-xs font-sans text-[#8a8672]">(30 days)</span></h3>
+            <a href={`${API_URL}/api/admin/export/audit-log.csv`} className="text-xs font-semibold uppercase tracking-wide text-forestDeep underline">
+              Export CSV
+            </a>
+          </div>
           <div className="max-h-[28rem] overflow-x-auto overflow-y-auto rounded-sm border border-gold/30 bg-ivory">
             <table className="w-full text-left text-xs">
               <tbody>
@@ -36,7 +41,12 @@ export default function LogsPage() {
         </div>
 
         <div>
-          <h3 className="mb-2 font-serif text-xl">Activity feed <span className="text-xs font-sans text-[#8a8672]">(15 days)</span></h3>
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="font-serif text-xl">Activity feed <span className="text-xs font-sans text-[#8a8672]">(15 days)</span></h3>
+            <a href={`${API_URL}/api/admin/export/activity-log.csv`} className="text-xs font-semibold uppercase tracking-wide text-forestDeep underline">
+              Export CSV
+            </a>
+          </div>
           <div className="max-h-[28rem] overflow-x-auto overflow-y-auto rounded-sm border border-gold/30 bg-ivory">
             <table className="w-full text-left text-xs">
               <tbody>

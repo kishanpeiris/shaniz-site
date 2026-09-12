@@ -8,6 +8,8 @@ import ServiceCard from '../components/ServiceCard.jsx'
 import BookingWidget from '../components/BookingWidget.jsx'
 import PageHeroBand from '../components/PageHeroBand.jsx'
 import { useCatalog } from '../hooks/useCatalog.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { localizedField } from '../lib/localize.js'
 import fernTea from '../assets/textures/fern-tea.jpg'
 import triphala from '../assets/textures/triphala.jpg'
 import cardamom from '../assets/textures/cardamom.jpg'
@@ -23,19 +25,24 @@ const SORTS = {
   newest: { label: 'Newest', fn: (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0) },
   price_low: { label: 'Price: Low to High', fn: (a, b) => a.price - b.price },
   price_high: { label: 'Price: High to Low', fn: (a, b) => b.price - a.price },
-  name: { label: 'Name: A to Z', fn: (a, b) => a.name.localeCompare(b.name) },
+  // 'name' has no static fn here — unlike the others, it needs to know
+  // the CURRENT language to sort by the right translated name, so it's
+  // handled as a special case (like best_match) inside the component
+  // below rather than as a fixed comparator.
+  name: { label: 'Name: A to Z' },
 }
 
-// Simple relevance score for "Best Match" — no search text means every
-// item ties, so it falls back to popularity (below). With search text,
-// a name starting with the query ranks above a name merely containing
-// it, which ranks above a match only in the description.
-function relevance(item, q) {
+// lang is threaded through here (rather than defaulting to English)
+// specifically so a Sinhala/Tamil search actually matches products that
+// have been translated — matching only the English name/description
+// regardless of the site's current language would mean search silently
+// stops working the moment someone switches languages.
+function relevance(item, q, lang) {
   if (!q) return 0
-  const name = item.name.toLowerCase()
+  const name = localizedField(item, 'name', lang).toLowerCase()
   if (name.startsWith(q)) return 3
   if (name.includes(q)) return 2
-  if ((item.description || '').toLowerCase().includes(q)) return 1
+  if (localizedField(item, 'description', lang).toLowerCase().includes(q)) return 1
   return 0
 }
 
@@ -59,6 +66,7 @@ const PAGE_SIZE = 9
 
 export default function ShopPage() {
   const { loading, error, products, services } = useCatalog()
+  const { language } = useLanguage()
   const [searchParams, setSearchParams] = useSearchParams()
   const [type, setType] = useState('all')
   const [category, setCategory] = useState('all')
@@ -102,17 +110,21 @@ export default function ShopPage() {
     const q = search.trim().toLowerCase()
     if (q) {
       list = list.filter(
-        (item) => item.name.toLowerCase().includes(q) || (item.description || '').toLowerCase().includes(q)
+        (item) =>
+          localizedField(item, 'name', language).toLowerCase().includes(q) ||
+          localizedField(item, 'description', language).toLowerCase().includes(q)
       )
     }
 
     if (sort === 'best_match') {
-      list.sort((a, b) => relevance(b, q) - relevance(a, q) || b.unitsSold - a.unitsSold)
+      list.sort((a, b) => relevance(b, q, language) - relevance(a, q, language) || b.unitsSold - a.unitsSold)
+    } else if (sort === 'name') {
+      list.sort((a, b) => localizedField(a, 'name', language).localeCompare(localizedField(b, 'name', language)))
     } else {
       list.sort(SORTS[sort].fn)
     }
     return list
-  }, [products, services, type, category, priceBand, sort, inStockOnly, search])
+  }, [products, services, type, category, priceBand, sort, inStockOnly, search, language])
 
   // Any filter/sort change can shrink the result set below the current
   // page — reset to page 1 rather than showing a stranded empty page.

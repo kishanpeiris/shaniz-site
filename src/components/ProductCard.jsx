@@ -5,10 +5,12 @@ import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { toPlainText } from './RichText.jsx'
 import BadgeRow from './BadgeRow.jsx'
+import { localizedField } from '../lib/localize.js'
+import StarRating from './StarRating.jsx'
 
 export default function ProductCard({ product, large = false }) {
   const { addItem } = useCart()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [hovering, setHovering] = useState(false)
   // Preference order on hover: looping WebM/MP4 video, then animated
   // WebP, then the legacy GIF field (older uploads), then just the
@@ -21,6 +23,8 @@ export default function ProductCard({ product, large = false }) {
   const hasHoverMedia = Boolean(product.hoverVideo || hoverImage)
   const isPreorder = product.availability === 'preorder'
   const isSoldOut = product.availability === 'out_of_stock' || (!isPreorder && product.outOfStock)
+  const displayName = localizedField(product, 'name', language)
+  const displayDescription = localizedField(product, 'description', language)
 
   // Touch devices have no hover state, so "hover to preview" needs an
   // explicit stand-in: press and hold the thumbnail to play the video
@@ -69,7 +73,7 @@ export default function ProductCard({ product, large = false }) {
         ) : (
           <img
             src={displayImage}
-            alt={product.name}
+            alt={displayName}
             style={{ objectPosition: `${product.imageFocal.x}% ${product.imageFocal.y}%` }}
             className="h-full w-full object-cover transition-opacity duration-300"
           />
@@ -103,9 +107,10 @@ export default function ProductCard({ product, large = false }) {
           {product.tagline}
         </span>
         <Link to={`/product/${product.id}`}>
-          <h3 className={`font-serif text-forestDeep hover:text-moss ${large ? 'text-3xl' : 'text-2xl'}`}>{product.name}</h3>
+          <h3 className={`font-serif text-forestDeep hover:text-moss ${large ? 'text-3xl' : 'text-2xl'}`}>{displayName}</h3>
         </Link>
-        <p className="flex-1 text-sm text-[#6a6656]">{toPlainText(product.description)}</p>
+        {product.reviewCount > 0 && <StarRating rating={product.avgRating} count={product.reviewCount} size="text-xs" />}
+        <p className="flex-1 text-sm text-[#6a6656]">{toPlainText(displayDescription)}</p>
         {isPreorder && (
           <p className="text-xs text-[#8a6d1f]">
             Ships in ~{product.preorderEtaDays || 14} days

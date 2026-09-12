@@ -7,6 +7,10 @@ import BadgeRow from '../components/BadgeRow.jsx'
 import { useProduct } from '../hooks/useProduct.js'
 import { useCart } from '../context/CartContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { localizedField } from '../lib/localize.js'
+import StarRating from '../components/StarRating.jsx'
+import ProductReviews from '../components/ProductReviews.jsx'
 
 function AvailabilityNote({ product }) {
   if (product.availability === 'preorder') {
@@ -104,6 +108,7 @@ export default function ProductDetailPage() {
   const { id } = useParams()
   const { loading, error, product } = useProduct(id)
   const { addItem } = useCart()
+  const { language } = useLanguage()
   const [activeIndex, setActiveIndex] = useState(0)
   const [qty, setQty] = useState(1)
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -136,6 +141,8 @@ export default function ProductDetailPage() {
 
   const isPreorder = product.availability === 'preorder'
   const isSoldOut = product.availability === 'out_of_stock'
+  const displayName = localizedField(product, 'name', language)
+  const displayDescription = localizedField(product, 'description', language)
   // A single media list — photos plus the optional detail video at the
   // end — so the gallery, thumbnails, and lightbox all share one set of
   // prev/next navigation instead of juggling two separate lists.
@@ -170,7 +177,7 @@ export default function ProductDetailPage() {
               ) : (
                 <img
                   src={active.src}
-                  alt={product.name}
+                  alt={displayName}
                   style={activeIndex === 0 ? { objectPosition: `${product.imageFocal.x}% ${product.imageFocal.y}%` } : undefined}
                   className="h-full w-full object-cover"
                 />
@@ -209,10 +216,15 @@ export default function ProductDetailPage() {
               </div>
             )}
             <span className="block text-xs uppercase tracking-[0.14em] text-moss">{product.tagline}</span>
-            <h1 className="mt-1 text-4xl">{product.name}</h1>
+            <h1 className="mt-1 text-4xl">{displayName}</h1>
+            {product.reviewCount > 0 && (
+              <div className="mt-2">
+                <StarRating rating={product.avgRating} count={product.reviewCount} />
+              </div>
+            )}
             <p className="mt-4 text-2xl font-semibold text-forestDeep">{fmt(product.price)}</p>
 
-            <RichText text={product.description} className="mt-5 text-[#5c5949]" />
+            <RichText text={displayDescription} className="mt-5 text-[#5c5949]" />
 
             {product.ingredients?.length > 0 && (
               <div className="mt-5">
@@ -259,6 +271,8 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        <ProductReviews productId={product.id} />
       </div>
       <Footer />
 

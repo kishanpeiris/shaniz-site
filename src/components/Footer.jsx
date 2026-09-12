@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import logo from '../assets/logo.jpg'
 import { useBusinessInfo } from '../hooks/useBusinessInfo.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
+import { FacebookIcon, InstagramIcon, TikTokIcon, LinkedInIcon, WhatsAppIcon } from './SocialIcons.jsx'
 
 export default function Footer() {
   const info = useBusinessInfo()
@@ -33,12 +34,41 @@ export default function Footer() {
               <Link to="/#ritual-video" className="block py-0.5 text-sm hover:text-goldLight">{t('nav_watch')}</Link>
               <Link to="/#visit" className="block py-0.5 text-sm hover:text-goldLight">{t('nav_visit_us')}</Link>
             </div>
-            <div>
-              <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">{t('footer_follow')}</h5>
-              <a href={info.facebook_url} target="_blank" rel="noopener noreferrer" className="block py-0.5 text-sm hover:text-goldLight">
-                Facebook
-              </a>
-            </div>
+            {(() => {
+              const socialLinks = [
+                { url: info.facebook_url, label: 'Facebook', Icon: FacebookIcon },
+                { url: info.instagram_url, label: 'Instagram', Icon: InstagramIcon },
+                { url: info.tiktok_url, label: 'TikTok', Icon: TikTokIcon },
+                { url: info.linkedin_url, label: 'LinkedIn', Icon: LinkedInIcon },
+                {
+                  url: info.whatsapp_number ? `https://wa.me/${info.whatsapp_number}` : '',
+                  label: 'WhatsApp',
+                  Icon: WhatsAppIcon,
+                },
+              ].filter((s) => s.url)
+
+              if (socialLinks.length === 0) return null
+
+              return (
+                <div>
+                  <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">{t('footer_follow')}</h5>
+                  <div className="flex flex-wrap gap-3">
+                    {socialLinks.map(({ url, label, Icon }) => (
+                      <a
+                        key={label}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={label}
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-gold/30 text-cream/80 transition-colors hover:border-goldLight hover:text-goldLight"
+                      >
+                        <Icon className="h-4 w-4 fill-current" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import CategoryPicker from '../../components/admin/CategoryPicker.jsx'
 import BadgesInput from '../../components/admin/BadgesInput.jsx'
 import FocalPointPicker from '../../components/admin/FocalPointPicker.jsx'
 import RichTextEditor from '../../components/admin/RichTextEditor.jsx'
+import TranslationFields from '../../components/admin/TranslationFields.jsx'
 import { formatLKR } from '../../lib/currency.js'
 
 // Ingredient-based only — no web search, so this needs nothing beyond
@@ -58,7 +59,11 @@ function AiDescriptionButton({ name, category, onGenerated }) {
 
 const emptyForm = {
   name: '',
+  name_si: '',
+  name_ta: '',
   description: '',
+  description_si: '',
+  description_ta: '',
   price_lkr: '',
   stock_qty: '',
   category_id: null,
@@ -315,6 +320,14 @@ export default function ProductsPage() {
           <RichTextEditor value={form.description} onChange={(description) => setForm({ ...form, description })} placeholder="Description" rows={5} />
         </div>
         <AiDescriptionButton name={form.name} category={form.category_id} onGenerated={(description) => setForm({ ...form, description })} />
+        <TranslationFields
+          values={form}
+          onChange={(patch) => setForm({ ...form, ...patch })}
+          fields={[
+            { key: 'name', label: 'Name' },
+            { key: 'description', label: 'Description', richText: true },
+          ]}
+        />
         <div className="col-span-2 md:col-span-5 border-t border-gold/20 pt-3">
           <BadgesInput value={form.badges} onChange={(badges) => setForm({ ...form, badges })} />
         </div>
@@ -374,6 +387,16 @@ export default function ProductsPage() {
                           name={editForm.name}
                           category={editForm.category_id}
                           onGenerated={(description) => setEditForm({ ...editForm, description })}
+                        />
+                      </div>
+                      <div className="mt-2">
+                        <TranslationFields
+                          values={editForm}
+                          onChange={(patch) => setEditForm({ ...editForm, ...patch })}
+                          fields={[
+                            { key: 'name', label: 'Name' },
+                            { key: 'description', label: 'Description', richText: true },
+                          ]}
                         />
                       </div>
                       <div className="mt-2">

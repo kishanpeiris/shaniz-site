@@ -46,7 +46,6 @@ export default function Visit() {
             </p>
             <dl className="space-y-3 text-sm">
               {[
-                ['Studio', info.address],
                 ['Phone', info.phone],
                 ['Email', info.email],
               ].map(([label, value]) => (

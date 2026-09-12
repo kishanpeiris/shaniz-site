@@ -4,6 +4,7 @@ import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import AyubowanGraphic from '../components/AyubowanGraphic.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { formatCalendarDate } from '../lib/date.js'
 import { apiGet, API_URL } from '../api/client.js'
@@ -15,6 +16,7 @@ export default function ThankYouPage() {
   const [searchParams] = useSearchParams()
   const guestEmail = searchParams.get('email') || ''
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [order, setOrder] = useState(null)
 
   useEffect(() => {
@@ -42,11 +44,8 @@ export default function ThankYouPage() {
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-goldLight">
               ආයුබෝවන් · Ayubowan
             </p>
-            <h1 className="mb-4 text-4xl text-cream">Thank you for your purchase.</h1>
-            <p className="text-cream/80">
-              May this ritual bring you the same care our grandmothers put into every batch. Please
-              visit us again.
-            </p>
+            <h1 className="mb-4 text-4xl text-cream">{t('thankyou_title')}</h1>
+            <p className="text-cream/80">{t('thankyou_subtitle')}</p>
           </div>
         </section>
 
@@ -54,7 +53,7 @@ export default function ThankYouPage() {
           {order ? (
             <div className="mb-10 rounded-sm border border-gold/30 bg-ivory p-6 text-left">
               <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm text-[#8a8672]">Order {order.id.slice(0, 8)}</span>
+                <span className="text-sm text-[#8a8672]">{t('order_label')} {order.id.slice(0, 8)}</span>
                 <span className="rounded-full bg-forestDeep px-3 py-1 text-xs uppercase tracking-wide text-cream">
                   {order.status}
                 </span>
@@ -66,7 +65,7 @@ export default function ThankYouPage() {
                       {i.name} × {i.qty}
                       {i.is_preorder && (
                         <span className="block text-xs text-[#8a6d3b]">
-                          Pre-order — est. arrival {formatCalendarDate(i.preorder_eta_date)}
+                          {t('thankyou_preorder_arrival', { date: formatCalendarDate(i.preorder_eta_date) })}
                         </span>
                       )}
                     </span>
@@ -75,15 +74,15 @@ export default function ThankYouPage() {
                 ))}
               </ul>
               <div className="flex justify-between border-t border-gold/20 pt-2 text-sm text-[#5c5949]">
-                <span>Delivery</span>
-                <span>{Number(order.delivery_fee_lkr) ? fmt(order.delivery_fee_lkr) : 'Free / Pickup'}</span>
+                <span>{t('delivery_label')}</span>
+                <span>{Number(order.delivery_fee_lkr) ? fmt(order.delivery_fee_lkr) : t('free_pickup')}</span>
               </div>
               <div className="flex justify-between pt-1 font-serif text-lg font-semibold text-forestDeep">
-                <span>Total</span>
+                <span>{t('total_label')}</span>
                 <span>{fmt(order.total_lkr)}</span>
               </div>
               <p className="mt-3 text-xs text-[#8a8672]">
-                A receipt has been sent to {order.customer_email}.
+                {t('thankyou_receipt_sent', { email: order.customer_email })}
               </p>
               {order.status !== 'pending' && (
                 <a
@@ -92,25 +91,25 @@ export default function ThankYouPage() {
                   rel="noopener noreferrer"
                   className="mt-2 inline-block text-xs font-semibold uppercase tracking-wide text-forestDeep underline"
                 >
-                  Download Invoice
+                  {t('download_invoice')}
                 </a>
               )}
             </div>
           ) : (
-            <p className="mb-10 text-sm text-cream/70">Loading your order summary…</p>
+            <p className="mb-10 text-sm text-cream/70">{t('thankyou_loading_order')}</p>
           )}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Link to="/shop" className="rounded-full bg-gold px-6 py-3 text-xs font-semibold uppercase tracking-wide text-forestDeep">
-              Continue Shopping
+              {t('continue_shopping')}
             </Link>
             {user ? (
               <Link to="/account" className="rounded-full border border-cream/50 px-6 py-3 text-xs uppercase tracking-wide text-cream">
-                View My Orders
+                {t('view_my_orders')}
               </Link>
             ) : (
               <Link to="/register" className="rounded-full border border-cream/50 px-6 py-3 text-xs uppercase tracking-wide text-cream">
-                Create an Account
+                {t('create_an_account')}
               </Link>
             )}
           </div>

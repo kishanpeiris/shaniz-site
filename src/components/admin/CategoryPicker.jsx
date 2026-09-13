@@ -114,7 +114,7 @@ function CategoryManager({ kind, categories, error, onError, onChanged }) {
     <div className="mt-2 rounded-sm border border-gold/25 bg-cream/60 p-3">
       {error && <p className="mb-2 text-xs text-[#a35a3a]">{error}</p>}
       <ul className="mb-3 space-y-1 text-xs">
-        {categories.length === 0 && <li className="text-[#8a8672]">No categories yet.</li>}
+        {categories.length === 0 && <li className="text-[#6a6656]">No categories yet.</li>}
         {topLevel.map((parent) => (
           <React.Fragment key={parent.id}>
             <CategoryRow
@@ -192,7 +192,7 @@ function CategoryRow({ category, indent, renaming, renameValue, onRenameValueCha
             autoFocus
           />
           <button type="button" onClick={onRenameSave} className="text-forestDeep underline">Save</button>
-          <button type="button" onClick={onRenameCancel} className="text-[#8a8672] underline">Cancel</button>
+          <button type="button" onClick={onRenameCancel} className="text-[#6a6656] underline">Cancel</button>
         </>
       ) : (
         <>

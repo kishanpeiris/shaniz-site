@@ -14,7 +14,7 @@ export default function StarRating({ rating = 0, count, size = 'text-sm' }) {
         ))}
       </span>
       {typeof count === 'number' && (
-        <span className="text-[#8a8672]">
+        <span className="text-[#6a6656]">
           {rating > 0 ? rating.toFixed(1) : 'No reviews yet'}
           {count > 0 ? ` (${count})` : ''}
         </span>

@@ -21,7 +21,7 @@ export default function DashboardPage() {
   }, [])
 
   if (error) return <p className="text-sm text-[#a35a3a]">{error}</p>
-  if (!data) return <p className="text-sm text-[#8a8672]">Loading…</p>
+  if (!data) return <p className="text-sm text-[#6a6656]">Loading…</p>
 
   const totalRevenue = data.revenue_by_day.reduce((s, r) => s + Number(r.revenue), 0)
 
@@ -42,7 +42,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-sm border border-gold/30 bg-ivory p-5">
           <h3 className="mb-3 font-serif text-xl">Orders by status</h3>
-          {data.orders_by_status.length === 0 && <p className="text-sm text-[#8a8672]">No orders yet.</p>}
+          {data.orders_by_status.length === 0 && <p className="text-sm text-[#6a6656]">No orders yet.</p>}
           <ul className="space-y-1.5 text-sm">
             {data.orders_by_status.map((r) => (
               <li key={r.status} className="flex justify-between">
@@ -55,7 +55,7 @@ export default function DashboardPage() {
 
         <div className="rounded-sm border border-gold/30 bg-ivory p-5">
           <h3 className="mb-3 font-serif text-xl">Top products</h3>
-          {data.top_products.length === 0 && <p className="text-sm text-[#8a8672]">No paid orders yet.</p>}
+          {data.top_products.length === 0 && <p className="text-sm text-[#6a6656]">No paid orders yet.</p>}
           <ul className="space-y-1.5 text-sm">
             {data.top_products.map((p) => (
               <li key={p.name} className="flex justify-between">
@@ -70,7 +70,7 @@ export default function DashboardPage() {
 
         <div className="rounded-sm border border-gold/30 bg-ivory p-5">
           <h3 className="mb-3 font-serif text-xl">Low stock</h3>
-          {data.low_stock.length === 0 && <p className="text-sm text-[#8a8672]">Nothing low on stock.</p>}
+          {data.low_stock.length === 0 && <p className="text-sm text-[#6a6656]">Nothing low on stock.</p>}
           <ul className="space-y-1.5 text-sm">
             {data.low_stock.map((p) => (
               <li key={p.id} className="flex justify-between text-[#a35a3a]">
@@ -83,7 +83,7 @@ export default function DashboardPage() {
 
         <div className="rounded-sm border border-gold/30 bg-ivory p-5">
           <h3 className="mb-3 font-serif text-xl">Gateway split</h3>
-          {data.gateway_split.length === 0 && <p className="text-sm text-[#8a8672]">No orders yet.</p>}
+          {data.gateway_split.length === 0 && <p className="text-sm text-[#6a6656]">No orders yet.</p>}
           <ul className="space-y-1.5 text-sm">
             {data.gateway_split.map((g) => (
               <li key={g.gateway_used} className="flex justify-between capitalize">
@@ -120,7 +120,7 @@ export default function DashboardPage() {
             </div>
           </div>
           {data.security.recent_fraud_flags.length === 0 ? (
-            <p className="text-sm text-[#8a8672]">No open fraud flags — nothing needs a look right now.</p>
+            <p className="text-sm text-[#6a6656]">No open fraud flags — nothing needs a look right now.</p>
           ) : (
             <ul className="space-y-1.5 text-sm">
               {data.security.recent_fraud_flags.map((f) => (

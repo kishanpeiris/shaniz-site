@@ -116,9 +116,9 @@ export default function MultiImageUploader({ label = 'Photos', images = [], onCh
         disabled={busy}
         className="text-xs"
       />
-      {busy && <p className="mt-1 text-xs text-[#8a8672]">Uploading &amp; resizing…</p>}
+      {busy && <p className="mt-1 text-xs text-[#6a6656]">Uploading &amp; resizing…</p>}
       {error && <p className="mt-1 text-xs text-[#a35a3a]">{error}</p>}
-      <p className="mt-1 text-[0.65rem] text-[#8a8672]">
+      <p className="mt-1 text-[0.65rem] text-[#6a6656]">
         Photos are automatically resized to fit the site. The main photo is what shows on the Shop grid.
       </p>
     </div>

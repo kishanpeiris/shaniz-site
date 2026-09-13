@@ -37,7 +37,7 @@ export default function EmailVerifyPage() {
     <>
       <Nav />
       <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-6 py-16 text-center">
-        {status === 'checking' && <p className="text-sm text-[#8a8672]">Confirming your email…</p>}
+        {status === 'checking' && <p className="text-sm text-[#6a6656]">Confirming your email…</p>}
 
         {status === 'success' && (
           <>
@@ -58,7 +58,7 @@ export default function EmailVerifyPage() {
           <>
             <h1 className="text-2xl text-[#a35a3a]">Couldn&rsquo;t confirm your email</h1>
             <p className="mt-3 text-sm text-[#5c5949]">{error}</p>
-            <p className="mt-1 text-xs text-[#8a8672]">
+            <p className="mt-1 text-xs text-[#6a6656]">
               Verification links expire after 24 hours. You can request a new one from your account page.
             </p>
             <Link to="/account" className="mt-6 text-xs underline text-forestDeep">

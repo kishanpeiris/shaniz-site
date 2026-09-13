@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiPost } from '../api/client.js'
-import logo from '../assets/logo.jpg'
+import BrandLockup from '../components/BrandLockup.jsx'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-cream px-6">
       <div className="w-full max-w-sm rounded-sm border border-gold/30 bg-ivory p-9">
         <div className="mb-7 flex flex-col items-center">
-          <img src={logo} alt="Shani'z" className="mb-3 h-14 w-14 rounded-full border border-gold/40 bg-white p-0.5" />
+          <BrandLockup size="sm" className="mb-3" />
           <h1 className="text-2xl">Reset your password</h1>
         </div>
 
@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
           </form>
         )}
 
-        <p className="mt-6 text-center text-xs text-[#8a8672]">
+        <p className="mt-6 text-center text-xs text-[#6a6656]">
           <Link to="/login" className="underline">
             ← Back to sign in
           </Link>

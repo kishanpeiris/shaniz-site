@@ -1,11 +1,12 @@
 // A deliberately small, hand-picked set of strings — the ones visible
 // on every page (navigation, footer, common buttons/labels) — rather
 // than an attempt to translate every word on the site in one pass.
-// Admin-authored copy (homepage headlines, product/service descriptions)
-// stays English-only for now, since that's free text the admin writes
-// per-product, not a fixed UI string; translating that would mean
-// storing a separate copy of every description per language, which is
-// a bigger content-management change than this first pass covers.
+// Admin-authored copy (homepage headlines, product/service
+// descriptions) is translated separately: each of those has its own
+// name_si/name_ta (etc.) column the admin fills in — by hand or with
+// the "Auto-translate" AI button — rather than living in this file. See
+// TranslationFields.jsx (Products/Services) and SettingsPage.jsx's
+// PageContentEditor (homepage).
 //
 // Sinhala and Tamil strings here were machine-translated for common,
 // short e-commerce phrases — accurate enough to ship, but worth a
@@ -87,6 +88,34 @@ export const TRANSLATIONS = {
   },
   view_my_orders: { en: 'View My Orders', si: 'මගේ ඇණවුම් බලන්න', ta: 'எனது ஆர்டர்களைப் பார்க்க' },
   create_an_account: { en: 'Create an Account', si: 'ගිණුමක් සාදන්න', ta: 'கணக்கு உருவாக்கவும்' },
+
+  // Homepage "Our Story" — the 4 fixed ingredient cards (not admin-editable
+  // CMS content like the rest of the About section, so these live here
+  // as regular UI strings rather than needing _si/_ta database columns).
+  ingredient_amla_name: { en: 'Amla', si: 'නෙල්ලි', ta: 'நெல்லிக்காய்' },
+  ingredient_amla_blurb: {
+    en: 'Strengthens from root to tip',
+    si: 'මුල සිට කෙළවර දක්වා ශක්තිමත් කරයි',
+    ta: 'வேர் முதல் நுனி வரை வலுப்படுத்துகிறது',
+  },
+  ingredient_curry_leaf_name: { en: 'Curry Leaf', si: 'කරපිංචා', ta: 'கறிவேப்பிலை' },
+  ingredient_curry_leaf_blurb: {
+    en: 'Restores natural shine',
+    si: 'ස්වාභාවික දීප්තිය ප්‍රතිසාධනය කරයි',
+    ta: 'இயற்கை பொலிவை மீட்டெடுக்கிறது',
+  },
+  ingredient_neem_name: { en: 'Neem', si: 'කොහොඹ', ta: 'வேம்பு' },
+  ingredient_neem_blurb: {
+    en: 'Calms and clears the scalp',
+    si: 'හිස්කබල සන්සුන් කර පවිත්‍ර කරයි',
+    ta: 'உச்சந்தலையை அமைதிப்படுத்தி தெளிவாக்குகிறது',
+  },
+  ingredient_rosemary_name: { en: 'Rosemary', si: 'රෝස්මරී', ta: 'ரோஸ்மேரி' },
+  ingredient_rosemary_blurb: {
+    en: 'Encourages new growth',
+    si: 'නව වර්ධනයට දිරිගන්වයි',
+    ta: 'புதிய வளர்ச்சியை ஊக்குவிக்கிறது',
+  },
 }
 
 // vars is optional — e.g. translate('thankyou_receipt_sent', 'si', { email:

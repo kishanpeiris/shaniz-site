@@ -129,7 +129,7 @@ function ProfileSection() {
           <input
             value={user?.email || ''}
             disabled
-            className="w-full rounded-sm border border-gold/30 bg-cream/60 px-3 py-2 text-sm text-[#8a8672] sm:w-auto"
+            className="w-full rounded-sm border border-gold/30 bg-cream/60 px-3 py-2 text-sm text-[#6a6656] sm:w-auto"
           />
         </div>
         <button className="w-full rounded-full bg-forestDeep px-5 py-2.5 text-xs uppercase tracking-wide text-cream sm:w-auto sm:py-2">
@@ -224,7 +224,7 @@ function AddressesSection() {
 
   return (
     <Section title="Saved addresses">
-      {addresses.length === 0 && <p className="mb-4 text-sm text-[#8a8672]">No saved addresses yet.</p>}
+      {addresses.length === 0 && <p className="mb-4 text-sm text-[#6a6656]">No saved addresses yet.</p>}
       <ul className="mb-4 space-y-2">
         {addresses.map((a) => (
           <li key={a.id} className="flex flex-col gap-2 rounded-sm border border-gold/20 bg-cream px-4 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between">
@@ -265,7 +265,7 @@ function PaymentMethodsSection() {
   return (
     <Section title="Saved payment methods">
       {methods.length === 0 ? (
-        <p className="text-sm text-[#8a8672]">
+        <p className="text-sm text-[#6a6656]">
           No saved cards yet. A card is saved automatically the next time you check out with a
           gateway that supports "remember this card."
         </p>
@@ -296,7 +296,7 @@ function OrderHistorySection() {
   return (
     <Section title="Order history">
       {orders.length === 0 ? (
-        <p className="text-sm text-[#8a8672]">No orders yet.</p>
+        <p className="text-sm text-[#6a6656]">No orders yet.</p>
       ) : (
         <div className="space-y-3">
           {orders.map((o) => (
@@ -315,7 +315,7 @@ function OrderHistorySection() {
                   Download Invoice
                 </a>
               )}
-              <p className="mt-1 text-xs text-[#8a8672]">
+              <p className="mt-1 text-xs text-[#6a6656]">
                 {new Date(o.created_at).toLocaleDateString()} · {fmt(o.total_lkr)} · via {o.gateway_used}
               </p>
               <ul className="mt-2 text-xs text-[#5c5949]">
@@ -347,7 +347,7 @@ function BookingsSection() {
   return (
     <Section title="Your bookings">
       {bookings.length === 0 ? (
-        <p className="text-sm text-[#8a8672]">No bookings yet.</p>
+        <p className="text-sm text-[#6a6656]">No bookings yet.</p>
       ) : (
         <ul className="space-y-2">
           {bookings.map((b) => (
@@ -406,7 +406,7 @@ export default function AccountPage() {
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl">My Account</h1>
-            <p className="text-sm text-[#8a8672]">Signed in as {user?.email}</p>
+            <p className="text-sm text-[#6a6656]">Signed in as {user?.email}</p>
           </div>
           <button onClick={logout} className="self-start text-xs uppercase tracking-wide text-[#a35a3a] underline sm:self-auto">
             Sign out
@@ -422,7 +422,7 @@ export default function AccountPage() {
         <OrderHistorySection />
         <BookingsSection />
 
-        <p className="text-center text-xs text-[#8a8672]">
+        <p className="text-center text-xs text-[#6a6656]">
           <Link to="/" className="underline">
             ← Back to the storefront
           </Link>

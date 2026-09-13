@@ -79,7 +79,7 @@ export default function CustomersPage() {
               </tr>
             ))}
             {customers.length === 0 && (
-              <tr><td colSpan={9} className="p-4 text-center text-[#8a8672]">No customer accounts yet.</td></tr>
+              <tr><td colSpan={9} className="p-4 text-center text-[#6a6656]">No customer accounts yet.</td></tr>
             )}
           </tbody>
         </table>

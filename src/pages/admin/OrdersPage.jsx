@@ -72,7 +72,7 @@ export default function OrdersPage() {
                 <td className="p-3 text-xs">{new Date(o.created_at).toLocaleString()}</td>
                 <td className="p-3 text-xs">
                   {o.status === 'pending' ? (
-                    <span className="text-[#8a8672]">—</span>
+                    <span className="text-[#6a6656]">—</span>
                   ) : (
                     <a
                       href={`${API_URL}/api/orders/${o.id}/invoice`}
@@ -87,7 +87,7 @@ export default function OrdersPage() {
               </tr>
             ))}
             {orders.length === 0 && (
-              <tr><td colSpan={7} className="p-4 text-center text-[#8a8672]">No orders yet.</td></tr>
+              <tr><td colSpan={7} className="p-4 text-center text-[#6a6656]">No orders yet.</td></tr>
             )}
           </tbody>
         </table>

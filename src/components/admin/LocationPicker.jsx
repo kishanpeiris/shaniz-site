@@ -122,7 +122,7 @@ export default function LocationPicker({ latitude, longitude, address, onChange 
         >
           {geocoding ? 'Finding…' : 'Find on map from address'}
         </button>
-        <p className="text-[0.7rem] text-[#8a8672]">…or click/drag the pin directly.</p>
+        <p className="text-[0.7rem] text-[#6a6656]">…or click/drag the pin directly.</p>
       </div>
       {geocodeError && <p className="mb-2 text-xs text-[#a35a3a]">{geocodeError}</p>}
       <div ref={mapContainerRef} className="h-56 w-full overflow-hidden rounded-sm border border-gold/30" />

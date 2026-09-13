@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { apiGet, apiPut } from '../../api/client.js'
 import { HOMEPAGE_CONTENT_DEFAULTS } from '../../hooks/useHomepageContent.js'
 import ImageUploader from '../../components/admin/ImageUploader.jsx'
+import TranslationFields from '../../components/admin/TranslationFields.jsx'
 
 // A simple "list of uploaded videos, add more, remove any" control — no
 // drag-to-reorder or per-video captions, just what's needed to build the
@@ -16,7 +17,7 @@ function VideoListField({ label, hint, value = [], onChange, max = 9 }) {
   return (
     <div>
       <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">{label}</p>
-      {hint && <p className="mb-2 text-xs text-[#8a8672]">{hint}</p>}
+      {hint && <p className="mb-2 text-xs text-[#6a6656]">{hint}</p>}
       {value.length > 0 && (
         <div className="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {value.map((url) => (
@@ -43,7 +44,7 @@ function VideoListField({ label, hint, value = [], onChange, max = 9 }) {
           endpoint="/api/uploads/video"
         />
       ) : (
-        <p className="text-xs text-[#8a8672]">Maximum of {max} videos reached — remove one to add another.</p>
+        <p className="text-xs text-[#6a6656]">Maximum of {max} videos reached — remove one to add another.</p>
       )}
     </div>
   )
@@ -84,7 +85,7 @@ function BusinessInfoForm() {
   return (
     <section className="mb-10 rounded-sm border border-gold/30 bg-ivory p-6">
       <h3 className="mb-2 text-xl">Business Info</h3>
-      <p className="mb-5 max-w-2xl text-sm text-[#8a8672]">
+      <p className="mb-5 max-w-2xl text-sm text-[#6a6656]">
         Non-secret business info shown on the storefront (Visit Us section, footer). API keys and
         database credentials are not managed here — those stay in your hosting provider's
         environment variables, for security.
@@ -110,7 +111,7 @@ function BusinessInfoForm() {
         </div>
         <div className="sm:col-span-2">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-moss">Social links</p>
-          <p className="mb-3 text-xs text-[#8a8672]">
+          <p className="mb-3 text-xs text-[#6a6656]">
             Leave any of these blank to hide that icon in the footer — none are required.
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -164,7 +165,7 @@ function BusinessInfoForm() {
             placeholder="94771234567"
             className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
           />
-          <p className="mt-1 text-xs text-[#8a8672]">
+          <p className="mt-1 text-xs text-[#6a6656]">
             Digits only, with country code, no + or spaces. Leave blank to hide the WhatsApp button/icon on the site.
           </p>
         </div>
@@ -212,7 +213,7 @@ function BookingRemindersForm() {
   return (
     <section className="mb-10 rounded-sm border border-gold/30 bg-ivory p-6">
       <h3 className="mb-2 text-xl">Booking Reminder Emails</h3>
-      <p className="mb-4 max-w-2xl text-sm text-[#8a8672]">
+      <p className="mb-4 max-w-2xl text-sm text-[#6a6656]">
         When on, customers with a confirmed appointment automatically get a reminder email the day
         before their booking — sent once a day, no action needed from you.
       </p>
@@ -236,7 +237,7 @@ function Field({ label, value, onChange, textarea, hint }) {
   return (
     <div>
       <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-moss">{label}</label>
-      {hint && <p className="mb-1 text-xs text-[#8a8672]">{hint}</p>}
+      {hint && <p className="mb-1 text-xs text-[#6a6656]">{hint}</p>}
       <Tag
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -256,7 +257,7 @@ function BackgroundField({ label, value, onChange, hint, accept = 'image/jpeg,im
   return (
     <div>
       <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">{label}</p>
-      {hint && <p className="mb-1 text-xs text-[#8a8672]">{hint}</p>}
+      {hint && <p className="mb-1 text-xs text-[#6a6656]">{hint}</p>}
       <div className="flex items-center gap-3">
         {value && kind === 'video' && (
           <video src={value} muted loop autoPlay playsInline className="h-14 w-14 rounded-sm border border-gold/30 object-cover" />
@@ -265,7 +266,7 @@ function BackgroundField({ label, value, onChange, hint, accept = 'image/jpeg,im
           <img src={value} alt="" className="h-14 w-14 rounded-sm border border-gold/30 object-cover" />
         )}
         {!value && (
-          <span className="flex h-14 w-14 items-center justify-center rounded-sm border border-dashed border-gold/40 text-center text-[0.6rem] text-[#8a8672]">
+          <span className="flex h-14 w-14 items-center justify-center rounded-sm border border-dashed border-gold/40 text-center text-[0.6rem] text-[#6a6656]">
             Using default
           </span>
         )}
@@ -303,6 +304,7 @@ function PageContentEditor() {
   }, [])
 
   const set = (key) => (value) => setForm((f) => ({ ...f, [key]: value }))
+  const patch = (fields) => setForm((f) => ({ ...f, ...fields }))
 
   const save = async (e) => {
     e.preventDefault()
@@ -322,7 +324,7 @@ function PageContentEditor() {
   return (
     <section>
       <h3 className="mb-2 text-xl">Page Content</h3>
-      <p className="mb-6 max-w-2xl text-sm text-[#8a8672]">
+      <p className="mb-6 max-w-2xl text-sm text-[#6a6656]">
         Edit the headlines, copy, photos, and background images on the homepage — no code changes
         needed. Changes go live as soon as you save. Product/service photos and hover videos are
         still edited from their own Products/Services pages, not here.
@@ -338,6 +340,17 @@ function PageContentEditor() {
             <Field label="Button 1 label" value={form.hero_cta1_label} onChange={set('hero_cta1_label')} />
             <Field label="Button 2 label" value={form.hero_cta2_label} onChange={set('hero_cta2_label')} />
           </div>
+          <TranslationFields
+            values={form}
+            onChange={patch}
+            fields={[
+              { key: 'hero_eyebrow', label: 'Eyebrow' },
+              { key: 'hero_headline', label: 'Headline' },
+              { key: 'hero_subtext', label: 'Subtext' },
+              { key: 'hero_cta1_label', label: 'Button 1 label' },
+              { key: 'hero_cta2_label', label: 'Button 2 label' },
+            ]}
+          />
           <div className="grid gap-4 border-t border-gold/20 pt-4 sm:grid-cols-2">
             <BackgroundField
               label="Background photo (fallback if video doesn't load)"
@@ -366,6 +379,16 @@ function PageContentEditor() {
           />
           <Field label="Paragraph 1" value={form.about_paragraph1} onChange={set('about_paragraph1')} textarea />
           <Field label="Paragraph 2" value={form.about_paragraph2} onChange={set('about_paragraph2')} textarea />
+          <TranslationFields
+            values={form}
+            onChange={patch}
+            fields={[
+              { key: 'about_eyebrow', label: 'Eyebrow' },
+              { key: 'about_headline', label: 'Headline' },
+              { key: 'about_paragraph1', label: 'Paragraph 1' },
+              { key: 'about_paragraph2', label: 'Paragraph 2' },
+            ]}
+          />
           <div className="grid gap-4 border-t border-gold/20 pt-4 sm:grid-cols-2">
             <BackgroundField label="Side photo (next to the text)" value={form.about_image_url} onChange={set('about_image_url')} />
             <BackgroundField label="Background texture" value={form.about_background_url} onChange={set('about_background_url')} />
@@ -376,13 +399,22 @@ function PageContentEditor() {
           <Field label="Eyebrow" value={form.ritual_eyebrow} onChange={set('ritual_eyebrow')} />
           <Field label="Headline" value={form.ritual_headline} onChange={set('ritual_headline')} />
           <Field label="Subtext" value={form.ritual_subtext} onChange={set('ritual_subtext')} textarea />
+          <TranslationFields
+            values={form}
+            onChange={patch}
+            fields={[
+              { key: 'ritual_eyebrow', label: 'Eyebrow' },
+              { key: 'ritual_headline', label: 'Headline' },
+              { key: 'ritual_subtext', label: 'Subtext' },
+            ]}
+          />
           <div className="border-t border-gold/20 pt-4 sm:max-w-xs">
             <BackgroundField label="Background texture" value={form.ritual_background_url} onChange={set('ritual_background_url')} />
           </div>
         </Section>
 
         <Section title="See It Made (process videos)">
-          <p className="-mt-2 text-xs text-[#8a8672]">
+          <p className="-mt-2 text-xs text-[#6a6656]">
             Shows as a row of up to 3 videos on the homepage, with arrows to page through more if
             you add more than 3. Leave this empty to keep showing the original Facebook video.
           </p>

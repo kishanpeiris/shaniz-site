@@ -53,7 +53,7 @@ export default function ThankYouPage() {
           {order ? (
             <div className="mb-10 rounded-sm border border-gold/30 bg-ivory p-6 text-left">
               <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm text-[#8a8672]">{t('order_label')} {order.id.slice(0, 8)}</span>
+                <span className="text-sm text-[#6a6656]">{t('order_label')} {order.id.slice(0, 8)}</span>
                 <span className="rounded-full bg-forestDeep px-3 py-1 text-xs uppercase tracking-wide text-cream">
                   {order.status}
                 </span>
@@ -81,7 +81,7 @@ export default function ThankYouPage() {
                 <span>{t('total_label')}</span>
                 <span>{fmt(order.total_lkr)}</span>
               </div>
-              <p className="mt-3 text-xs text-[#8a8672]">
+              <p className="mt-3 text-xs text-[#6a6656]">
                 {t('thankyou_receipt_sent', { email: order.customer_email })}
               </p>
               {order.status !== 'pending' && (

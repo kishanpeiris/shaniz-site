@@ -5,12 +5,15 @@ import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { toPlainText } from './RichText.jsx'
 import BadgeRow from './BadgeRow.jsx'
+import { localizedField } from '../lib/localize.js'
 
 export default function ServiceCard({ service, onReserve }) {
   const { addItem } = useCart()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [hovering, setHovering] = useState(false)
   const isBookable = service.serviceType === 'bookable'
+  const displayName = localizedField(service, 'name', language)
+  const displayDescription = localizedField(service, 'description', language)
 
   // Same fallback order as ProductCard: video, then webp, then the
   // legacy gif field, then just the still photo (or the shared default
@@ -55,7 +58,9 @@ export default function ServiceCard({ service, onReserve }) {
         ) : (
           <img
             src={displayImage}
-            alt={service.name}
+            alt={displayName}
+            loading="lazy"
+            decoding="async"
             style={{ objectPosition: `${service.imageFocal.x}% ${service.imageFocal.y}%` }}
             className="h-full w-full object-cover transition-opacity duration-300"
           />
@@ -64,14 +69,14 @@ export default function ServiceCard({ service, onReserve }) {
       <div className="flex flex-1 flex-col gap-2 p-5">
         <span className="text-[0.68rem] uppercase tracking-[0.14em] text-moss">{service.tagline}</span>
         <Link to={`/service/${service.id}`}>
-          <h3 className="font-serif text-2xl text-forestDeep hover:text-moss">{service.name}</h3>
+          <h3 className="font-serif text-2xl text-forestDeep hover:text-moss">{displayName}</h3>
         </Link>
-        <p className="flex-1 text-sm text-[#6a6656]">{toPlainText(service.description)}</p>
-        <div className="mt-2 flex items-center justify-between">
-          <span className="font-serif text-xl font-semibold text-forestDeep">{fmt(service.price)}</span>
+        <p className="line-clamp-2 flex-1 text-sm text-[#6a6656]">{toPlainText(displayDescription)}</p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <span className="whitespace-nowrap font-serif text-xl font-semibold text-forestDeep">{fmt(service.price)}</span>
           <button
             onClick={() => (isBookable ? onReserve?.() : addItem(service))}
-            className="rounded-full bg-forestDeep px-4 py-2.5 text-[0.72rem] uppercase tracking-wide text-cream transition-colors hover:bg-gold hover:text-forestDeep"
+            className="shrink-0 rounded-full bg-forestDeep px-4 py-2.5 text-[0.72rem] uppercase tracking-wide text-cream transition-colors hover:bg-gold hover:text-forestDeep"
           >
             {isBookable ? t('reserve_a_slot') : t('add_to_basket')}
           </button>

@@ -9,7 +9,7 @@ import { formatCalendarDate } from '../lib/date.js'
 function RatingBar({ star, count, total }) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0
   return (
-    <div className="flex items-center gap-2 text-xs text-[#8a8672]">
+    <div className="flex items-center gap-2 text-xs text-[#6a6656]">
       <span className="w-10">{star} star</span>
       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#e9e2cd]">
         <div className="h-full rounded-full bg-gold" style={{ width: `${pct}%` }} />
@@ -124,7 +124,7 @@ export default function ProductReviews({ productId }) {
             </span>
             <StarRating rating={summary.average} size="text-lg" />
           </div>
-          <p className="mb-4 mt-1 text-sm text-[#8a8672]">
+          <p className="mb-4 mt-1 text-sm text-[#6a6656]">
             Based on {summary.count} review{summary.count === 1 ? '' : 's'}
           </p>
           <div className="space-y-1.5">
@@ -136,7 +136,7 @@ export default function ProductReviews({ productId }) {
 
         <div>
           {reviews.length === 0 && (
-            <p className="mb-5 text-sm text-[#8a8672]">
+            <p className="mb-5 text-sm text-[#6a6656]">
               No reviews yet — be the first to share what you thought.
             </p>
           )}
@@ -158,7 +158,7 @@ export default function ProductReviews({ productId }) {
                   )}
                 </div>
                 {r.comment && <p className="mt-1.5 text-sm text-[#5c5949]">{r.comment}</p>}
-                <p className="mt-1.5 text-xs text-[#8a8672]">
+                <p className="mt-1.5 text-xs text-[#6a6656]">
                   {r.author_name} · {formatCalendarDate(r.created_at)}
                   {r.is_verified_purchase && (
                     <span className="ml-2 rounded-full bg-moss/15 px-2 py-0.5 text-[0.65rem] uppercase tracking-wide text-moss">
@@ -172,7 +172,7 @@ export default function ProductReviews({ productId }) {
 
           <div className="mt-6">
             {!user && (
-              <p className="text-sm text-[#8a8672]">
+              <p className="text-sm text-[#6a6656]">
                 <Link to="/login" className="text-moss underline">
                   Log in
                 </Link>{' '}

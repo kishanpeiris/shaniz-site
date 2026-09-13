@@ -10,12 +10,16 @@ export function normalizeService(s) {
     id: s.id,
     type: 'service',
     name: s.name,
+    name_si: s.name_si || null,
+    name_ta: s.name_ta || null,
     tagline: `${s.service_type === 'bookable' ? 'In-Studio' : 'Add to Basket'}${
       s.duration_minutes ? ` · ${s.duration_minutes} Minutes` : ''
     }`,
     category: s.category || null,
     categoryId: s.category_id || null,
     description: s.description,
+    description_si: s.description_si || null,
+    description_ta: s.description_ta || null,
     price: Number(s.price_lkr),
     serviceType: s.service_type,
     durationMinutes: s.duration_minutes,

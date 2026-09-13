@@ -35,7 +35,7 @@ export default function BlacklistPage() {
   return (
     <div>
       <h2 className="mb-2 text-3xl">Blacklist</h2>
-      <p className="mb-6 text-sm text-[#8a8672]">
+      <p className="mb-6 text-sm text-[#6a6656]">
         Emails listed here can never register a new account. Existing accounts are not affected.
       </p>
 
@@ -90,7 +90,7 @@ export default function BlacklistPage() {
               </tr>
             ))}
             {entries.length === 0 && (
-              <tr><td colSpan={5} className="p-4 text-center text-[#8a8672]">No blacklisted emails.</td></tr>
+              <tr><td colSpan={5} className="p-4 text-center text-[#6a6656]">No blacklisted emails.</td></tr>
             )}
           </tbody>
         </table>

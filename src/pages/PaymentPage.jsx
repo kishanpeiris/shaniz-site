@@ -77,7 +77,7 @@ export default function PaymentPage() {
         <Nav />
         <div className="mx-auto max-w-lg px-6 py-20 text-center">
           <h1 className="mb-3 text-3xl">We couldn&rsquo;t find that order</h1>
-          <p className="mb-6 text-sm text-[#8a8672]">{loadError}</p>
+          <p className="mb-6 text-sm text-[#6a6656]">{loadError}</p>
           <Link to="/shop" className="rounded-full bg-forestDeep px-6 py-3 text-xs uppercase tracking-wide text-cream">
             Back to Shop
           </Link>
@@ -91,7 +91,7 @@ export default function PaymentPage() {
     return (
       <>
         <Nav />
-        <div className="py-24 text-center text-sm text-[#8a8672]">Loading your order…</div>
+        <div className="py-24 text-center text-sm text-[#6a6656]">Loading your order…</div>
         <Footer />
       </>
     )
@@ -122,7 +122,7 @@ export default function PaymentPage() {
         compact
       />
       <div className="mx-auto max-w-lg px-6 py-14">
-        <p className="mb-8 text-center text-sm text-[#8a8672]">
+        <p className="mb-8 text-center text-sm text-[#6a6656]">
           Order {order.id.slice(0, 8)} · Total <strong>{fmt(order.total_lkr)}</strong>
         </p>
 
@@ -178,7 +178,7 @@ export default function PaymentPage() {
                   {paying ? 'Processing…' : `Pay ${fmt(order.total_lkr)}`}
                 </button>
               </form>
-              <p className="mt-4 text-center text-xs text-[#8a8672]">
+              <p className="mt-4 text-center text-xs text-[#6a6656]">
                 Sandbox mode — no real charge is made, and your card number is never sent to our
                 servers. Once live gateway credentials are configured, this step redirects to
                 Dialog Genie&rsquo;s own secure hosted payment page.

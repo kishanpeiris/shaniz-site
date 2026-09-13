@@ -7,7 +7,7 @@ export default function RequireRole({ roles, children }) {
   const location = useLocation()
 
   if (loading) {
-    return <div className="flex min-h-screen items-center justify-center text-sm text-[#8a8672]">Loading…</div>
+    return <div className="flex min-h-screen items-center justify-center text-sm text-[#6a6656]">Loading…</div>
   }
   if (!user || !roles.includes(user.role)) {
     return <Navigate to="/login" state={{ from: location }} replace />

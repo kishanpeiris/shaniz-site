@@ -42,7 +42,7 @@ function AddressFields({ value, onChange, prefix }) {
         onChange={(e) => onChange({ ...value, postal_code: e.target.value })}
         className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm"
       />
-      <p className="col-span-2 text-xs text-[#8a8672]">Sri Lanka only, at this time — {prefix}.</p>
+      <p className="col-span-2 text-xs text-[#6a6656]">Sri Lanka only, at this time — {prefix}.</p>
     </div>
   )
 }
@@ -189,7 +189,7 @@ export default function CheckoutPage() {
                 <input required placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
                 <input required type="tel" placeholder="Mobile number" value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
                 {user ? (
-                  <input disabled value={user.email} className="rounded-sm border border-gold/30 bg-cream/60 px-3 py-2.5 text-sm text-[#8a8672]" />
+                  <input disabled value={user.email} className="rounded-sm border border-gold/30 bg-cream/60 px-3 py-2.5 text-sm text-[#6a6656]" />
                 ) : (
                   <input required type="email" placeholder="Email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
                 )}
@@ -233,7 +233,7 @@ export default function CheckoutPage() {
                     ))}
                   </select>
                   {selectedRegion && (
-                    <p className="mb-4 -mt-2 text-xs text-[#8a8672]">e.g. {selectedRegion.example}</p>
+                    <p className="mb-4 -mt-2 text-xs text-[#6a6656]">e.g. {selectedRegion.example}</p>
                   )}
 
                   {user && addresses.length > 0 && (
@@ -316,7 +316,7 @@ export default function CheckoutPage() {
                       />
                       <span>
                         <span className="block font-medium text-forestDeep">{g.label}</span>
-                        <span className="block text-xs text-[#8a8672]">{g.hint}</span>
+                        <span className="block text-xs text-[#6a6656]">{g.hint}</span>
                       </span>
                     </span>
                     {g.card && <CardBrandRow />}
@@ -366,7 +366,7 @@ export default function CheckoutPage() {
             >
               {submitting ? 'Placing order…' : 'Place Order'}
             </button>
-            <p className="text-center text-xs text-[#8a8672]">
+            <p className="text-center text-xs text-[#6a6656]">
               All prices in LKR. You'll enter payment details on the next step.
             </p>
             </div>

@@ -64,7 +64,7 @@ export default function BranchesPage() {
   return (
     <div>
       <h2 className="mb-2 text-3xl">Branches</h2>
-      <p className="mb-6 text-sm text-[#8a8672]">
+      <p className="mb-6 text-sm text-[#6a6656]">
         Physical locations. Assign a branch to a bookable service (in Admin → Services) to show its address and a
         map link on the storefront. Latitude/longitude are optional — without them, the map link still works from
         the address text alone, just slightly less precisely.
@@ -124,7 +124,7 @@ export default function BranchesPage() {
             )}
           </div>
         ))}
-        {branches.length === 0 && <p className="text-sm text-[#8a8672]">No branches yet — add one above.</p>}
+        {branches.length === 0 && <p className="text-sm text-[#6a6656]">No branches yet — add one above.</p>}
       </div>
     </div>
   )

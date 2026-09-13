@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import logo from '../assets/logo.jpg'
+import BrandLockup from './BrandLockup.jsx'
 import { useBusinessInfo } from '../hooks/useBusinessInfo.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { FacebookIcon, InstagramIcon, TikTokIcon, LinkedInIcon, WhatsAppIcon } from './SocialIcons.jsx'
@@ -12,14 +12,7 @@ export default function Footer() {
     <footer className="bg-forestDeep pb-6 pt-12 text-cream/70">
       <div className="mx-auto max-w-6xl px-7">
         <div className="flex flex-wrap justify-between gap-8 border-b border-gold/25 pb-8">
-          <div className="flex items-center gap-3.5">
-            <img
-              src={logo}
-              alt="Shani'z logo"
-              className="h-12 w-12 rounded-full border border-gold/40 bg-white object-cover p-0.5 sm:h-16 sm:w-16"
-            />
-            <span className="font-serif text-2xl text-ivory">Shani&rsquo;z</span>
-          </div>
+          <BrandLockup size="md" variant="light" />
 
           <div className="flex flex-wrap gap-10">
             <div>
@@ -60,7 +53,7 @@ export default function Footer() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={label}
-                        className="flex h-9 w-9 items-center justify-center rounded-full border border-gold/30 text-cream/80 transition-colors hover:border-goldLight hover:text-goldLight"
+                        className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/30 text-cream/80 transition-colors hover:border-goldLight hover:text-goldLight"
                       >
                         <Icon className="h-4 w-4 fill-current" />
                       </a>

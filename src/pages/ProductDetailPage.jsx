@@ -117,7 +117,7 @@ export default function ProductDetailPage() {
     return (
       <>
         <Nav />
-        <div className="py-24 text-center text-sm text-[#8a8672]">Loading…</div>
+        <div className="py-24 text-center text-sm text-[#6a6656]">Loading…</div>
         <Footer />
       </>
     )
@@ -129,7 +129,7 @@ export default function ProductDetailPage() {
         <Nav />
         <div className="py-24 text-center">
           <h1 className="mb-2 text-2xl">We couldn't find that product</h1>
-          <p className="mb-6 text-sm text-[#8a8672]">{error}</p>
+          <p className="mb-6 text-sm text-[#6a6656]">{error}</p>
           <Link to="/shop" className="rounded-full bg-forestDeep px-5 py-2.5 text-xs uppercase tracking-wide text-cream">
             Back to Shop
           </Link>
@@ -199,13 +199,13 @@ export default function ProductDetailPage() {
                         <span className="absolute inset-0 flex items-center justify-center bg-forestDeep/30 text-cream">▶</span>
                       </>
                     ) : (
-                      <img src={m.src} alt="" className="h-full w-full object-cover" />
+                      <img src={m.src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     )}
                   </button>
                 ))}
               </div>
             )}
-            <p className="mt-2 text-xs text-[#8a8672]">Click to view full size and navigate through all photos{product.detailVideo ? ' and the video' : ''}.</p>
+            <p className="mt-2 text-xs text-[#6a6656]">Click to view full size and navigate through all photos{product.detailVideo ? ' and the video' : ''}.</p>
           </div>
 
           {/* Details */}
@@ -246,7 +246,7 @@ export default function ProductDetailPage() {
                 <div className="flex items-center gap-2 rounded-full border border-gold/40 px-1">
                   <button
                     onClick={() => setQty((q) => Math.max(1, q - 1))}
-                    className="flex h-9 w-9 items-center justify-center text-lg text-forestDeep"
+                    className="flex h-11 w-11 items-center justify-center text-lg text-forestDeep"
                     aria-label="Decrease quantity"
                   >
                     −
@@ -254,7 +254,7 @@ export default function ProductDetailPage() {
                   <span className="w-6 text-center">{qty}</span>
                   <button
                     onClick={() => setQty((q) => q + 1)}
-                    className="flex h-9 w-9 items-center justify-center text-lg text-forestDeep"
+                    className="flex h-11 w-11 items-center justify-center text-lg text-forestDeep"
                     aria-label="Increase quantity"
                   >
                     +

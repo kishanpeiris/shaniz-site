@@ -49,7 +49,7 @@ export default function ImageUploader({ label, value, onChange, accept = 'image/
             disabled={busy}
             className="text-xs"
           />
-          {busy && <p className="mt-1 text-xs text-[#8a8672]">Uploading…</p>}
+          {busy && <p className="mt-1 text-xs text-[#6a6656]">Uploading…</p>}
           {error && <p className="mt-1 text-xs text-[#a35a3a]">{error}</p>}
           {value && !busy && (
             <button

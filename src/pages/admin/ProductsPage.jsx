@@ -333,7 +333,7 @@ export default function ProductsPage() {
         </div>
         <div className="col-span-2 md:col-span-5 border-t border-gold/20 pt-3">
           <AvailabilityFields value={form} onChange={setForm} />
-          <p className="mt-1.5 text-[0.65rem] text-[#8a8672]">
+          <p className="mt-1.5 text-[0.65rem] text-[#6a6656]">
             Only matters once stock qty reaches 0 — while stock is available, the product always shows as in stock.
           </p>
         </div>
@@ -346,14 +346,14 @@ export default function ProductsPage() {
             onChange={(image_focal_x, image_focal_y) => setForm({ ...form, image_focal_x, image_focal_y })}
           />
           <MediaFields value={form} onChange={setForm} />
-          <p className="text-xs text-[#8a8672]">
+          <p className="text-xs text-[#6a6656]">
             On the Shop grid, hover tries the video first, then the animated WebP, then falls back to the main photo.
             The detail-page video (optional) shows in the gallery on the product page alongside the photos.
           </p>
         </div>
         <div className="col-span-2 flex items-center gap-3 md:col-span-5">
           <button type="submit" className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add Product</button>
-          <button type="button" onClick={cancelCreate} className="text-xs underline text-[#8a8672]">Cancel</button>
+          <button type="button" onClick={cancelCreate} className="text-xs underline text-[#6a6656]">Cancel</button>
         </div>
       </form>
 
@@ -423,7 +423,7 @@ export default function ProductsPage() {
                     <td className="p-3">{p.is_active ? 'Active' : 'Inactive'}</td>
                     <td className="p-3">
                       <button onClick={() => saveEdit(p.id)} className="mr-2 text-xs underline text-forestDeep">Save</button>
-                      <button onClick={() => setEditingId(null)} className="text-xs underline text-[#8a8672]">Cancel</button>
+                      <button onClick={() => setEditingId(null)} className="text-xs underline text-[#6a6656]">Cancel</button>
                     </td>
                   </>
                 ) : (
@@ -435,7 +435,7 @@ export default function ProductsPage() {
                         )}
                         <div>
                           <p className="font-medium text-forestDeep">{p.name}</p>
-                          <p className="text-xs text-[#8a8672]">{p.category}</p>
+                          <p className="text-xs text-[#6a6656]">{p.category}</p>
                           {p.badges?.length > 0 && (
                             <p className="mt-0.5 flex flex-wrap gap-1">
                               {p.badges.map((b) => (
@@ -486,7 +486,7 @@ export default function ProductsPage() {
               </tr>
             ))}
             {products.length === 0 && (
-              <tr><td colSpan={6} className="p-4 text-center text-[#8a8672]">No products yet.</td></tr>
+              <tr><td colSpan={6} className="p-4 text-center text-[#6a6656]">No products yet.</td></tr>
             )}
           </tbody>
         </table>

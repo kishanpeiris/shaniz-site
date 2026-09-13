@@ -56,12 +56,12 @@ export default function BookingsPage() {
                   {b.user_id ? (
                     <>
                       {b.user_name}
-                      <span className="block text-xs text-[#8a8672]">{b.user_email}</span>
+                      <span className="block text-xs text-[#6a6656]">{b.user_email}</span>
                     </>
                   ) : (
                     <>
                       {b.guest_name || 'Guest'}
-                      <span className="block text-xs text-[#8a8672]">
+                      <span className="block text-xs text-[#6a6656]">
                         {b.guest_email}
                         {b.guest_mobile ? ` · ${b.guest_mobile}` : ''}
                       </span>
@@ -80,7 +80,7 @@ export default function BookingsPage() {
               </tr>
             ))}
             {bookings.length === 0 && (
-              <tr><td colSpan={6} className="p-4 text-center text-[#8a8672]">No upcoming bookings.</td></tr>
+              <tr><td colSpan={6} className="p-4 text-center text-[#6a6656]">No upcoming bookings.</td></tr>
             )}
           </tbody>
         </table>

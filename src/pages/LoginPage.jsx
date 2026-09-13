@@ -84,19 +84,19 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-4 text-center text-xs text-[#8a8672]">
+          <p className="mt-4 text-center text-xs text-[#6a6656]">
             <Link to="/forgot-password" className="underline">
               Forgot your password?
             </Link>
           </p>
-          <p className="mt-2 text-center text-xs text-[#8a8672]">
+          <p className="mt-2 text-center text-xs text-[#6a6656]">
             New here?{' '}
             <Link to="/register" className="underline">
               Create an account
             </Link>
           </p>
 
-          <p className="mt-6 text-center text-xs text-[#8a8672]">
+          <p className="mt-6 text-center text-xs text-[#6a6656]">
             <Link to="/" className="underline">
               ← Back to the storefront
             </Link>

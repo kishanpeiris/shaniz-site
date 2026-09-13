@@ -184,7 +184,7 @@ export default function BookingWidget({ service, open, onClose }) {
             </p>
 
             {service.branch && (
-              <p className="mt-1 text-xs text-[#8a8672]">
+              <p className="mt-1 text-xs text-[#6a6656]">
                 📍 {service.branch.name}, {service.branch.address}{' '}
                 <a href={googleMapsUrl(service.branch)} target="_blank" rel="noopener noreferrer" className="underline text-forestDeep">
                   Get directions
@@ -204,9 +204,9 @@ export default function BookingWidget({ service, open, onClose }) {
 
             <label className={labelClass}>Available times</label>
             <div className="mt-1.5 flex max-h-32 flex-wrap gap-2 overflow-y-auto">
-              {slotsLoading && <span className="text-sm text-[#8a8672]">Loading slots…</span>}
+              {slotsLoading && <span className="text-sm text-[#6a6656]">Loading slots…</span>}
               {!slotsLoading && slots.length === 0 && (
-                <span className="text-sm text-[#8a8672]">No open slots this day — try another date.</span>
+                <span className="text-sm text-[#6a6656]">No open slots this day — try another date.</span>
               )}
               {!slotsLoading &&
                 slots.map((s) => (

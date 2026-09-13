@@ -291,7 +291,7 @@ export default function ShopPage() {
                 </select>
               </div>
 
-              {loading && <p className="text-center text-sm text-[#8a8672]">Loading the catalog…</p>}
+              {loading && <p className="text-center text-sm text-[#6a6656]">Loading the catalog…</p>}
               {error && (
                 <p className="mx-auto max-w-md text-center text-sm text-[#a35a3a]">
                   Couldn&rsquo;t reach the catalog API ({error}).
@@ -299,7 +299,7 @@ export default function ShopPage() {
               )}
 
               {!loading && !error && visible.length === 0 && (
-                <p className="text-center text-sm text-[#8a8672]">Nothing matches those filters.</p>
+                <p className="text-center text-sm text-[#6a6656]">Nothing matches those filters.</p>
               )}
 
               {!loading && !error && visible.length > 0 && (
@@ -332,7 +332,7 @@ export default function ShopPage() {
                           key={n}
                           onClick={() => setPage(n)}
                           aria-current={page === n ? 'page' : undefined}
-                          className={`h-8 w-8 rounded-full text-xs transition-colors ${
+                          className={`h-10 w-10 rounded-full text-xs transition-colors ${
                             page === n ? 'bg-forestDeep text-cream' : 'text-forestDeep hover:bg-gold/20'
                           }`}
                         >

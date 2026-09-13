@@ -7,10 +7,18 @@ import React, { useState } from 'react'
 // "The Ritual" (products/services) and "See It Made" (process videos)
 // on the homepage, so both behave identically: one row, a firm cap per
 // page, paging controls only when the list overflows that cap.
+//
+// Paging controls live in one inline bar under the grid — "‹  1 / 2  ›"
+// — on every breakpoint, rather than floating side arrows that only
+// appeared from `sm` up: on mobile those side arrows never rendered at
+// all (no "next" control reachable), so this bar is the only way to
+// page through the list on a phone, and stays as the single consistent
+// control on desktop too instead of having two ways to do the same
+// thing.
 export default function RowCarousel({ items, renderItem, perPage = 3, columnsClassName }) {
   const [page, setPage] = useState(0)
   const totalPages = Math.max(1, Math.ceil(items.length / perPage))
-  const showArrows = items.length > perPage
+  const showControls = items.length > perPage
   const clampedPage = Math.min(page, totalPages - 1)
   const start = clampedPage * perPage
   const visible = items.slice(start, start + perPage)
@@ -18,35 +26,33 @@ export default function RowCarousel({ items, renderItem, perPage = 3, columnsCla
   const goTo = (dir) => setPage((p) => Math.max(0, Math.min(totalPages - 1, p + dir)))
 
   return (
-    <div className="relative">
-      {showArrows && clampedPage > 0 && (
-        <button
-          onClick={() => goTo(-1)}
-          aria-label="Show previous"
-          className="absolute -left-4 top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gold/40 bg-ivory text-xl text-forestDeep shadow-brand sm:flex"
-        >
-          ‹
-        </button>
-      )}
-
-      <div className={columnsClassName || 'grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3'}>
+    <div>
+      <div className={columnsClassName || 'grid grid-cols-2 gap-4 sm:gap-7 lg:grid-cols-3'}>
         {visible.map((item, i) => renderItem(item, start + i))}
       </div>
 
-      {showArrows && clampedPage < totalPages - 1 && (
-        <button
-          onClick={() => goTo(1)}
-          aria-label="Show more"
-          className="absolute -right-4 top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gold/40 bg-ivory text-xl text-forestDeep shadow-brand sm:flex"
-        >
-          ›
-        </button>
-      )}
-
-      {showArrows && (
-        <p className="mt-5 text-center text-xs uppercase tracking-wide text-[#8a8672]">
-          {clampedPage + 1} / {totalPages}
-        </p>
+      {showControls && (
+        <div className="mt-6 flex items-center justify-center gap-5">
+          <button
+            onClick={() => goTo(-1)}
+            disabled={clampedPage === 0}
+            aria-label="Show previous"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-ivory text-xl text-forestDeep shadow-brand disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            ‹
+          </button>
+          <p className="text-xs uppercase tracking-wide text-[#6a6656]">
+            {clampedPage + 1} / {totalPages}
+          </p>
+          <button
+            onClick={() => goTo(1)}
+            disabled={clampedPage === totalPages - 1}
+            aria-label="Show next"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-ivory text-xl text-forestDeep shadow-brand disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            ›
+          </button>
+        </div>
       )}
     </div>
   )

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import apothecary from '../assets/textures/ayurveda-bowls.jpg'
 import heroVideo from '../assets/video/hero-ritual.mp4'
 import { useHomepageContent } from '../hooks/useHomepageContent.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { localizedField } from '../lib/localize.js'
 
 // This clip has no dramatic "intro" moment (unlike the earlier footage
 // it replaces) — it's a steady ambient shot, so a plain native loop
@@ -12,8 +14,18 @@ const PLAYBACK_RATE = 0.8
 
 export default function Hero() {
   const [videoFailed, setVideoFailed] = useState(false)
+  // Respects the OS/browser "reduce motion" accessibility setting —
+  // people who've turned this on (often due to vestibular disorders)
+  // get the plain still image underneath instead of an autoplaying
+  // full-bleed video. Checked once on mount rather than kept "live" via
+  // a change listener, since this only matters for how the hero first
+  // renders, not for reacting mid-session to a settings change.
+  const [reducedMotion] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  )
   const videoRef = useRef(null)
   const content = useHomepageContent()
+  const { language } = useLanguage()
   // Falls back to the bundled defaults until/unless an admin uploads a
   // replacement from Admin → Settings → Page Content.
   const backgroundImage = content.hero_background_url || apothecary
@@ -58,7 +70,7 @@ export default function Hero() {
         className="absolute inset-0 bg-cover bg-[78%_center] bg-no-repeat saturate-[0.95] sm:bg-center"
         style={{ backgroundImage: `url(${backgroundImage})` }}
       />
-      {!videoFailed && (
+      {!videoFailed && !reducedMotion && (
         <video
           ref={videoRef}
           className="absolute inset-0 h-full w-full object-cover object-[78%_center] saturate-[0.95] sm:object-center"
@@ -81,24 +93,24 @@ export default function Hero() {
       />
       <div className="relative z-10 mx-auto w-full max-w-6xl px-7">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-goldLight">
-          {content.hero_eyebrow}
+          {localizedField(content, 'hero_eyebrow', language)}
         </p>
         <h1 className="mt-4 max-w-xl text-4xl leading-tight text-ivory sm:text-5xl md:text-6xl">
-          {content.hero_headline}
+          {localizedField(content, 'hero_headline', language)}
         </h1>
-        <p className="mt-5 max-w-md text-base text-cream/80">{content.hero_subtext}</p>
+        <p className="mt-5 max-w-md text-base text-cream/80">{localizedField(content, 'hero_subtext', language)}</p>
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
             to="/shop"
             className="rounded-full bg-gold px-7 py-3.5 text-xs font-semibold uppercase tracking-wide text-forestDeep transition-transform hover:-translate-y-0.5"
           >
-            {content.hero_cta1_label}
+            {localizedField(content, 'hero_cta1_label', language)}
           </Link>
           <Link
             to="/#ritual-video"
             className="rounded-full border border-cream/50 px-7 py-3.5 text-xs uppercase tracking-wide text-ivory transition-transform hover:-translate-y-0.5"
           >
-            {content.hero_cta2_label}
+            {localizedField(content, 'hero_cta2_label', language)}
           </Link>
         </div>
       </div>

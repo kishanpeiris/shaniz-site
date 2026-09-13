@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { apiPost } from '../api/client.js'
-import logo from '../assets/logo.jpg'
+import BrandLockup from '../components/BrandLockup.jsx'
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams()
@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-cream px-6">
       <div className="w-full max-w-sm rounded-sm border border-gold/30 bg-ivory p-9">
         <div className="mb-7 flex flex-col items-center">
-          <img src={logo} alt="Shani'z" className="mb-3 h-14 w-14 rounded-full border border-gold/40 bg-white p-0.5" />
+          <BrandLockup size="sm" className="mb-3" />
           <h1 className="text-2xl">Set a new password</h1>
         </div>
 
@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
               onChange={(e) => setNewPassword(e.target.value)}
               className="rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
             />
-            <p className="text-xs text-[#8a8672]">
+            <p className="text-xs text-[#6a6656]">
               At least 10 characters, with an uppercase letter and a number.
             </p>
             {error && <p className="text-sm text-[#a35a3a]">{error}</p>}
@@ -78,7 +78,7 @@ export default function ResetPasswordPage() {
           </form>
         )}
 
-        <p className="mt-6 text-center text-xs text-[#8a8672]">
+        <p className="mt-6 text-center text-xs text-[#6a6656]">
           <Link to="/login" className="underline">
             ← Back to sign in
           </Link>

@@ -74,6 +74,8 @@ export default function ProductCard({ product, large = false }) {
           <img
             src={displayImage}
             alt={displayName}
+            loading="lazy"
+            decoding="async"
             style={{ objectPosition: `${product.imageFocal.x}% ${product.imageFocal.y}%` }}
             className="h-full w-full object-cover transition-opacity duration-300"
           />
@@ -110,20 +112,20 @@ export default function ProductCard({ product, large = false }) {
           <h3 className={`font-serif text-forestDeep hover:text-moss ${large ? 'text-3xl' : 'text-2xl'}`}>{displayName}</h3>
         </Link>
         {product.reviewCount > 0 && <StarRating rating={product.avgRating} count={product.reviewCount} size="text-xs" />}
-        <p className="flex-1 text-sm text-[#6a6656]">{toPlainText(displayDescription)}</p>
+        <p className="line-clamp-2 flex-1 text-sm text-[#6a6656]">{toPlainText(displayDescription)}</p>
         {isPreorder && (
           <p className="text-xs text-[#8a6d1f]">
             Ships in ~{product.preorderEtaDays || 14} days
           </p>
         )}
-        <div className="mt-2 flex items-center justify-between">
-          <span className={`font-serif font-semibold text-forestDeep ${large ? 'text-2xl' : 'text-xl'}`}>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <span className={`whitespace-nowrap font-serif font-semibold text-forestDeep ${large ? 'text-2xl' : 'text-xl'}`}>
             {fmt(product.price)}
           </span>
           <button
             onClick={() => addItem(product)}
             disabled={isSoldOut}
-            className="rounded-full bg-forestDeep px-4 py-2.5 text-[0.72rem] uppercase tracking-wide text-cream transition-colors hover:bg-gold hover:text-forestDeep disabled:cursor-not-allowed disabled:opacity-40"
+            className="shrink-0 rounded-full bg-forestDeep px-4 py-2.5 text-[0.72rem] uppercase tracking-wide text-cream transition-colors hover:bg-gold hover:text-forestDeep disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isSoldOut ? t('out_of_stock') : isPreorder ? t('preorder_now') : t('add_to_basket')}
           </button>

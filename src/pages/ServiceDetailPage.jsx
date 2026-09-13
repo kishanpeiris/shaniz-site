@@ -9,6 +9,8 @@ import { useCart } from '../context/CartContext.jsx'
 import BookingWidget from '../components/BookingWidget.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { googleMapsUrl } from '../lib/maps.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { localizedField } from '../lib/localize.js'
 
 // Same full-screen gallery viewer as ProductDetailPage — kept as a
 // separate copy rather than a shared import so either page's gallery can
@@ -62,6 +64,7 @@ export default function ServiceDetailPage() {
   const { id } = useParams()
   const { loading, error, service } = useService(id)
   const { addItem } = useCart()
+  const { language } = useLanguage()
   const [activeIndex, setActiveIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [bookingOpen, setBookingOpen] = useState(false)
@@ -70,7 +73,7 @@ export default function ServiceDetailPage() {
     return (
       <>
         <Nav />
-        <div className="py-24 text-center text-sm text-[#8a8672]">Loading…</div>
+        <div className="py-24 text-center text-sm text-[#6a6656]">Loading…</div>
         <Footer />
       </>
     )
@@ -82,7 +85,7 @@ export default function ServiceDetailPage() {
         <Nav />
         <div className="py-24 text-center">
           <h1 className="mb-2 text-2xl">We couldn't find that service</h1>
-          <p className="mb-6 text-sm text-[#8a8672]">{error}</p>
+          <p className="mb-6 text-sm text-[#6a6656]">{error}</p>
           <Link to="/shop" className="rounded-full bg-forestDeep px-5 py-2.5 text-xs uppercase tracking-wide text-cream">
             Back to Shop
           </Link>
@@ -93,6 +96,8 @@ export default function ServiceDetailPage() {
   }
 
   const isBookable = service.serviceType === 'bookable'
+  const displayName = localizedField(service, 'name', language)
+  const displayDescription = localizedField(service, 'description', language)
   const media = [
     ...service.images.map((src) => ({ type: 'image', src })),
     ...(service.detailVideo ? [{ type: 'video', src: service.detailVideo }] : []),
@@ -120,7 +125,7 @@ export default function ServiceDetailPage() {
               ) : (
                 <img
                   src={active.src}
-                  alt={service.name}
+                  alt={displayName}
                   style={activeIndex === 0 ? { objectPosition: `${service.imageFocal.x}% ${service.imageFocal.y}%` } : undefined}
                   className="h-full w-full object-cover"
                 />
@@ -140,7 +145,7 @@ export default function ServiceDetailPage() {
                         <span className="absolute inset-0 flex items-center justify-center bg-forestDeep/30 text-cream">▶</span>
                       </>
                     ) : (
-                      <img src={m.src} alt="" className="h-full w-full object-cover" />
+                      <img src={m.src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     )}
                   </button>
                 ))}
@@ -155,9 +160,9 @@ export default function ServiceDetailPage() {
               </div>
             )}
             <span className="block text-xs uppercase tracking-[0.14em] text-moss">{service.tagline}</span>
-            <h1 className="mt-1 text-4xl">{service.name}</h1>
+            <h1 className="mt-1 text-4xl">{displayName}</h1>
             <p className="mt-4 text-2xl font-semibold text-forestDeep">{fmt(service.price)}</p>
-            <RichText text={service.description} className="mt-5 text-[#5c5949]" />
+            <RichText text={displayDescription} className="mt-5 text-[#5c5949]" />
 
             {isBookable && (
               <p className="mt-5 rounded-sm border border-gold/40 bg-gold/10 px-3 py-2 text-sm text-[#8a6d1f]">

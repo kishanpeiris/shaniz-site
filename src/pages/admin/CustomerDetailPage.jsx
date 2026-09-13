@@ -39,7 +39,7 @@ export default function CustomerDetailPage() {
   }
 
   if (error) return <p className="text-sm text-[#a35a3a]">{error}</p>
-  if (!data) return <p className="text-sm text-[#8a8672]">Loading…</p>
+  if (!data) return <p className="text-sm text-[#6a6656]">Loading…</p>
 
   const { customer, addresses, orders, bookings } = data
 
@@ -73,7 +73,7 @@ export default function CustomerDetailPage() {
 
       <Card title="Saved addresses">
         {addresses.length === 0 ? (
-          <p className="text-sm text-[#8a8672]">No saved addresses.</p>
+          <p className="text-sm text-[#6a6656]">No saved addresses.</p>
         ) : (
           <ul className="space-y-2 text-sm">
             {addresses.map((a) => (
@@ -87,7 +87,7 @@ export default function CustomerDetailPage() {
 
       <Card title="Recent orders">
         {orders.length === 0 ? (
-          <p className="text-sm text-[#8a8672]">No orders yet.</p>
+          <p className="text-sm text-[#6a6656]">No orders yet.</p>
         ) : (
           <ul className="space-y-2 text-sm">
             {orders.map((o) => (
@@ -105,7 +105,7 @@ export default function CustomerDetailPage() {
 
       <Card title="Recent bookings">
         {bookings.length === 0 ? (
-          <p className="text-sm text-[#8a8672]">No bookings yet.</p>
+          <p className="text-sm text-[#6a6656]">No bookings yet.</p>
         ) : (
           <ul className="space-y-2 text-sm">
             {bookings.map((b) => (

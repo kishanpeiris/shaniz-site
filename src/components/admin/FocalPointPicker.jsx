@@ -19,7 +19,7 @@ export default function FocalPointPicker({ imageUrl, x = 50, y = 50, onChange })
   return (
     <div>
       <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">Thumbnail crop</p>
-      <p className="mb-1.5 text-[0.65rem] text-[#8a8672]">
+      <p className="mb-1.5 text-[0.65rem] text-[#6a6656]">
         Click the part of the photo that should stay visible in the square Shop-grid thumbnail.
       </p>
       <div

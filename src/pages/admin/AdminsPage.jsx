@@ -38,7 +38,7 @@ export default function AdminsPage() {
   return (
     <div>
       <h2 className="mb-6 text-3xl">Admins</h2>
-      <p className="mb-4 max-w-lg text-sm text-[#8a8672]">
+      <p className="mb-4 max-w-lg text-sm text-[#6a6656]">
         Superadmin-only. The primary super admin account (seeded at deploy) can never be removed
         here — that's enforced by the database itself, not just this screen.
       </p>

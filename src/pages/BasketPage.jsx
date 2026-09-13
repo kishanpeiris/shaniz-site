@@ -51,7 +51,7 @@ export default function BasketPage() {
 
         {items.length === 0 ? (
           <div className="rounded-sm border border-gold/30 bg-ivory p-12 text-center">
-            <p className="mb-5 text-[#8a8672]">{t('basket_empty')}</p>
+            <p className="mb-5 text-[#6a6656]">{t('basket_empty')}</p>
             <Link
               to="/shop"
               className="inline-block rounded-full bg-forestDeep px-6 py-3 text-xs uppercase tracking-wide text-cream"
@@ -67,20 +67,22 @@ export default function BasketPage() {
                   <li key={item.id} className="flex flex-wrap items-center justify-between gap-4 p-5">
                     <div>
                       <p className="font-serif text-xl text-forestDeep">{item.name}</p>
-                      <p className="text-sm text-[#8a8672]">{fmt(item.price)} each</p>
+                      <p className="text-sm text-[#6a6656]">{fmt(item.price)} each</p>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => changeQty(item.id, -1)}
-                          className="h-8 w-8 rounded-full border border-gold/40 text-forestDeep"
+                          aria-label="Decrease quantity"
+                          className="h-11 w-11 rounded-full border border-gold/40 text-forestDeep"
                         >
                           −
                         </button>
                         <span className="w-6 text-center">{item.qty}</span>
                         <button
                           onClick={() => changeQty(item.id, 1)}
-                          className="h-8 w-8 rounded-full border border-gold/40 text-forestDeep"
+                          aria-label="Increase quantity"
+                          className="h-11 w-11 rounded-full border border-gold/40 text-forestDeep"
                         >
                           +
                         </button>
@@ -108,7 +110,7 @@ export default function BasketPage() {
                 <span>{t('subtotal')}</span>
                 <span>{fmt(subtotal)}</span>
               </div>
-              <p className="mb-5 text-xs text-[#8a8672]">
+              <p className="mb-5 text-xs text-[#6a6656]">
                 Delivery fees (or pickup) are calculated at checkout based on your location.
               </p>
               <Link

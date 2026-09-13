@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import logo from '../assets/logo.jpg'
+import BrandLockup from './BrandLockup.jsx'
 import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
@@ -65,18 +65,8 @@ export default function Nav() {
   return (
     <header className="sticky top-0 z-50 border-b border-gold/30 bg-cream/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 sm:px-7">
-        <Link to="/" className="flex items-center gap-3 sm:gap-3.5">
-          <img
-            src={logo}
-            alt="Shani'z logo"
-            className="h-12 w-12 rounded-full border border-gold/40 bg-white object-cover p-0.5 sm:h-16 sm:w-16"
-          />
-          <span className="font-serif text-xl font-semibold leading-none text-forestDeep sm:text-3xl">
-            Shani'z
-            <small className="mt-1 hidden font-sans text-[0.62rem] font-normal tracking-[0.16em] text-moss sm:block">
-              HERBAL HAIR &amp; SKIN CARE
-            </small>
-          </span>
+        <Link to="/">
+          <BrandLockup size="nav" taglineClassName="hidden lg:block" />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -102,14 +92,14 @@ export default function Nav() {
                   onChange={(e) => setSearch(e.target.value)}
                   onBlur={() => !search && setSearchOpen(false)}
                   placeholder={t('nav_search_placeholder')}
-                  className="w-48 rounded-full border border-gold/30 bg-ivory px-3.5 py-1.5 text-xs text-forestDeep placeholder:text-moss/70 focus:w-56 focus:outline-none"
+                  className="w-48 rounded-full border border-gold/30 bg-ivory px-3.5 py-1.5 text-xs text-forestDeep placeholder:text-moss/70 focus:w-56 focus:outline-none focus:ring-1 focus:ring-gold"
                 />
               </form>
             ) : (
               <button
                 onClick={() => setSearchOpen(true)}
                 aria-label="Search"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-forestDeep hover:bg-gold/15"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-forestDeep hover:bg-gold/15"
               >
                 <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
                   <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.5" />
@@ -137,7 +127,7 @@ export default function Nav() {
           <button
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Menu"
-            className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 rounded-sm border border-gold/30 md:hidden"
+            className="flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-sm border border-gold/30 md:hidden"
           >
             <span className="h-px w-4 bg-forestDeep" />
             <span className="h-px w-4 bg-forestDeep" />
@@ -154,7 +144,7 @@ export default function Nav() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('nav_search_placeholder')}
-              className="w-full rounded-full border border-gold/30 bg-cream px-4 py-2 text-sm text-forestDeep placeholder:text-moss/70 focus:outline-none"
+              className="w-full rounded-full border border-gold/30 bg-cream px-4 py-2 text-sm text-forestDeep placeholder:text-moss/70 focus:outline-none focus:ring-1 focus:ring-gold"
             />
           </form>
           {LINK_KEYS.map(([key, href]) => (

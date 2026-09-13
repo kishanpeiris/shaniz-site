@@ -116,7 +116,7 @@ export default function MaintenancePage() {
         <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="font-serif text-lg text-forestDeep">Maintenance mode</p>
-            <p className="text-sm text-[#8a8672]">
+            <p className="text-sm text-[#6a6656]">
               When active, customer-facing pages show a "we'll be back shortly" placeholder.
               Admin routes and the sign-in page always stay reachable — including this page —
               so you can turn it off from here even while it's showing to everyone else.
@@ -143,7 +143,7 @@ export default function MaintenancePage() {
 
         {/* Current status readout */}
         <div className="mb-5 rounded-sm bg-cream px-4 py-3 text-sm">
-          {!isScheduledOrActive && <p className="text-[#8a8672]">Currently off — nothing scheduled.</p>}
+          {!isScheduledOrActive && <p className="text-[#6a6656]">Currently off — nothing scheduled.</p>}
           {isScheduledOrActive && hasExpired && (
             <p className="font-semibold text-forestDeep">
               This scheduled outage ended at {new Date(schedule.ends_at).toLocaleString()} — the site is
@@ -228,14 +228,14 @@ export default function MaintenancePage() {
             Schedule Maintenance
           </button>
         </form>
-        <p className="mt-2 text-xs text-[#8a8672]">
+        <p className="mt-2 text-xs text-[#6a6656]">
           Leaving "Ends" blank means it stays active until you click Turn Off Now — useful when you
           don't know exactly how long the work will take.
         </p>
       </div>
 
       <h3 className="mb-3 font-serif text-xl">Outage calendar</h3>
-      <p className="mb-3 text-sm text-[#8a8672]">
+      <p className="mb-3 text-sm text-[#6a6656]">
         Separate from maintenance mode above — this only shows a heads-up banner on customer pages
         ahead of time ("Site will be briefly unavailable on...") without actually blocking access.
       </p>
@@ -260,7 +260,7 @@ export default function MaintenancePage() {
                 <td className="p-3 capitalize">{o.status}</td>
               </tr>
             ))}
-            {outages.length === 0 && <tr><td colSpan={4} className="p-4 text-center text-[#8a8672]">No outages scheduled.</td></tr>}
+            {outages.length === 0 && <tr><td colSpan={4} className="p-4 text-center text-[#6a6656]">No outages scheduled.</td></tr>}
           </tbody>
         </table>
       </div>

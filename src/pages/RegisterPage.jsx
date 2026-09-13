@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
-import logo from '../assets/logo.jpg'
+import BrandLockup from '../components/BrandLockup.jsx'
 import matchaRitual from '../assets/textures/matcha-slate.jpg'
 
 export default function RegisterPage() {
@@ -53,17 +53,7 @@ export default function RegisterPage() {
         <div className="relative w-full max-w-sm rounded-sm border border-gold/30 bg-ivory p-9 shadow-brand">
           <div className="mb-7 flex flex-col items-center">
             <div className="mb-4 flex items-center gap-3">
-              <img
-                src={logo}
-                alt="Shani'z logo"
-                className="h-14 w-14 rounded-full border border-gold/40 bg-white object-cover p-0.5"
-              />
-              <span className="font-serif text-2xl font-semibold leading-none text-forestDeep">
-                Shani&rsquo;z
-                <small className="mt-1 block font-sans text-[0.6rem] font-normal tracking-[0.16em] text-moss">
-                  HERBAL HAIR &amp; SKIN CARE
-                </small>
-              </span>
+              <BrandLockup size="sm" />
             </div>
             <h1 className="text-2xl">Create an account</h1>
             <p className="mt-1 text-xs uppercase tracking-wide text-moss">Save your details for faster checkout</p>
@@ -108,7 +98,7 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
             />
-            <p className="text-xs text-[#8a8672]">
+            <p className="text-xs text-[#6a6656]">
               At least 10 characters, with an uppercase letter and a number.
             </p>
             {error && <p className="text-sm text-[#a35a3a]">{error}</p>}
@@ -121,13 +111,13 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-xs text-[#8a8672]">
+          <p className="mt-6 text-center text-xs text-[#6a6656]">
             Already have an account?{' '}
             <Link to="/login" className="underline">
               Sign in
             </Link>
           </p>
-          <p className="mt-2 text-center text-xs text-[#8a8672]">
+          <p className="mt-2 text-center text-xs text-[#6a6656]">
             <Link to="/" className="underline">
               ← Back to the storefront
             </Link>

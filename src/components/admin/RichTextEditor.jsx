@@ -57,7 +57,7 @@ export default function RichTextEditor({ value, onChange, placeholder, rows = 6,
             {tool.label}
           </button>
         ))}
-        <span className="ml-1 self-center text-[0.65rem] text-[#8a8672]">
+        <span className="ml-1 self-center text-[0.65rem] text-[#6a6656]">
           Select text first for Bold, or place your cursor on a line for Heading/List.
         </span>
       </div>

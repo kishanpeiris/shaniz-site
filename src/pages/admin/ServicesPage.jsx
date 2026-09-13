@@ -6,6 +6,7 @@ import CategoryPicker from '../../components/admin/CategoryPicker.jsx'
 import BadgesInput from '../../components/admin/BadgesInput.jsx'
 import FocalPointPicker from '../../components/admin/FocalPointPicker.jsx'
 import RichTextEditor from '../../components/admin/RichTextEditor.jsx'
+import TranslationFields from '../../components/admin/TranslationFields.jsx'
 import { formatLKR } from '../../lib/currency.js'
 import { formatCalendarDate } from '../../lib/date.js'
 
@@ -59,6 +60,10 @@ function AiDescriptionButton({ name, category, onGenerated }) {
 const emptyForm = {
   name: '',
   description: '',
+  name_si: '',
+  name_ta: '',
+  description_si: '',
+  description_ta: '',
   price_lkr: '',
   service_type: 'bookable',
   duration_minutes: '',
@@ -138,6 +143,10 @@ export default function ServicesPage() {
       await apiPost('/api/services', {
         name: form.name,
         description: form.description || undefined,
+        name_si: form.name_si || undefined,
+        name_ta: form.name_ta || undefined,
+        description_si: form.description_si || undefined,
+        description_ta: form.description_ta || undefined,
         price_lkr: Number(form.price_lkr),
         service_type: form.service_type,
         duration_minutes: form.service_type === 'bookable' ? Number(form.duration_minutes) : undefined,
@@ -163,6 +172,10 @@ export default function ServicesPage() {
     setEditForm({
       name: s.name,
       description: s.description || '',
+      name_si: s.name_si || '',
+      name_ta: s.name_ta || '',
+      description_si: s.description_si || '',
+      description_ta: s.description_ta || '',
       price_lkr: s.price_lkr,
       service_type: s.service_type,
       duration_minutes: s.duration_minutes || '',
@@ -189,6 +202,10 @@ export default function ServicesPage() {
       await apiPut(`/api/services/${id}`, {
         name: editForm.name,
         description: editForm.description || undefined,
+        name_si: editForm.name_si || undefined,
+        name_ta: editForm.name_ta || undefined,
+        description_si: editForm.description_si || undefined,
+        description_ta: editForm.description_ta || undefined,
         price_lkr: Number(editForm.price_lkr),
         duration_minutes: editForm.service_type === 'bookable' ? Number(editForm.duration_minutes) : undefined,
         category_id: editForm.category_id || null,
@@ -316,6 +333,15 @@ export default function ServicesPage() {
         <div className="col-span-2 md:col-span-6">
           <AiDescriptionButton name={form.name} category={form.category_id} onGenerated={(description) => setForm({ ...form, description })} />
         </div>
+        <TranslationFields
+          values={form}
+          onChange={(patch) => setForm({ ...form, ...patch })}
+          spanClassName="md:col-span-6"
+          fields={[
+            { key: 'name', label: 'Name' },
+            { key: 'description', label: 'Description', richText: true },
+          ]}
+        />
 
         <select value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2">
           <option value="">No branch / location set</option>
@@ -338,7 +364,7 @@ export default function ServicesPage() {
           onChange={(image_focal_x, image_focal_y) => setForm({ ...form, image_focal_x, image_focal_y })}
         />
         <HoverMediaFields values={form} onChange={(patch) => setForm({ ...form, ...patch })} />
-        <p className="col-span-2 text-xs text-[#8a8672] md:col-span-6">
+        <p className="col-span-2 text-xs text-[#6a6656] md:col-span-6">
           On hover, the shop tries the video first, then the animated WebP, then falls back to this service's main photo.
           The detail-page video (optional) shows in the gallery on the service page.
         </p>
@@ -347,7 +373,7 @@ export default function ServicesPage() {
           <button type="submit" className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">
             Add Service
           </button>
-          <button type="button" onClick={cancelCreate} className="text-xs underline text-[#8a8672]">Cancel</button>
+          <button type="button" onClick={cancelCreate} className="text-xs underline text-[#6a6656]">Cancel</button>
         </div>
       </form>
 
@@ -361,7 +387,7 @@ export default function ServicesPage() {
                 )}
                 <div>
                   <p className="font-serif text-lg text-forestDeep">{s.name}</p>
-                  <p className="text-xs text-[#8a8672]">
+                  <p className="text-xs text-[#6a6656]">
                     {s.service_type} {s.duration_minutes ? `· ${s.duration_minutes} min` : ''} ·{' '}
                     {formatLKR(s.price_lkr)} ·{' '}
                     <span className={s.is_active ? 'text-moss' : 'text-[#a35a3a]'}>{s.is_active ? 'Active' : 'Inactive'}</span>
@@ -419,6 +445,15 @@ export default function ServicesPage() {
                     onGenerated={(description) => setEditForm({ ...editForm, description })}
                   />
                 </div>
+                <TranslationFields
+                  values={editForm}
+                  onChange={(patch) => setEditForm({ ...editForm, ...patch })}
+                  spanClassName="md:col-span-6"
+                  fields={[
+                    { key: 'name', label: 'Name' },
+                    { key: 'description', label: 'Description', richText: true },
+                  ]}
+                />
 
                 <select value={editForm.branch_id} onChange={(e) => setEditForm({ ...editForm, branch_id: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2">
                   <option value="">No branch / location set</option>
@@ -459,7 +494,7 @@ export default function ServicesPage() {
                       <button onClick={() => removeWindow(s.id, w.id)} className="text-xs text-[#a35a3a] underline">remove</button>
                     </li>
                   ))}
-                  {(windows[s.id] || []).length === 0 && <li className="text-[#8a8672]">No windows set — this service has no bookable slots yet.</li>}
+                  {(windows[s.id] || []).length === 0 && <li className="text-[#6a6656]">No windows set — this service has no bookable slots yet.</li>}
                 </ul>
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <select value={newWindow.day_of_week} onChange={(e) => setNewWindow({ ...newWindow, day_of_week: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-2 py-1">
@@ -478,12 +513,12 @@ export default function ServicesPage() {
                   {(blackouts[s.id] || []).map((b) => (
                     <li key={b.id} className="flex items-center gap-3">
                       <span className="w-28">{formatCalendarDate(b.blackout_date)}</span>
-                      <span className="flex-1 text-[#8a8672]">{b.reason || '—'}</span>
+                      <span className="flex-1 text-[#6a6656]">{b.reason || '—'}</span>
                       <button onClick={() => removeBlackout(s.id, b.id)} className="text-xs text-[#a35a3a] underline">remove</button>
                     </li>
                   ))}
                   {(blackouts[s.id] || []).length === 0 && (
-                    <li className="text-[#8a8672]">No days off scheduled — every window above stays bookable.</li>
+                    <li className="text-[#6a6656]">No days off scheduled — every window above stays bookable.</li>
                   )}
                 </ul>
                 <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -507,7 +542,7 @@ export default function ServicesPage() {
             )}
           </div>
         ))}
-        {services.length === 0 && <p className="text-sm text-[#8a8672]">No services yet.</p>}
+        {services.length === 0 && <p className="text-sm text-[#6a6656]">No services yet.</p>}
       </div>
     </div>
   )

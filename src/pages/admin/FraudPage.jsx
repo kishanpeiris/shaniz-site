@@ -40,7 +40,7 @@ export default function FraudPage() {
           Show resolved
         </label>
       </div>
-      <p className="mb-6 text-sm text-[#8a8672]">
+      <p className="mb-6 text-sm text-[#6a6656]">
         Rule-based checks that run automatically on every order (see the note on each flag). A flag means "worth a
         quick look," not confirmed fraud — most turn out to be perfectly normal orders.
       </p>
@@ -55,7 +55,7 @@ export default function FraudPage() {
                   {f.severity}
                 </span>
                 <p className="mt-1">{f.message}</p>
-                <p className="mt-1 text-xs text-[#8a8672]">
+                <p className="mt-1 text-xs text-[#6a6656]">
                   Order {f.order_id.slice(0, 8)} · {f.customer_first_name} {f.customer_last_name} ({f.customer_email}) ·{' '}
                   {formatLKR(f.total_lkr)} · {new Date(f.created_at).toLocaleString()}
                 </p>
@@ -75,7 +75,7 @@ export default function FraudPage() {
           </div>
         ))}
         {flags.length === 0 && (
-          <p className="text-sm text-[#8a8672]">
+          <p className="text-sm text-[#6a6656]">
             {showResolved ? 'No fraud flags at all.' : 'No open fraud flags — nothing needs a look right now.'}
           </p>
         )}

@@ -15,7 +15,14 @@ import { formatLKR as fmt } from '../lib/currency.js'
 const GATEWAYS = [
   { id: 'koko', label: 'Koko', hint: 'Buy now, pay later' },
   { id: 'intpay', label: 'IntPay', hint: 'Bank & wallet transfer' },
-  { id: 'dialog_genie', label: 'Dialog Genie', hint: 'Credit / Debit Card', card: true },
+  // Customer-facing label is deliberately the generic "Credit / Debit
+  // Card" rather than the underlying partner's brand name — the id
+  // ('dialog_genie') stays the same everywhere else (order records,
+  // the admin "payment gateway split" dashboard chart, gateway_used in
+  // the database) since that's a real, meaningful distinction for the
+  // business; customers just don't need to know or care which specific
+  // processor is behind a card payment.
+  { id: 'dialog_genie', label: 'Credit / Debit Card', hint: 'Visa, Mastercard & more', card: true },
 ]
 
 function AddressFields({ value, onChange, prefix }) {
@@ -146,7 +153,19 @@ export default function CheckoutPage() {
       const res = await apiPost('/api/orders', payload)
       clearCart()
       const emailParam = !user ? `?email=${encodeURIComponent(guestEmail)}` : ''
-      navigate(`/payment/${res.order.id}${emailParam}`)
+      if (res.gateway_live) {
+        // A real gateway is configured — leave the site entirely for its
+        // hosted checkout page, which is also where the customer's own
+        // bank handles OTP/3-D Secure verification (never built by us;
+        // it lives inside this page). They land back on our own
+        // /payment/return afterward (see lib/gateways.js's return_url).
+        window.location.href = res.checkout_redirect_url
+      } else {
+        // No live credentials yet — the sandbox flow simulates the same
+        // "leave, then come back" shape entirely within the app so it's
+        // testable without real gateway access.
+        navigate(`/payment/${res.order.id}${emailParam}`)
+      }
     } catch (err) {
       setError(err.message)
       setSubmitting(false)

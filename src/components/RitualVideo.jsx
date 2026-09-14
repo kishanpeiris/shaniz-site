@@ -1,5 +1,5 @@
 import React from 'react'
-import cinnamonMint from '../assets/textures/cinnamon-mint.jpg'
+import fernTea from '../assets/textures/fern-tea.jpg'
 import RowCarousel from './RowCarousel.jsx'
 import { useHomepageContent } from '../hooks/useHomepageContent.js'
 
@@ -24,6 +24,13 @@ function VideoCard({ src }) {
 
 export default function RitualVideo() {
   const content = useHomepageContent()
+  // Same fallback pattern as About/Products: an admin-uploaded override
+  // if one's been set (Settings → Page Content → See It Made), fern-tea
+  // otherwise — now the same default image as those two sections too,
+  // rather than the much lighter, white-background product photo this
+  // used before, which was the actual source of the three sections
+  // visibly not matching each other.
+  const backgroundTexture = content.ritual_video_background_url || fernTea
   // Admin-uploaded process videos (Settings → Page Content → See It
   // Made) take over once there's at least one — until then this keeps
   // showing the original single Facebook embed, so a fresh install
@@ -33,16 +40,16 @@ export default function RitualVideo() {
 
   return (
     <section id="ritual-video" className="relative overflow-hidden bg-forestDeep py-24 text-cream">
-      {/* Two layers, but with non-crushing math this time: image at a
-          strong 55% directly, then a moderate 45% dark tint on top —
-          net effect is roughly a 30% visible image over a dark base,
-          verified by eye and by sampling actual pixel values. */}
+      {/* Same treatment as About/Products now (opacity-[0.5] image +
+          forestDeep/45 tint) — previously slightly different math
+          (0.55/0.40) which, combined with a totally different photo,
+          made this section visibly lighter/greyer than its neighbors. */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.55]"
-        style={{ backgroundImage: `url(${cinnamonMint})` }}
+        className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
+        style={{ backgroundImage: `url(${backgroundTexture})` }}
         aria-hidden="true"
       />
-      <div className="absolute inset-0 bg-forestDeep/40" aria-hidden="true" />
+      <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />
       <div className="relative mx-auto max-w-6xl px-7 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-goldLight">
           See it made

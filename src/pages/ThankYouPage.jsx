@@ -18,12 +18,18 @@ export default function ThankYouPage() {
   const { user } = useAuth()
   const { t } = useLanguage()
   const [order, setOrder] = useState(null)
+  // Distinct from "still loading" (order === null before this ever
+  // resolves) — without this, a failed lookup (bad id, wrong guest
+  // email) left the page stuck on "Loading your order details…"
+  // forever, since the catch handler set order to the exact same null
+  // value the initial state already had.
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const qs = guestEmail ? `?email=${encodeURIComponent(guestEmail)}` : ''
     apiGet(`/api/orders/${orderId}${qs}`)
       .then((r) => setOrder(r.order))
-      .catch(() => setOrder(null))
+      .catch((e) => setError(e.message || 'We could not find this order.'))
   }, [orderId, guestEmail])
 
   return (
@@ -89,11 +95,15 @@ export default function ThankYouPage() {
                   href={`${API_URL}/api/orders/${order.id}/invoice${guestEmail ? `?email=${encodeURIComponent(guestEmail)}` : ''}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-block text-xs font-semibold uppercase tracking-wide text-forestDeep underline"
+                  className="mt-3 inline-flex min-h-[44px] items-center rounded-full border border-forestDeep px-4 text-xs font-semibold uppercase tracking-wide text-forestDeep hover:bg-forestDeep hover:text-cream"
                 >
                   {t('download_invoice')}
                 </a>
               )}
+            </div>
+          ) : error ? (
+            <div className="mb-10 rounded-sm border border-gold/30 bg-ivory p-6 text-sm text-[#a35a3a]">
+              {error}
             </div>
           ) : (
             <p className="mb-10 text-sm text-cream/70">{t('thankyou_loading_order')}</p>
@@ -103,15 +113,18 @@ export default function ThankYouPage() {
             <Link to="/shop" className="rounded-full bg-gold px-6 py-3 text-xs font-semibold uppercase tracking-wide text-forestDeep">
               {t('continue_shopping')}
             </Link>
-            {user ? (
-              <Link to="/account" className="rounded-full border border-cream/50 px-6 py-3 text-xs uppercase tracking-wide text-cream">
+            {order ? (
+              <Link
+                to={`/orders/${order.id}${!user && guestEmail ? `?email=${encodeURIComponent(guestEmail)}` : ''}`}
+                className="rounded-full border border-cream/50 px-6 py-3 text-xs uppercase tracking-wide text-cream"
+              >
                 {t('view_my_orders')}
               </Link>
-            ) : (
+            ) : !user ? (
               <Link to="/register" className="rounded-full border border-cream/50 px-6 py-3 text-xs uppercase tracking-wide text-cream">
                 {t('create_an_account')}
               </Link>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

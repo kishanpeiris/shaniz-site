@@ -7,15 +7,22 @@ import { useCatalog } from '../hooks/useCatalog.js'
 import { useHomepageContent } from '../hooks/useHomepageContent.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
-import matchaSlate from '../assets/textures/matcha-slate.jpg'
+import fernTea from '../assets/textures/fern-tea.jpg'
 
 export default function Products() {
   const { loading, error, products, services } = useCatalog()
   const content = useHomepageContent()
   const { language } = useLanguage()
-  const backgroundTexture = content.ritual_background_url || matchaSlate
+  const backgroundTexture = content.ritual_background_url || fernTea
   const [bookingService, setBookingService] = useState(null)
-  const items = [...products, ...services]
+  // Most-popular-first — units sold is already computed server-side for
+  // both products and services (see UNITS_SOLD_SUBQUERY in
+  // products.routes.js/services.routes.js), so this is just ordering
+  // what's already there, not a new calculation. A plain spread of
+  // [...products, ...services] previously left this in whatever order
+  // the two API calls happened to return (created-date order), so
+  // there was no real "most popular" story to it at all.
+  const items = [...products, ...services].sort((a, b) => b.unitsSold - a.unitsSold)
 
   return (
     <section id="products" className="relative overflow-hidden bg-forestDeep py-24 text-cream">
@@ -51,7 +58,8 @@ export default function Products() {
         {!loading && !error && (
           <RowCarousel
             items={items}
-            perPage={6}
+            mode="scroll"
+            visibleOnMobile={2}
             renderItem={(item) =>
               item.type === 'service' ? (
                 <ServiceCard

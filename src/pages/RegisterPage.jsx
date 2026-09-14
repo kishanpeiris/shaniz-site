@@ -4,10 +4,12 @@ import { useAuth } from '../context/AuthContext.jsx'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import BrandLockup from '../components/BrandLockup.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import matchaRitual from '../assets/textures/matcha-slate.jpg'
 
 export default function RegisterPage() {
   const { register } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -55,21 +57,21 @@ export default function RegisterPage() {
             <div className="mb-4 flex items-center gap-3">
               <BrandLockup size="sm" />
             </div>
-            <h1 className="text-2xl">Create an account</h1>
-            <p className="mt-1 text-xs uppercase tracking-wide text-moss">Save your details for faster checkout</p>
+            <h1 className="text-2xl">{t('auth_create_account_heading')}</h1>
+            <p className="mt-1 text-xs uppercase tracking-wide text-moss">{t('auth_save_details_subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
             <div className="flex gap-3">
               <input
                 required
-                placeholder="First name"
+                placeholder={t('auth_first_name_placeholder')}
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 className="w-1/2 rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
               />
               <input
-                placeholder="Last name (optional)"
+                placeholder={t('auth_last_name_placeholder')}
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 className="w-1/2 rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
@@ -78,14 +80,14 @@ export default function RegisterPage() {
             <input
               type="email"
               required
-              placeholder="Email"
+              placeholder={t('auth_email_placeholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
             />
             <input
               type="tel"
-              placeholder="Mobile number (optional)"
+              placeholder={t('auth_mobile_placeholder')}
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
               className="rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
@@ -93,33 +95,31 @@ export default function RegisterPage() {
             <input
               type="password"
               required
-              placeholder="Password"
+              placeholder={t('auth_password_placeholder')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
             />
-            <p className="text-xs text-[#6a6656]">
-              At least 10 characters, with an uppercase letter and a number.
-            </p>
+            <p className="text-xs text-[#6a6656]">{t('auth_password_hint')}</p>
             {error && <p className="text-sm text-[#a35a3a]">{error}</p>}
             <button
               type="submit"
               disabled={busy}
               className="mt-1 rounded-full bg-forestDeep py-3 text-xs uppercase tracking-wide text-cream disabled:opacity-60"
             >
-              {busy ? 'Creating account…' : 'Create Account'}
+              {busy ? t('auth_creating_account') : t('auth_create_account_button')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-xs text-[#6a6656]">
-            Already have an account?{' '}
+            {t('auth_already_have_account')}{' '}
             <Link to="/login" className="underline">
-              Sign in
+              {t('auth_sign_in_heading')}
             </Link>
           </p>
           <p className="mt-2 text-center text-xs text-[#6a6656]">
             <Link to="/" className="underline">
-              ← Back to the storefront
+              {t('auth_back_to_storefront')}
             </Link>
           </p>
         </div>

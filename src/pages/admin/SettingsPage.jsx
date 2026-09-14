@@ -232,6 +232,60 @@ function BookingRemindersForm() {
   )
 }
 
+function OrderPoliciesForm() {
+  const [days, setDays] = useState(14)
+  const [status, setStatus] = useState('idle') // idle | saving | saved | error
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    apiGet('/api/admin/settings/order-policies').then((r) => setDays(r.order_policies?.return_window_days ?? 14))
+  }, [])
+
+  const handleSave = async () => {
+    setStatus('saving')
+    setError('')
+    try {
+      await apiPut('/api/admin/settings/order-policies', { return_window_days: Number(days) })
+      setStatus('saved')
+      setTimeout(() => setStatus('idle'), 2000)
+    } catch (err) {
+      setStatus('error')
+      setError(err.message)
+    }
+  }
+
+  return (
+    <section className="mb-10 rounded-sm border border-gold/30 bg-ivory p-6">
+      <h3 className="mb-2 text-xl">Order Cancellations &amp; Returns</h3>
+      <p className="mb-4 max-w-2xl text-sm text-[#6a6656]">
+        Customers can request a cancellation any time before an order ships (or, for pickup orders, before they
+        collect it) — that part isn't adjustable, since it depends on the order's own status. This controls how many
+        days after an order is marked <strong>completed</strong> a customer can still request a return/refund.
+      </p>
+      <div className="flex max-w-2xl items-center gap-3">
+        <input
+          type="number"
+          min={0}
+          max={365}
+          value={days}
+          onChange={(e) => setDays(e.target.value)}
+          className="w-24 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+        />
+        <span className="text-sm text-[#6a6656]">days</span>
+        <button
+          onClick={handleSave}
+          disabled={status === 'saving'}
+          className="ml-auto rounded-full bg-forestDeep px-5 py-2 text-xs uppercase tracking-wide text-cream disabled:opacity-50"
+        >
+          {status === 'saving' ? 'Saving…' : 'Save'}
+        </button>
+      </div>
+      {status === 'error' && <p className="mt-3 text-sm text-[#a35a3a]">{error}</p>}
+      {status === 'saved' && <p className="mt-3 text-sm text-moss">Saved.</p>}
+    </section>
+  )
+}
+
 function Field({ label, value, onChange, textarea, hint }) {
   const Tag = textarea ? 'textarea' : 'input'
   return (
@@ -414,6 +468,7 @@ function PageContentEditor() {
         </Section>
 
         <Section title="See It Made (process videos)">
+          <BackgroundField label="Background texture" value={form.ritual_video_background_url} onChange={set('ritual_video_background_url')} />
           <p className="-mt-2 text-xs text-[#6a6656]">
             Shows as a row of up to 3 videos on the homepage, with arrows to page through more if
             you add more than 3. Leave this empty to keep showing the original Facebook video.
@@ -443,6 +498,7 @@ export default function SettingsPage() {
       <h2 className="mb-6 text-3xl">Settings</h2>
       <BusinessInfoForm />
       <BookingRemindersForm />
+      <OrderPoliciesForm />
       <PageContentEditor />
     </div>
   )

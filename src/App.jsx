@@ -27,7 +27,9 @@ import ServiceDetailPage from './pages/ServiceDetailPage.jsx'
 import BasketPage from './pages/BasketPage.jsx'
 import CheckoutPage from './pages/CheckoutPage.jsx'
 import PaymentPage from './pages/PaymentPage.jsx'
+import PaymentReturnPage from './pages/PaymentReturnPage.jsx'
 import ThankYouPage from './pages/ThankYouPage.jsx'
+import OrderDetailPage from './pages/OrderDetailPage.jsx'
 import RequireAuth from './components/RequireAuth.jsx'
 import RequireRole from './components/RequireRole.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
@@ -40,6 +42,7 @@ import CustomersPage from './pages/admin/CustomersPage.jsx'
 import CustomerDetailPage from './pages/admin/CustomerDetailPage.jsx'
 import BlacklistPage from './pages/admin/BlacklistPage.jsx'
 import FraudPage from './pages/admin/FraudPage.jsx'
+import RefundRequestsPage from './pages/admin/RefundRequestsPage.jsx'
 import BranchesPage from './pages/admin/BranchesPage.jsx'
 import AdminsPage from './pages/admin/AdminsPage.jsx'
 import LogsPage from './pages/admin/LogsPage.jsx'
@@ -107,7 +110,9 @@ export default function App() {
         <Route path="/basket" element={<BasketPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/payment/:orderId" element={<PaymentPage />} />
+        <Route path="/payment/return" element={<PaymentReturnPage />} />
         <Route path="/thank-you/:orderId" element={<ThankYouPage />} />
+        <Route path="/orders/:orderId" element={<OrderDetailPage />} />
         <Route
           path="/account"
           element={
@@ -133,6 +138,7 @@ export default function App() {
           <Route path="customers/:id" element={<CustomerDetailPage />} />
           <Route path="blacklist" element={<BlacklistPage />} />
           <Route path="fraud" element={<FraudPage />} />
+          <Route path="refunds" element={<RefundRequestsPage />} />
           <Route path="branches" element={<BranchesPage />} />
           {/* Page content (text, photos, backgrounds) moved into
               Settings — redirect anyone with the old link bookmarked. */}

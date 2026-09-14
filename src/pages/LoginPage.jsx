@@ -3,10 +3,12 @@ import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 import matchaRitual from '../assets/textures/matcha-slate.jpg'
 
 export default function LoginPage() {
   const { login, user } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
@@ -53,15 +55,15 @@ export default function LoginPage() {
 
         <div className="relative w-full max-w-sm rounded-sm border border-gold/30 bg-ivory p-9 shadow-brand">
           <div className="mb-7 flex flex-col items-center">
-            <h1 className="text-2xl">Sign in</h1>
-            <p className="mt-1 text-xs uppercase tracking-wide text-moss">Your account</p>
+            <h1 className="text-2xl">{t('auth_sign_in_heading')}</h1>
+            <p className="mt-1 text-xs uppercase tracking-wide text-moss">{t('auth_your_account')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
             <input
               type="email"
               required
-              placeholder="Email"
+              placeholder={t('auth_email_placeholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
@@ -69,7 +71,7 @@ export default function LoginPage() {
             <input
               type="password"
               required
-              placeholder="Password"
+              placeholder={t('auth_password_placeholder')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
@@ -80,25 +82,25 @@ export default function LoginPage() {
               disabled={busy}
               className="mt-1 rounded-full bg-forestDeep py-3 text-xs uppercase tracking-wide text-cream disabled:opacity-60"
             >
-              {busy ? 'Signing in…' : 'Sign In'}
+              {busy ? t('auth_signing_in') : t('auth_sign_in_button')}
             </button>
           </form>
 
           <p className="mt-4 text-center text-xs text-[#6a6656]">
             <Link to="/forgot-password" className="underline">
-              Forgot your password?
+              {t('auth_forgot_password')}
             </Link>
           </p>
           <p className="mt-2 text-center text-xs text-[#6a6656]">
-            New here?{' '}
+            {t('auth_new_here')}{' '}
             <Link to="/register" className="underline">
-              Create an account
+              {t('create_an_account')}
             </Link>
           </p>
 
           <p className="mt-6 text-center text-xs text-[#6a6656]">
             <Link to="/" className="underline">
-              ← Back to the storefront
+              {t('auth_back_to_storefront')}
             </Link>
           </p>
         </div>

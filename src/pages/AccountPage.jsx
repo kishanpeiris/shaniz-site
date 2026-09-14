@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { apiGet, apiPost, apiPut, apiDelete, API_URL } from '../api/client.js'
+import { apiGet, apiPost, apiPut, apiDelete } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { LANGUAGES } from '../i18n/translations.js'
@@ -305,31 +305,21 @@ function OrderHistorySection() {
                 <span className="font-medium text-forestDeep">Order {o.id.slice(0, 8)}</span>
                 <span className="capitalize text-moss">{o.status}</span>
               </div>
-              {o.status !== 'pending' && (
-                <a
-                  href={`${API_URL}/api/orders/${o.id}/invoice`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 inline-block text-xs font-semibold uppercase tracking-wide text-gold underline"
-                >
-                  Download Invoice
-                </a>
-              )}
               <p className="mt-1 text-xs text-[#6a6656]">
                 {new Date(o.created_at).toLocaleDateString()} · {fmt(o.total_lkr)} · via {o.gateway_used}
               </p>
               <ul className="mt-2 text-xs text-[#5c5949]">
-                {o.items.map((i, idx) => (
-                  <li key={idx}>
-                    {i.name} × {i.qty} — {fmt(i.unit_price_lkr * i.qty)}
-                    {i.is_preorder && (
-                      <span className="ml-1 text-[#8a6d3b]">
-                        (pre-order — est. arrival {formatCalendarDate(i.preorder_eta_date)})
-                      </span>
-                    )}
-                  </li>
+                {o.items.slice(0, 3).map((i, idx) => (
+                  <li key={idx}>{i.name} × {i.qty}</li>
                 ))}
+                {o.items.length > 3 && <li>+{o.items.length - 3} more</li>}
               </ul>
+              <Link
+                to={`/orders/${o.id}`}
+                className="mt-2 inline-block text-xs font-semibold uppercase tracking-wide text-gold underline"
+              >
+                View Details
+              </Link>
             </div>
           ))}
         </div>

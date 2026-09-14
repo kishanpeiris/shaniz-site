@@ -82,6 +82,21 @@ export default function DashboardPage() {
         </div>
 
         <div className="rounded-sm border border-gold/30 bg-ivory p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-serif text-xl">Refund requests</h3>
+            <Link to="/admin/refunds" className="text-xs uppercase tracking-wide text-forestDeep underline">
+              View all →
+            </Link>
+          </div>
+          <p className={`font-serif text-3xl ${data.open_refund_requests > 0 ? 'text-[#a35a3a]' : 'text-forestDeep'}`}>
+            {data.open_refund_requests}
+          </p>
+          <p className="text-xs uppercase tracking-wide text-moss">
+            Awaiting review
+          </p>
+        </div>
+
+        <div className="rounded-sm border border-gold/30 bg-ivory p-5">
           <h3 className="mb-3 font-serif text-xl">Gateway split</h3>
           {data.gateway_split.length === 0 && <p className="text-sm text-[#6a6656]">No orders yet.</p>}
           <ul className="space-y-1.5 text-sm">

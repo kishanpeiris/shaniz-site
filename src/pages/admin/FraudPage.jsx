@@ -61,7 +61,7 @@ export default function FraudPage() {
                 </p>
               </div>
               <div className="flex flex-shrink-0 flex-col items-end gap-2">
-                <Link to="/admin/orders" className="text-xs underline text-forestDeep">
+                <Link to={`/admin/orders?highlight=${f.order_id}`} className="text-xs underline text-forestDeep">
                   View orders
                 </Link>
                 {!f.resolved && (

@@ -8,6 +8,10 @@
     {
       "source": "/uploads/:path*",
       "destination": "https://REPLACE-WITH-YOUR-BACKEND-URL.onrender.com/uploads/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

@@ -48,12 +48,12 @@ export default function PaymentPage() {
         outcome,
         ...cardDetails,
       })
-      if (outcome === 'success') {
-        navigate(`/thank-you/${orderId}${qs}`)
-      } else {
-        setPayError('Payment was declined. You can try again below.')
-        setPaying(false)
-      }
+      // Routes through the same PaymentReturnPage a real gateway would
+      // land the customer on, rather than going straight to /thank-you —
+      // so the "confirm the order's real status" logic there gets
+      // exercised in sandbox testing too, instead of only ever running
+      // in production once a live gateway is configured.
+      navigate(`/payment/return?order=${orderId}${guestEmail ? `&email=${encodeURIComponent(guestEmail)}` : ''}`)
     } catch (err) {
       setPayError(err.message)
       setPaying(false)

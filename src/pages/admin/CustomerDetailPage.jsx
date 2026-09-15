@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { apiGet, apiPut } from '../../api/client.js'
+import { apiGet, apiPut, apiPost } from '../../api/client.js'
 import { formatLKR } from '../../lib/currency.js'
 import { formatCalendarDate } from '../../lib/date.js'
 
@@ -17,6 +17,7 @@ export default function CustomerDetailPage() {
   const { id } = useParams()
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
+  const [resendStatus, setResendStatus] = useState('')
 
   const load = () =>
     apiGet(`/api/admin/customers/${id}`)
@@ -33,6 +34,17 @@ export default function CustomerDetailPage() {
     try {
       await apiPut(`/api/admin/customers/${id}/disabled`, { disabled: !data.customer.disabled })
       load()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const resendVerification = async () => {
+    setResendStatus('')
+    setError('')
+    try {
+      const res = await apiPost(`/api/admin/customers/${id}/resend-verification`)
+      setResendStatus(res.message)
     } catch (err) {
       setError(err.message)
     }
@@ -63,12 +75,23 @@ export default function CustomerDetailPage() {
           <dt className="text-xs uppercase tracking-wide text-moss">Joined</dt>
           <dd>{new Date(customer.created_at).toLocaleDateString()}</dd>
         </dl>
-        <button
-          onClick={toggleDisabled}
-          className="mt-4 rounded-full border border-gold/40 px-4 py-1.5 text-xs uppercase tracking-wide text-forestDeep"
-        >
-          {customer.disabled ? 'Re-enable account' : 'Disable account'}
-        </button>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <button
+            onClick={toggleDisabled}
+            className="rounded-full border border-gold/40 px-4 py-1.5 text-xs uppercase tracking-wide text-forestDeep"
+          >
+            {customer.disabled ? 'Re-enable account' : 'Disable account'}
+          </button>
+          {!customer.email_verified && (
+            <button
+              onClick={resendVerification}
+              className="rounded-full border border-gold/40 px-4 py-1.5 text-xs uppercase tracking-wide text-forestDeep"
+            >
+              Resend activation email
+            </button>
+          )}
+        </div>
+        {resendStatus && <p className="mt-2 text-xs text-moss">{resendStatus}</p>}
       </Card>
 
       <Card title="Saved addresses">

@@ -121,7 +121,7 @@ function ScrollRow({ items, renderItem, visibleOnMobile }) {
       <div
         ref={trackRef}
         onScroll={updateScrollState}
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex flex-nowrap snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item, i) => (
           <div key={i} className={`shrink-0 snap-start ${cardWidthClass}`}>

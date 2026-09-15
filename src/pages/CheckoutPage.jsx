@@ -10,6 +10,7 @@ import { CardBrandRow } from '../components/PaymentBadges.jsx'
 import ritualScene from '../assets/textures/spice-spoons.jpg'
 import herbsCitrus from '../assets/textures/herbs-citrus.jpg'
 import { formatLKR as fmt } from '../lib/currency.js'
+import AddressFields from '../components/AddressFields.jsx'
 
 
 const GATEWAYS = [
@@ -25,34 +26,6 @@ const GATEWAYS = [
   { id: 'dialog_genie', label: 'Credit / Debit Card', hint: 'Visa, Mastercard & more', card: true },
 ]
 
-function AddressFields({ value, onChange, prefix }) {
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      <input
-        required
-        placeholder="Address line 1"
-        value={value.line1}
-        onChange={(e) => onChange({ ...value, line1: e.target.value })}
-        className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm"
-      />
-      <input
-        required
-        placeholder="City / Town"
-        value={value.city}
-        onChange={(e) => onChange({ ...value, city: e.target.value })}
-        className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm"
-      />
-      <input
-        required
-        placeholder="Postal code"
-        value={value.postal_code}
-        onChange={(e) => onChange({ ...value, postal_code: e.target.value })}
-        className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm"
-      />
-      <p className="col-span-2 text-xs text-[#6a6656]">Sri Lanka only, at this time — {prefix}.</p>
-    </div>
-  )
-}
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart, addresses } = useCart()

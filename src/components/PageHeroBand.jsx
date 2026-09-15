@@ -6,11 +6,11 @@ import React from 'react'
 // underneath. Never place form fields or buttons directly on this band —
 // it's for the heading/intro only; real content sits on plain
 // cream/ivory panels below it.
-export default function PageHeroBand({ image, eyebrow, title, subtitle, compact = false }) {
+export default function PageHeroBand({ image, eyebrow, title, subtitle, compact = false, tile = false }) {
   return (
     <section
-      className={`relative overflow-hidden bg-forestDeep bg-cover bg-center ${compact ? 'py-12' : 'py-16'}`}
-      style={{ backgroundImage: `url(${image})` }}
+      className={`relative overflow-hidden bg-forestDeep ${tile ? 'bg-repeat bg-top' : 'bg-cover bg-center'} ${compact ? 'py-12' : 'py-16'}`}
+      style={{ backgroundImage: `url(${image})`, ...(tile ? { backgroundSize: '260px auto' } : {}) }}
     >
       <div className="absolute inset-0 bg-gradient-to-b from-forestDeep/90 via-forestDeep/90 to-forestDeep/95" />
       <div className="relative mx-auto max-w-3xl px-6 text-center text-cream">

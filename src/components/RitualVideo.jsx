@@ -45,8 +45,8 @@ export default function RitualVideo() {
           (0.55/0.40) which, combined with a totally different photo,
           made this section visibly lighter/greyer than its neighbors. */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
-        style={{ backgroundImage: `url(${backgroundTexture})` }}
+        className="absolute inset-0 bg-repeat bg-top opacity-[0.5]"
+        style={{ backgroundImage: `url(${backgroundTexture})`, backgroundSize: '260px auto' }}
         aria-hidden="true"
       />
       <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />

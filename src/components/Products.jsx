@@ -32,8 +32,8 @@ export default function Products() {
           bright ivory background regardless — they're self-contained,
           so they read fine floating on a dark backdrop. */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
-        style={{ backgroundImage: `url(${backgroundTexture})` }}
+        className="absolute inset-0 bg-repeat bg-top opacity-[0.5]"
+        style={{ backgroundImage: `url(${backgroundTexture})`, backgroundSize: '260px auto' }}
         aria-hidden="true"
       />
       <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />

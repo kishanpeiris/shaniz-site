@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
-import { toPlainText } from './RichText.jsx'
 import BadgeRow from './BadgeRow.jsx'
 import { localizedField } from '../lib/localize.js'
 import StarRating from './StarRating.jsx'
@@ -24,7 +23,6 @@ export default function ProductCard({ product, large = false }) {
   const isPreorder = product.availability === 'preorder'
   const isSoldOut = product.availability === 'out_of_stock' || (!isPreorder && product.outOfStock)
   const displayName = localizedField(product, 'name', language)
-  const displayDescription = localizedField(product, 'description', language)
 
   // Touch devices have no hover state, so "hover to preview" needs an
   // explicit stand-in: press and hold the thumbnail to play the video
@@ -109,10 +107,10 @@ export default function ProductCard({ product, large = false }) {
           {product.tagline}
         </span>
         <Link to={`/product/${product.id}`}>
-          <h3 className={`font-serif text-forestDeep hover:text-moss ${large ? 'text-3xl' : 'text-2xl'}`}>{displayName}</h3>
+          <h3 className={`line-clamp-2 font-serif text-forestDeep hover:text-moss ${large ? 'text-3xl' : 'text-2xl'}`}>{displayName}</h3>
         </Link>
         {product.reviewCount > 0 && <StarRating rating={product.avgRating} count={product.reviewCount} size="text-xs" />}
-        <p className="line-clamp-2 flex-1 text-sm text-[#6a6656]">{toPlainText(displayDescription)}</p>
+        <div className="flex-1" aria-hidden="true" />
         {isPreorder && (
           <p className="text-xs text-[#8a6d1f]">
             Ships in ~{product.preorderEtaDays || 14} days

@@ -25,8 +25,8 @@ export default function About() {
           is what kept causing legibility complaints no matter how the
           opacity was tuned. */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
-        style={{ backgroundImage: `url(${backgroundTexture})` }}
+        className="absolute inset-0 bg-repeat bg-top opacity-[0.5]"
+        style={{ backgroundImage: `url(${backgroundTexture})`, backgroundSize: '260px auto' }}
         aria-hidden="true"
       />
       <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />

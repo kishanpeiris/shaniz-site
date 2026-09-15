@@ -270,6 +270,33 @@ export const TRANSLATIONS = {
     si: 'මෙම ඉල්ලීම අනුමත නොකළේය.',
     ta: 'இந்த கோரிக்கை ஒப்புதல் அளிக்கப்படவில்லை.',
   },
+
+  // Address form (checkout + saved addresses) — city/postcode names
+  // themselves stay in English/Romanized form in every language mode.
+  // That's deliberate, not a gap: Sri Lanka Post's own addressing
+  // (and the postcode directory this list is built from) is
+  // Romanized, and that's what actually gets read by delivery riders
+  // regardless of what language the site is shown in.
+  address_line1_placeholder: {
+    en: 'Address line 1',
+    si: 'ලිපිනය පේළිය 1',
+    ta: 'முகவரி வரி 1',
+  },
+  address_city_placeholder: {
+    en: 'City / Town',
+    si: 'නගරය',
+    ta: 'நகரம் / ஊர்',
+  },
+  address_postal_code_placeholder: {
+    en: 'Postal code',
+    si: 'තැපැල් කේතය',
+    ta: 'அஞ்சல் குறியீடு',
+  },
+  address_sri_lanka_only: {
+    en: 'Sri Lanka only, at this time — {prefix}.',
+    si: 'මේ අවස්ථාවේදී ශ්‍රී ලංකාව සඳහා පමණි — {prefix}.',
+    ta: 'தற்போது இலங்கைக்கு மட்டும் — {prefix}.',
+  },
 }
 
 // vars is optional — e.g. translate('thankyou_receipt_sent', 'si', { email:

@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useIsMobile } from '../hooks/useIsMobile.js'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import CartDrawer from '../components/CartDrawer.jsx'
@@ -74,6 +75,11 @@ export default function ShopPage() {
   const [sort, setSort] = useState('best_match')
   const [inStockOnly, setInStockOnly] = useState(false)
   const [page, setPage] = useState(1)
+  const isMobile = useIsMobile()
+  // On phones, the grid grows as you scroll instead of showing numbered
+  // page buttons — this tracks how many items are currently shown.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const loadMoreRef = useRef(null)
   const [bookingService, setBookingService] = useState(null)
   // Seeded from ?q= (e.g. arriving from the nav search box) and kept in
   // sync with it, so the URL stays shareable/bookmarkable.
@@ -127,13 +133,40 @@ export default function ShopPage() {
   }, [products, services, type, category, priceBand, sort, inStockOnly, search, language])
 
   // Any filter/sort change can shrink the result set below the current
-  // page — reset to page 1 rather than showing a stranded empty page.
+  // page — reset to page 1 (or, on mobile, back to the first batch of
+  // results) rather than showing a stranded empty page.
   useEffect(() => {
     setPage(1)
+    setVisibleCount(PAGE_SIZE)
   }, [type, category, priceBand, sort, inStockOnly, search])
 
   const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE))
   const pageItems = visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  // Mobile infinite scroll: grow the visible list instead of paging.
+  // A tiny invisible "sentinel" div sits just below the grid; once it
+  // scrolls into view, we reveal the next batch — no click needed, and
+  // no separate "Load more" button to design/maintain.
+  const mobileItems = visible.slice(0, visibleCount)
+  const hasMoreMobile = visibleCount < visible.length
+
+  useEffect(() => {
+    if (!isMobile || !hasMoreMobile) return
+    const node = loadMoreRef.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((c) => Math.min(visible.length, c + PAGE_SIZE))
+        }
+      },
+      { rootMargin: '400px' } // start loading a bit before it's actually on-screen
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [isMobile, hasMoreMobile, visible.length])
+
+  const itemsToShow = isMobile ? mobileItems : pageItems
 
   const clearFilters = () => {
     setType('all')
@@ -227,6 +260,7 @@ export default function ShopPage() {
       <Nav />
       <PageHeroBand
         image={fernTea}
+        tile
         eyebrow="Shop All"
         title="The full collection."
         subtitle="Every product we make, in one place — new additions to the catalog show up here automatically."
@@ -305,7 +339,7 @@ export default function ShopPage() {
               {!loading && !error && visible.length > 0 && (
                 <>
                   <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
-                    {pageItems.map((item) =>
+                    {itemsToShow.map((item) =>
                       item.type === 'service' ? (
                         <ServiceCard
                           key={item.id}
@@ -318,7 +352,17 @@ export default function ShopPage() {
                     )}
                   </div>
 
-                  {pageCount > 1 && (
+                  {/* Phones: an invisible sentinel that loads the next
+                      batch of products as it scrolls into view, so the
+                      page keeps growing instead of stopping at numbered
+                      page buttons. */}
+                  {isMobile && (
+                    <div ref={loadMoreRef} className="mt-8 flex justify-center">
+                      {hasMoreMobile && <p className="text-xs uppercase tracking-wide text-moss">Loading more…</p>}
+                    </div>
+                  )}
+
+                  {!isMobile && pageCount > 1 && (
                     <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Shop pagination">
                       <button
                         onClick={() => setPage((p) => Math.max(1, p - 1))}

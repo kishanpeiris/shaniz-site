@@ -8,6 +8,7 @@ import { formatLKR as fmt } from '../lib/currency.js'
 import { formatCalendarDate } from '../lib/date.js'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
+import AddressFields from '../components/AddressFields.jsx'
 
 
 function Section({ title, children }) {
@@ -238,9 +239,11 @@ function AddressesSection() {
         ))}
       </ul>
       <form onSubmit={add} className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <input required placeholder="Address line 1" value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
-        <input required placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto" />
-        <input placeholder="Postal code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto" />
+        <AddressFields
+          value={{ line1: form.line1, city: form.city, postal_code: form.postal_code }}
+          onChange={(addr) => setForm({ ...form, ...addr })}
+          className="col-span-2 grid grid-cols-2 gap-3 md:col-span-4 md:grid-cols-4"
+        />
         <input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto" />
         <button className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add address</button>
       </form>

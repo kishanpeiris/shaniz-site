@@ -1,23 +1,70 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 
-const LINKS = [
-  { to: '/admin', label: 'Dashboard', end: true },
-  { to: '/admin/products', label: 'Products' },
-  { to: '/admin/services', label: 'Services' },
-  { to: '/admin/branches', label: 'Branches' },
-  { to: '/admin/bookings', label: 'Bookings' },
-  { to: '/admin/orders', label: 'Orders' },
-  { to: '/admin/customers', label: 'Customers' },
-  { to: '/admin/blacklist', label: 'Blacklist' },
-  { to: '/admin/fraud', label: 'Fraud Alerts' },
-  { to: '/admin/refunds', label: 'Refund Requests' },
-  { to: '/admin/admins', label: 'Admins', superadminOnly: true },
-  { to: '/admin/logs', label: 'Logs' },
-  { to: '/admin/settings', label: 'Settings' },
-  { to: '/admin/maintenance', label: 'Maintenance' },
+// Grouped into collapsible sections (rather than one long flat list) so
+// the sidebar stays scannable as more admin pages get added. Each group
+// has a short id used only to remember which sections are expanded.
+const GROUPS = [
+  {
+    id: 'overview',
+    label: 'Overview',
+    links: [{ to: '/admin', label: 'Dashboard', end: true }],
+  },
+  {
+    id: 'catalog',
+    label: 'Catalog',
+    links: [
+      { to: '/admin/products', label: 'Products' },
+      { to: '/admin/services', label: 'Services' },
+      { to: '/admin/branches', label: 'Branches' },
+    ],
+  },
+  {
+    id: 'sales',
+    label: 'Sales',
+    links: [
+      { to: '/admin/bookings', label: 'Bookings' },
+      { to: '/admin/orders', label: 'Orders' },
+      { to: '/admin/delivery', label: 'Delivery' },
+    ],
+  },
+  {
+    id: 'people',
+    label: 'People',
+    links: [
+      { to: '/admin/customers', label: 'Customers' },
+      { to: '/admin/blacklist', label: 'Blacklist' },
+      { to: '/admin/admins', label: 'Admins', superadminOnly: true },
+    ],
+  },
+  {
+    id: 'risk',
+    label: 'Risk & Support',
+    links: [
+      { to: '/admin/fraud', label: 'Fraud Alerts' },
+      { to: '/admin/refunds', label: 'Refund Requests' },
+    ],
+  },
+  {
+    id: 'system',
+    label: 'System',
+    links: [
+      { to: '/admin/logs', label: 'Logs' },
+      { to: '/admin/settings', label: 'Settings' },
+      { to: '/admin/maintenance', label: 'Maintenance' },
+    ],
+  },
 ]
+
+const ALL_LINKS = GROUPS.flatMap((g) => g.links)
+
+function groupIdForPath(pathname) {
+  const group = GROUPS.find((g) =>
+    g.links.some((l) => (l.end ? pathname === l.to : pathname.startsWith(l.to)))
+  )
+  return group?.id
+}
 
 // One link, two color variants: 'bar' sits on the dark mobile top bar
 // (needs light text/border), 'panel' sits on the cream admin content
@@ -38,6 +85,18 @@ function ViewStoreLink({ variant = 'panel' }) {
   )
 }
 
+function ChevronIcon({ open }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      className={`h-3.5 w-3.5 shrink-0 transition-transform duration-150 ${open ? 'rotate-90' : ''}`}
+      aria-hidden="true"
+    >
+      <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 export default function AdminLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -46,12 +105,39 @@ export default function AdminLayout() {
   // visible at md+ (see the `md:translate-x-0 md:static` overrides below).
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
+  // Which sidebar sections are expanded. Starts with just the section
+  // containing the current page open, so a fresh admin session isn't
+  // one long scroll of every link at once.
+  const [openGroups, setOpenGroups] = useState(() => {
+    const active = groupIdForPath(location.pathname)
+    return new Set(active ? [active] : [])
+  })
+
+  // If navigation lands on a page whose section isn't already expanded
+  // (e.g. a link elsewhere in the app deep-links straight into
+  // Delivery), auto-expand that section too — without collapsing
+  // anything the admin already had open themselves.
+  useEffect(() => {
+    const active = groupIdForPath(location.pathname)
+    if (active) setOpenGroups((prev) => (prev.has(active) ? prev : new Set(prev).add(active)))
+  }, [location.pathname])
+
+  const toggleGroup = (id) => {
+    setOpenGroups((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   const handleLogout = async () => {
     await logout()
     navigate('/login', { replace: true })
   }
 
-  const currentLabel = LINKS.find((l) => (l.end ? location.pathname === l.to : location.pathname.startsWith(l.to)))?.label ?? 'Admin'
+  const currentLabel =
+    ALL_LINKS.find((l) => (l.end ? location.pathname === l.to : location.pathname.startsWith(l.to)))?.label ?? 'Admin'
 
   const NavContents = (
     <>
@@ -60,21 +146,63 @@ export default function AdminLayout() {
         <p className="text-[0.65rem] uppercase tracking-widest text-goldLight">Admin Panel</p>
       </div>
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
-        {LINKS.filter((l) => !l.superadminOnly || user?.role === 'superadmin').map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.end}
-            onClick={() => setMobileNavOpen(false)}
-            className={({ isActive }) =>
-              `rounded-sm px-3 py-2 text-sm transition-colors ${
-                isActive ? 'bg-gold text-forestDeep' : 'text-cream/80 hover:bg-white/5'
-              }`
-            }
-          >
-            {link.label}
-          </NavLink>
-        ))}
+        {GROUPS.map((group) => {
+          const visibleLinks = group.links.filter((l) => !l.superadminOnly || user?.role === 'superadmin')
+          if (visibleLinks.length === 0) return null
+          // A group with exactly one link (Overview → Dashboard) is just
+          // noise to collapse/expand — render it as a single plain link.
+          if (visibleLinks.length === 1) {
+            const link = visibleLinks[0]
+            return (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                onClick={() => setMobileNavOpen(false)}
+                className={({ isActive }) =>
+                  `rounded-sm px-3 py-2 text-sm transition-colors ${
+                    isActive ? 'bg-gold text-forestDeep' : 'text-cream/80 hover:bg-white/5'
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            )
+          }
+          const isOpen = openGroups.has(group.id)
+          return (
+            <div key={group.id}>
+              <button
+                type="button"
+                onClick={() => toggleGroup(group.id)}
+                aria-expanded={isOpen}
+                className="flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-goldLight/90 hover:bg-white/5"
+              >
+                {group.label}
+                <ChevronIcon open={isOpen} />
+              </button>
+              {isOpen && (
+                <div className="mb-1 ml-1 flex flex-col gap-0.5 border-l border-gold/20 pl-3">
+                  {visibleLinks.map((link) => (
+                    <NavLink
+                      key={link.to}
+                      to={link.to}
+                      end={link.end}
+                      onClick={() => setMobileNavOpen(false)}
+                      className={({ isActive }) =>
+                        `rounded-sm px-3 py-1.5 text-sm transition-colors ${
+                          isActive ? 'bg-gold text-forestDeep' : 'text-cream/80 hover:bg-white/5'
+                        }`
+                      }
+                    >
+                      {link.label}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </nav>
       <div className="border-t border-gold/20 pt-4 text-xs">
         <p className="text-cream/70">{user?.name}</p>

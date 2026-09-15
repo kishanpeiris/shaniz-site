@@ -44,6 +44,7 @@ import BlacklistPage from './pages/admin/BlacklistPage.jsx'
 import FraudPage from './pages/admin/FraudPage.jsx'
 import RefundRequestsPage from './pages/admin/RefundRequestsPage.jsx'
 import BranchesPage from './pages/admin/BranchesPage.jsx'
+import DeliveryPage from './pages/admin/DeliveryPage.jsx'
 import AdminsPage from './pages/admin/AdminsPage.jsx'
 import LogsPage from './pages/admin/LogsPage.jsx'
 import SettingsPage from './pages/admin/SettingsPage.jsx'
@@ -140,6 +141,7 @@ export default function App() {
           <Route path="fraud" element={<FraudPage />} />
           <Route path="refunds" element={<RefundRequestsPage />} />
           <Route path="branches" element={<BranchesPage />} />
+          <Route path="delivery" element={<DeliveryPage />} />
           {/* Page content (text, photos, backgrounds) moved into
               Settings — redirect anyone with the old link bookmarked. */}
           <Route path="homepage-content" element={<Navigate to="/admin/settings" replace />} />

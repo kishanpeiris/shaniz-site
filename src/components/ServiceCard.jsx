@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
-import { toPlainText } from './RichText.jsx'
 import BadgeRow from './BadgeRow.jsx'
 import { localizedField } from '../lib/localize.js'
 
@@ -13,7 +12,6 @@ export default function ServiceCard({ service, onReserve }) {
   const [hovering, setHovering] = useState(false)
   const isBookable = service.serviceType === 'bookable'
   const displayName = localizedField(service, 'name', language)
-  const displayDescription = localizedField(service, 'description', language)
 
   // Same fallback order as ProductCard: video, then webp, then the
   // legacy gif field, then just the still photo (or the shared default
@@ -69,9 +67,9 @@ export default function ServiceCard({ service, onReserve }) {
       <div className="flex flex-1 flex-col gap-2 p-5">
         <span className="text-[0.68rem] uppercase tracking-[0.14em] text-moss">{service.tagline}</span>
         <Link to={`/service/${service.id}`}>
-          <h3 className="font-serif text-2xl text-forestDeep hover:text-moss">{displayName}</h3>
+          <h3 className="line-clamp-2 font-serif text-2xl text-forestDeep hover:text-moss">{displayName}</h3>
         </Link>
-        <p className="line-clamp-2 flex-1 text-sm text-[#6a6656]">{toPlainText(displayDescription)}</p>
+        <div className="flex-1" aria-hidden="true" />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <span className="whitespace-nowrap font-serif text-xl font-semibold text-forestDeep">{fmt(service.price)}</span>
           <button

@@ -18,25 +18,21 @@ export default function About() {
   const backgroundTexture = content.about_background_url || fernTea
   const sideImage = content.about_image_url || mask
   return (
-    <section id="about" className="relative overflow-hidden bg-forestDeep py-24 text-cream">
+    <section id="about" className="relative scroll-mt-24 overflow-hidden bg-forestDeep py-24 text-cream">
       {/* Same treatment as "See It Made": photo at a strong, clearly
           visible opacity with a dark tint on top, and light-colored text
           throughout — rather than a faint photo behind dark text, which
           is what kept causing legibility complaints no matter how the
-          opacity was tuned. */}
+          opacity was tuned. Non-tiled — a single fitted image, not a
+          repeating pattern (Products.jsx below still tiles; only these
+          two "Our Story"/"See it made" sections use the fitted version). */}
       <div
-        className="absolute inset-0 bg-repeat bg-top opacity-[0.5]"
-        style={{ backgroundImage: `url(${backgroundTexture})`, backgroundSize: '260px auto' }}
+        className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
+        style={{ backgroundImage: `url(${backgroundTexture})` }}
         aria-hidden="true"
       />
       <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />
       <div className="relative mx-auto max-w-6xl px-7">
-        <div className="mx-auto mb-10 flex w-fit items-center gap-3">
-          <svg viewBox="0 0 110 20" className="h-5 w-28">
-            <path d="M0 10H110" stroke="#e3c98a" strokeWidth="1" />
-          </svg>
-        </div>
-
         <div className="grid items-center gap-16 md:grid-cols-[1.1fr_0.9fr]">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-goldLight">

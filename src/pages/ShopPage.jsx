@@ -11,10 +11,7 @@ import PageHeroBand from '../components/PageHeroBand.jsx'
 import { useCatalog } from '../hooks/useCatalog.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
-import fernTea from '../assets/textures/fern-tea.jpg'
-import triphala from '../assets/textures/triphala.jpg'
-import cardamom from '../assets/textures/cardamom.jpg'
-import ayurvedaBowls from '../assets/textures/ayurveda-bowls.jpg'
+import shopHero from '../assets/textures/shop-hero-spices.jpg'
 
 // "Best Match" isn't a static comparator like the others — its ranking
 // depends on the current search text, so it's handled separately in the
@@ -259,25 +256,11 @@ export default function ShopPage() {
     <>
       <Nav />
       <PageHeroBand
-        image={fernTea}
-        tile
+        image={shopHero}
         eyebrow="Shop All"
         title="The full collection."
         subtitle="Every product we make, in one place — new additions to the catalog show up here automatically."
       />
-
-      {/* Decorative ingredient strip — purely visual, sits above the
-          functional filter bar so it never competes with buttons/text. */}
-      <div className="relative z-10 mx-auto -mt-8 mb-2 flex max-w-3xl justify-center gap-4 px-6">
-        {[triphala, cardamom, ayurvedaBowls].map((src, i) => (
-          <div
-            key={i}
-            className="h-16 w-16 overflow-hidden rounded-full border-4 border-ivory shadow-md sm:h-20 sm:w-20"
-          >
-            <img src={src} alt="" className="h-full w-full object-cover" />
-          </div>
-        ))}
-      </div>
 
       <section className="bg-ivory pb-16 pt-10">
         <div className="mx-auto max-w-6xl px-7">
@@ -344,6 +327,7 @@ export default function ShopPage() {
                         <ServiceCard
                           key={item.id}
                           service={item}
+                          large
                           onReserve={item.serviceType === 'bookable' ? () => setBookingService(item) : undefined}
                         />
                       ) : (

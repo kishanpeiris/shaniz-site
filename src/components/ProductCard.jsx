@@ -40,7 +40,7 @@ export default function ProductCard({ product, large = false }) {
     <div
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
-      className="group relative flex flex-col overflow-hidden rounded-sm border border-gold/30 bg-cream transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-brand"
+      className="group relative flex h-full flex-col overflow-hidden rounded-sm border border-gold/30 bg-cream transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-brand"
     >
       {product.badges?.length > 0 && (
         <div className="absolute left-3.5 right-3.5 top-3.5 z-10">
@@ -107,9 +107,15 @@ export default function ProductCard({ product, large = false }) {
           {product.tagline}
         </span>
         <Link to={`/product/${product.id}`}>
-          <h3 className={`line-clamp-2 font-serif text-forestDeep hover:text-moss ${large ? 'text-3xl' : 'text-2xl'}`}>{displayName}</h3>
+          <h3
+            className={`line-clamp-2 font-serif text-forestDeep hover:text-moss ${large ? 'min-h-[4.5rem] text-3xl' : 'min-h-16 text-2xl'}`}
+          >
+            {displayName}
+          </h3>
         </Link>
-        {product.reviewCount > 0 && <StarRating rating={product.avgRating} count={product.reviewCount} size="text-xs" />}
+        <div className="min-h-[1.1rem]">
+          {product.reviewCount > 0 && <StarRating rating={product.avgRating} count={product.reviewCount} size="text-xs" />}
+        </div>
         <div className="flex-1" aria-hidden="true" />
         {isPreorder && (
           <p className="text-xs text-[#8a6d1f]">

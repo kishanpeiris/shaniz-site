@@ -14,17 +14,38 @@ import AddressFields from '../components/AddressFields.jsx'
 
 
 const GATEWAYS = [
-  { id: 'koko', label: 'Koko', hint: 'Buy now, pay later' },
-  { id: 'intpay', label: 'IntPay', hint: 'Bank & wallet transfer' },
   // Customer-facing label is deliberately the generic "Credit / Debit
   // Card" rather than the underlying partner's brand name — the id
-  // ('dialog_genie') stays the same everywhere else (order records,
-  // the admin "payment gateway split" dashboard chart, gateway_used in
-  // the database) since that's a real, meaningful distinction for the
+  // ('payhere') stays the same everywhere else (order records, the
+  // admin "payment gateway split" dashboard chart, gateway_used in the
+  // database) since that's a real, meaningful distinction for the
   // business; customers just don't need to know or care which specific
   // processor is behind a card payment.
-  { id: 'dialog_genie', label: 'Credit / Debit Card', hint: 'Visa, Mastercard & more', card: true },
+  { id: 'payhere', label: 'Credit / Debit Card', hint: 'Visa, Mastercard & more', card: true },
+  { id: 'koko', label: 'Koko', hint: 'Buy now, pay later' },
+  { id: 'intpay', label: 'IntPay', hint: 'Bank & wallet transfer' },
 ]
+
+// PayHere's real checkout isn't a redirect — it needs the browser to
+// POST a signed set of fields straight to PayHere's own checkout page
+// (see lib/gateways.js on the backend for why). This builds exactly
+// that: an invisible form, filled in, submitted, then cleaned up. The
+// user never sees this — the whole thing happens in the instant between
+// clicking "Place Order" and leaving the page.
+function submitPayHereForm(url, fields) {
+  const form = document.createElement('form')
+  form.method = 'POST'
+  form.action = url
+  for (const [name, value] of Object.entries(fields)) {
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = name
+    input.value = value ?? ''
+    form.appendChild(input)
+  }
+  document.body.appendChild(form)
+  form.submit()
+}
 
 
 export default function CheckoutPage() {
@@ -48,7 +69,7 @@ export default function CheckoutPage() {
   const [billingMode, setBillingMode] = useState('new')
   const [billingAddr, setBillingAddr] = useState({ line1: '', city: '', postal_code: '' })
 
-  const [gateway, setGateway] = useState('koko')
+  const [gateway, setGateway] = useState('payhere')
   const [saveCard, setSaveCard] = useState(false)
 
   const [submitting, setSubmitting] = useState(false)
@@ -126,7 +147,11 @@ export default function CheckoutPage() {
       const res = await apiPost('/api/orders', payload)
       clearCart()
       const emailParam = !user ? `?email=${encodeURIComponent(guestEmail)}` : ''
-      if (res.gateway_live) {
+      if (res.gateway_live && res.checkout_method === 'POST') {
+        // PayHere: a real form POST straight to their checkout page, not
+        // a plain redirect (see submitPayHereForm above for why).
+        submitPayHereForm(res.checkout_redirect_url, res.checkout_fields)
+      } else if (res.gateway_live) {
         // A real gateway is configured — leave the site entirely for its
         // hosted checkout page, which is also where the customer's own
         // bank handles OTP/3-D Secure verification (never built by us;
@@ -315,7 +340,7 @@ export default function CheckoutPage() {
                   </label>
                 ))}
               </div>
-              {gateway === 'dialog_genie' && user && (
+              {gateway === 'payhere' && user && (
                 <label className="mt-3 flex items-center gap-2 text-sm text-[#5c5949]">
                   <input type="checkbox" checked={saveCard} onChange={(e) => setSaveCard(e.target.checked)} className="accent-forestDeep" />
                   Save this card to my account for next time
@@ -327,16 +352,16 @@ export default function CheckoutPage() {
           {/* Summary */}
           <div className="h-fit space-y-4">
             <div className="rounded-sm border border-gold/30 bg-ivory p-6">
-              <h2 className="text-xl">Order Summary</h2>
-            <ul className="space-y-1.5 text-sm text-[#5c5949]">
+              <h2 className="mb-5 text-xl">Order Summary</h2>
+            <ul className="space-y-2.5 text-sm text-[#5c5949]">
               {items.map((i) => (
-                <li key={i.id} className="flex justify-between">
-                  <span>{i.name} × {i.qty}</span>
-                  <span>{fmt(i.price * i.qty)}</span>
+                <li key={i.id} className="flex justify-between gap-4">
+                  <span className="min-w-0 flex-1">{i.name} × {i.qty}</span>
+                  <span className="shrink-0 whitespace-nowrap text-right">{fmt(i.price * i.qty)}</span>
                 </li>
               ))}
             </ul>
-            <div className="space-y-1.5 border-t border-gold/20 pt-3 text-sm">
+            <div className="mt-5 space-y-2.5 border-t border-gold/20 pt-4 text-sm">
               <div className="flex justify-between text-[#5c5949]">
                 <span>Subtotal</span>
                 <span>{fmt(subtotal)}</span>
@@ -345,20 +370,20 @@ export default function CheckoutPage() {
                 <span>Delivery</span>
                 <span>{deliveryFee ? fmt(deliveryFee) : 'Free'}</span>
               </div>
-              <div className="flex justify-between border-t border-gold/20 pt-2 text-base font-semibold text-forestDeep">
+              <div className="flex justify-between border-t border-gold/20 pt-3 text-base font-semibold text-forestDeep">
                 <span>Total</span>
                 <span>{fmt(total)}</span>
               </div>
             </div>
-            {error && <p className="text-sm text-[#a35a3a]">{error}</p>}
+            {error && <p className="mt-4 text-sm text-[#a35a3a]">{error}</p>}
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-full bg-forestDeep py-3.5 text-sm uppercase tracking-wide text-cream disabled:opacity-60"
+              className="mt-6 w-full rounded-full bg-forestDeep py-3.5 text-sm uppercase tracking-wide text-cream disabled:opacity-60"
             >
               {submitting ? 'Placing order…' : 'Place Order'}
             </button>
-            <p className="text-center text-xs text-[#6a6656]">
+            <p className="mt-3 text-center text-xs text-[#6a6656]">
               All prices in LKR. You'll enter payment details on the next step.
             </p>
             </div>

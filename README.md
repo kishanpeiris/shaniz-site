@@ -61,7 +61,7 @@ leaves appear to fly away again.
 - Basket checkout — `POST /api/orders`; the backend re-checks stock and
   recomputes the price from the DB, decrements stock, sends a real order
   confirmation email, and starts checkout with your selected payment
-  gateway (Koko/IntPay/Dialog Genie — a sandbox mock link until you add
+  gateway (Koko/IntPay/PayHere — a sandbox mock link until you add
   real gateway credentials on the backend)
 - Booking — `BookingWidget` fetches real open slots from
   `/api/bookings/services/:id/slots`, creates a real booking, rejects
@@ -96,7 +96,7 @@ leaves appear to fly away again.
 
 **Still placeholder (by design — later spec phases):**
 - Orders only reach `"paid"` once a real gateway webhook fires — until
-  you have real Koko/IntPay/Dialog Genie credentials, the "Continue to
+  you have real Koko/IntPay/PayHere credentials, the "Continue to
   payment" link after checkout goes to a sandbox mock URL and the order
   stays `"pending"`.
 - Contact form is still a placeholder (unchanged from earlier notes).
@@ -207,7 +207,7 @@ the backend first. Come back here once the backend is live.
 
 ### 4. After that
 
-- **Payments** — once you have Koko/IntPay/Dialog Genie sandbox
+- **Payments** — once you have Koko/IntPay/PayHere sandbox
   credentials (set them in `shaniz-api`'s environment variables), the
   backend's checkout endpoint returns a real redirect URL instead of the
   sandbox mock one, and "Continue to payment" here actually sends the

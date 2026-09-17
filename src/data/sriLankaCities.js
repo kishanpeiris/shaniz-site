@@ -16,6 +16,21 @@
 //
 // Format: [city, postalCode, district]
 export const SRI_LANKA_CITIES = [
+  ['Colombo 01 (Fort)', '00100', 'Colombo'],
+  ['Colombo 02 (Slave Island, Kompanna Veediya)', '00200', 'Colombo'],
+  ['Colombo 03 (Kollupitiya, Colpetty)', '00300', 'Colombo'],
+  ['Colombo 04 (Bambalapitiya)', '00400', 'Colombo'],
+  ['Colombo 05 (Havelock Town, Narahenpita, Kirulapone North, Thimbirigasyaya)', '00500', 'Colombo'],
+  ['Colombo 06 (Wellawatte, Pamankada, Kirulapone South)', '00600', 'Colombo'],
+  ['Colombo 07 (Cinnamon Gardens)', '00700', 'Colombo'],
+  ['Colombo 08 (Borella)', '00800', 'Colombo'],
+  ['Colombo 09 (Dematagoda)', '00900', 'Colombo'],
+  ['Colombo 10 (Maradana, Panchikawatta)', '01000', 'Colombo'],
+  ['Colombo 11 (Pettah)', '01100', 'Colombo'],
+  ['Colombo 12 (Hulftsdorp, Aluthkade)', '01200', 'Colombo'],
+  ['Colombo 13 (Kotahena, Bloemendhal)', '01300', 'Colombo'],
+  ['Colombo 14 (Grandpass)', '01400', 'Colombo'],
+  ['Colombo 15 (Mutwal, Modara, Mattakkuliya, Madampitiya)', '01500', 'Colombo'],
   ['Achchuvely', '40150', 'Jaffna'],
   ['Adampan', '41160', 'Mannar'],
   ['Addalaichenai', '32350', 'Ampara'],
@@ -230,7 +245,6 @@ export const SRI_LANKA_CITIES = [
   ['Boraluwageaina', '70344', 'Ratnapura'],
   ['Boraluwewa', '60437', 'Kurunegala'],
   ['Borapola', '32073', 'Ampara'],
-  ['Borella', '00800', 'Colombo'],
   ['Bossella', '71208', 'Kegalle'],
   ['Botalegama', '12307', 'Kalutara'],
   ['Bowalagama', '82458', 'Hambantota'],
@@ -592,7 +606,6 @@ export const SRI_LANKA_CITIES = [
   ['Hathporuwa', '82013', 'Hambantota'],
   ['Hatton', '22000', 'Nuwara Eliya'],
   ['Hattota Amuna', '21514', 'Matale'],
-  ['Havelock Town', '00500', 'Colombo'],
   ['Hawpe', '80132', 'Galle'],
   ['Hebarawa', '90724', 'Badulla'],
   ['Hebbekanda', '22683', 'Nuwara Eliya'],
@@ -944,7 +957,6 @@ export const SRI_LANKA_CITIES = [
   ['Kotadeniyawa', '11232', 'Gampaha'],
   ['Kotagala', '22080', 'Nuwara Eliya'],
   ['Kotagama', '91512', 'Monaragala'],
-  ['Kotahena', '01300', 'Colombo'],
   ['Kotamuduna', '90506', 'Badulla'],
   ['Kotapola', '81480', 'Matara'],
   ['Kotawehera', '60483', 'Kurunegala'],
@@ -1750,7 +1762,6 @@ export const SRI_LANKA_CITIES = [
   ['Siyambalawewa', '32048', 'Ampara'],
   ['Siyambalewa', '50184', 'Anuradhapura'],
   ['Skandapuram', '42415', 'Kilinochchi'],
-  ['Slave Island', '00200', 'Colombo'],
   ['Solepura', '60737', 'Kurunegala'],
   ['Solewewa', '60738', 'Kurunegala'],
   ['Somapura', '31222', 'Trincomalee'],
@@ -2066,7 +2077,6 @@ export const SRI_LANKA_CITIES = [
   ['Wellandura', '70293', 'Ratnapura'],
   ['Wellarawa', '60456', 'Kurunegala'],
   ['Wellawa', '60570', 'Kurunegala'],
-  ['Wellawatta', '00600', 'Colombo'],
   ['Wellawaya', '91200', 'Monaragala'],
   ['Welmilla Junction', '12534', 'Kalutara'],
   ['Welpalla', '60206', 'Kurunegala'],
@@ -2132,13 +2142,21 @@ export const SRI_LANKA_CITIES = [
 // Simple prefix/substring search, case-insensitive, sorted so exact
 // prefix matches surface before matches buried mid-word (typing 'kand'
 // should show 'Kandy' before 'Weerakandy').
+// "Colombo 05" and "Colombo 5" should both find the same zone — the
+// directory/UI always shows the padded form ("Colombo 05"), but plenty
+// of people type it without the leading zero. This only affects
+// matching, never what's displayed.
+function normalizeColomboZone(s) {
+  return s.replace(/colombo\s*0*(\d{1,2})\b/gi, 'colombo $1')
+}
+
 export function searchCities(queryText, limit = 8) {
-  const q = queryText.trim().toLowerCase()
+  const q = normalizeColomboZone(queryText.trim().toLowerCase())
   if (!q) return []
   const starts = []
   const contains = []
   for (const [city, postalCode, district] of SRI_LANKA_CITIES) {
-    const lower = city.toLowerCase()
+    const lower = normalizeColomboZone(city.toLowerCase())
     if (lower.startsWith(q)) starts.push({ city, postalCode, district })
     else if (lower.includes(q)) contains.push({ city, postalCode, district })
     if (starts.length >= limit) break
@@ -2147,8 +2165,8 @@ export function searchCities(queryText, limit = 8) {
 }
 
 export function findByExactCity(cityText) {
-  const q = cityText.trim().toLowerCase()
-  const found = SRI_LANKA_CITIES.find(([city]) => city.toLowerCase() === q)
+  const q = normalizeColomboZone(cityText.trim().toLowerCase())
+  const found = SRI_LANKA_CITIES.find(([city]) => normalizeColomboZone(city.toLowerCase()) === q)
   return found ? { city: found[0], postalCode: found[1], district: found[2] } : null
 }
 

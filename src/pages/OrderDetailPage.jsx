@@ -7,7 +7,7 @@ import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { formatCalendarDate } from '../lib/date.js'
 
-const GATEWAY_LABELS = { koko: 'Koko', intpay: 'IntPay', dialog_genie: 'Credit / Debit Card' }
+const GATEWAY_LABELS = { koko: 'Koko', intpay: 'IntPay', payhere: 'Credit / Debit Card', dialog_genie: 'Credit / Debit Card (legacy)' }
 
 // Cancellation/return request UI — a separate component mainly so its
 // own local form state (reason text, submitting, which type is being

@@ -41,12 +41,11 @@ export default function RitualVideo() {
   return (
     <section id="ritual-video" className="relative overflow-hidden bg-forestDeep py-24 text-cream">
       {/* Same treatment as About/Products now (opacity-[0.5] image +
-          forestDeep/45 tint) — previously slightly different math
-          (0.55/0.40) which, combined with a totally different photo,
-          made this section visibly lighter/greyer than its neighbors. */}
+          forestDeep/45 tint), but fitted rather than tiled — a single
+          image sized to cover the section, matching About's treatment. */}
       <div
-        className="absolute inset-0 bg-repeat bg-top opacity-[0.5]"
-        style={{ backgroundImage: `url(${backgroundTexture})`, backgroundSize: '260px auto' }}
+        className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
+        style={{ backgroundImage: `url(${backgroundTexture})` }}
         aria-hidden="true"
       />
       <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />

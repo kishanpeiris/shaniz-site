@@ -24,7 +24,7 @@ export default {
         },
       },
       animation: {
-        marquee: 'marquee 26s linear infinite',
+        marquee: 'marquee 32s linear infinite',
       },
       boxShadow: {
         brand: '0 20px 45px -25px rgba(14,34,22,0.45)',

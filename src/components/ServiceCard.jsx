@@ -6,7 +6,7 @@ import { formatLKR as fmt } from '../lib/currency.js'
 import BadgeRow from './BadgeRow.jsx'
 import { localizedField } from '../lib/localize.js'
 
-export default function ServiceCard({ service, onReserve }) {
+export default function ServiceCard({ service, onReserve, large = false }) {
   const { addItem } = useCart()
   const { t, language } = useLanguage()
   const [hovering, setHovering] = useState(false)
@@ -29,13 +29,13 @@ export default function ServiceCard({ service, onReserve }) {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-sm border border-gold/30 bg-cream transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-brand">
+    <div className="flex h-full flex-col overflow-hidden rounded-sm border border-gold/30 bg-cream transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-brand">
       <Link
         to={`/service/${service.id}`}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
         {...touchProps}
-        className="relative block aspect-square overflow-hidden bg-forestDeep"
+        className={`relative block overflow-hidden bg-forestDeep ${large ? 'aspect-[4/5]' : 'aspect-square'}`}
       >
         {service.badges?.length > 0 && (
           <div className="absolute left-3.5 right-3.5 top-3.5 z-10">
@@ -64,14 +64,20 @@ export default function ServiceCard({ service, onReserve }) {
           />
         )}
       </Link>
-      <div className="flex flex-1 flex-col gap-2 p-5">
+      <div className={`flex flex-1 flex-col gap-2 ${large ? 'p-6' : 'p-5'}`}>
         <span className="text-[0.68rem] uppercase tracking-[0.14em] text-moss">{service.tagline}</span>
         <Link to={`/service/${service.id}`}>
-          <h3 className="line-clamp-2 font-serif text-2xl text-forestDeep hover:text-moss">{displayName}</h3>
+          <h3
+            className={`line-clamp-2 font-serif text-forestDeep hover:text-moss ${large ? 'min-h-[4.5rem] text-3xl' : 'min-h-16 text-2xl'}`}
+          >
+            {displayName}
+          </h3>
         </Link>
         <div className="flex-1" aria-hidden="true" />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-          <span className="whitespace-nowrap font-serif text-xl font-semibold text-forestDeep">{fmt(service.price)}</span>
+          <span className={`whitespace-nowrap font-serif font-semibold text-forestDeep ${large ? 'text-2xl' : 'text-xl'}`}>
+            {fmt(service.price)}
+          </span>
           <button
             onClick={() => (isBookable ? onReserve?.() : addItem(service))}
             className="shrink-0 rounded-full bg-forestDeep px-4 py-2.5 text-[0.72rem] uppercase tracking-wide text-cream transition-colors hover:bg-gold hover:text-forestDeep"

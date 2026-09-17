@@ -4,7 +4,7 @@ import { apiGet, apiPut, API_URL } from '../../api/client.js'
 import { formatLKR } from '../../lib/currency.js'
 
 const STATUSES = ['pending', 'paid', 'shipped', 'completed', 'cancelled', 'refunded']
-const GATEWAY_LABELS = { koko: 'Koko', intpay: 'IntPay', dialog_genie: 'Credit / Debit Card' }
+const GATEWAY_LABELS = { koko: 'Koko', intpay: 'IntPay', payhere: 'Credit / Debit Card', dialog_genie: 'Credit / Debit Card (legacy)' }
 
 export default function OrdersPage() {
   const [searchParams] = useSearchParams()

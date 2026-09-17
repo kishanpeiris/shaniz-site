@@ -9,7 +9,7 @@ import ritualScene from '../assets/textures/spice-spoons.jpg'
 import { formatLKR as fmt } from '../lib/currency.js'
 
 
-const GATEWAY_LABELS = { koko: 'Koko', intpay: 'IntPay', dialog_genie: 'Dialog Genie' }
+const GATEWAY_LABELS = { koko: 'Koko', intpay: 'IntPay', payhere: 'PayHere', dialog_genie: 'Credit / Debit Card (legacy)' }
 
 export default function PaymentPage() {
   const { orderId } = useParams()
@@ -127,7 +127,7 @@ export default function PaymentPage() {
         </p>
 
         <div className="rounded-sm border border-gold/30 bg-ivory p-7">
-          {order.gateway_used === 'dialog_genie' ? (
+          {['payhere', 'dialog_genie'].includes(order.gateway_used) ? (
             <>
               <div className="mb-5 flex items-center justify-between">
                 <span className="text-sm text-[#5c5949]">Card details</span>
@@ -180,8 +180,8 @@ export default function PaymentPage() {
               </form>
               <p className="mt-4 text-center text-xs text-[#6a6656]">
                 Sandbox mode — no real charge is made, and your card number is never sent to our
-                servers. Once live gateway credentials are configured, this step redirects to
-                Dialog Genie&rsquo;s own secure hosted payment page.
+                servers. Once live PayHere credentials are configured, this step instead sends
+                you to PayHere&rsquo;s own secure hosted checkout page.
               </p>
             </>
           ) : (

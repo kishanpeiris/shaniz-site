@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import BranchHoursEditor from './BranchHoursEditor.jsx'
 import { apiGet, apiPost, apiPut, apiDelete } from '../../api/client.js'
 import LocationPicker from '../../components/admin/LocationPicker.jsx'
 
@@ -8,6 +9,7 @@ export default function BranchesPage() {
   const [branches, setBranches] = useState([])
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
+  const [hoursOpenId, setHoursOpenId] = useState(null)
   const [editForm, setEditForm] = useState(emptyForm)
   const [error, setError] = useState('')
 
@@ -61,13 +63,24 @@ export default function BranchesPage() {
     load()
   }
 
+  const setMain = async (id) => {
+    setError('')
+    try {
+      await apiPut(`/api/branches/${id}/set-main`, {})
+      load()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   return (
     <div>
       <h2 className="mb-2 text-3xl">Branches</h2>
       <p className="mb-6 text-sm text-[#6a6656]">
         Physical locations. Assign a branch to a bookable service (in Admin → Services) to show its address and a
         map link on the storefront. Latitude/longitude are optional — without them, the map link still works from
-        the address text alone, just slightly less precisely.
+        the address text alone, just slightly less precisely. The <strong>Main</strong> branch is the one pre-selected
+        by default in checkout's pickup picker; the first branch you add becomes Main automatically.
       </p>
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
@@ -110,17 +123,36 @@ export default function BranchesPage() {
             ) : (
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-serif text-lg text-forestDeep">{b.name}</p>
+                  <p className="flex items-center gap-2 font-serif text-lg text-forestDeep">
+                    {b.name}
+                    {b.is_main && (
+                      <span className="rounded-full bg-gold/20 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-forestDeep">
+                        Main
+                      </span>
+                    )}
+                  </p>
                   <p className="text-sm text-[#6a6656]">{b.address}{b.phone ? ` · ${b.phone}` : ''}</p>
+                  <p className="mt-0.5 text-xs text-[#6a6656]">
+                    {b.opening_hours ? 'Opening hours set' : 'No opening hours set yet'}
+                  </p>
                   {(b.latitude == null || b.longitude == null) && (
                     <p className="mt-0.5 text-xs text-[#8a6d3b]">No coordinates set — map link will use the address text.</p>
                   )}
                 </div>
                 <div className="flex gap-3 text-xs">
+                  {!b.is_main && (
+                    <button onClick={() => setMain(b.id)} className="underline text-forestDeep">Set as main</button>
+                  )}
+                  <button onClick={() => setHoursOpenId(hoursOpenId === b.id ? null : b.id)} className="underline text-forestDeep">
+                    {hoursOpenId === b.id ? 'Hide hours' : 'Opening hours'}
+                  </button>
                   <button onClick={() => startEdit(b)} className="underline text-forestDeep">Edit</button>
                   <button onClick={() => remove(b.id)} className="underline text-[#a35a3a]">Delete</button>
                 </div>
               </div>
+            )}
+            {hoursOpenId === b.id && editingId !== b.id && (
+              <BranchHoursEditor key={b.id} branch={b} onSaved={load} />
             )}
           </div>
         ))}

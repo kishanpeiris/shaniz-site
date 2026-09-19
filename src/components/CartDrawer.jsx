@@ -74,7 +74,7 @@ export default function CartDrawer() {
                       onClick={() => removeItem(item.id)}
                       className="ml-2 text-xs text-[#e2947a] underline"
                     >
-                      Remove
+                      {t('common_remove')}
                     </button>
                   </div>
                 </li>
@@ -90,7 +90,7 @@ export default function CartDrawer() {
               <span className="font-serif text-xl font-semibold text-ivory">{fmt(subtotal)}</span>
             </div>
             <p className="mb-3 text-center text-xs text-cream/70">
-              Delivery fees are calculated at checkout based on your location.
+              {t('cart_delivery_note')}
             </p>
             <Link
               to="/basket"

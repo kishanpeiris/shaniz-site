@@ -140,7 +140,7 @@ function MediaFields({ value, onChange }) {
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       <ImageUploader
-        label="Hover video (MP4/WebM)"
+        label="Hover video — Shop grid (MP4/WebM)"
         value={value.hover_video_url}
         onChange={(url) => onChange({ ...value, hover_video_url: url })}
         accept="video/mp4,video/webm,video/quicktime"
@@ -155,7 +155,7 @@ function MediaFields({ value, onChange }) {
         endpoint="/api/uploads/hover-image"
       />
       <ImageUploader
-        label="Detail page video (optional)"
+        label="Detail page video (optional — hover video is used if empty)"
         value={value.detail_video_url}
         onChange={(url) => onChange({ ...value, detail_video_url: url })}
         accept="video/mp4,video/webm,video/quicktime"

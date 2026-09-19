@@ -1,7 +1,8 @@
 import React from 'react'
-import fernTea from '../assets/textures/fern-tea.jpg'
 import RowCarousel from './RowCarousel.jsx'
 import { useHomepageContent } from '../hooks/useHomepageContent.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { localizedField } from '../lib/localize.js'
 
 const FB_SHARE_URL = 'https://www.facebook.com/share/r/18w79k89Zo/'
 const EMBED_SRC = `https://www.facebook.com/plugins/video.php?height=476&href=${encodeURIComponent(
@@ -24,13 +25,7 @@ function VideoCard({ src }) {
 
 export default function RitualVideo() {
   const content = useHomepageContent()
-  // Same fallback pattern as About/Products: an admin-uploaded override
-  // if one's been set (Settings → Page Content → See It Made), fern-tea
-  // otherwise — now the same default image as those two sections too,
-  // rather than the much lighter, white-background product photo this
-  // used before, which was the actual source of the three sections
-  // visibly not matching each other.
-  const backgroundTexture = content.ritual_video_background_url || fernTea
+  const { language } = useLanguage()
   // Admin-uploaded process videos (Settings → Page Content → See It
   // Made) take over once there's at least one — until then this keeps
   // showing the original single Facebook embed, so a fresh install
@@ -39,23 +34,14 @@ export default function RitualVideo() {
   const hasUploadedVideos = videos.length > 0
 
   return (
-    <section id="ritual-video" className="relative overflow-hidden bg-forestDeep py-24 text-cream">
-      {/* Same treatment as About/Products now (opacity-[0.5] image +
-          forestDeep/45 tint), but fitted rather than tiled — a single
-          image sized to cover the section, matching About's treatment. */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
-        style={{ backgroundImage: `url(${backgroundTexture})` }}
-        aria-hidden="true"
-      />
-      <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />
+    <section id="ritual-video" className="relative py-24">
       <div className="relative mx-auto max-w-6xl px-7 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-goldLight">
-          See it made
+          {localizedField(content, 'ritual_video_eyebrow', language)}
         </p>
-        <h2 className="mt-3 text-4xl text-ivory">The ritual, start to finish.</h2>
+        <h2 className="mt-3 text-4xl text-ivory">{localizedField(content, 'ritual_video_headline', language)}</h2>
         <p className="mx-auto mt-3 max-w-lg text-cream/75">
-          A short look at how each batch is blended — from fresh leaf to finished bottle.
+          {localizedField(content, 'ritual_video_subtext', language)}
         </p>
 
         {hasUploadedVideos ? (

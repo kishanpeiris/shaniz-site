@@ -85,7 +85,7 @@ function HoverMediaFields({ values, onChange }) {
   return (
     <div className="col-span-2 grid gap-3 sm:grid-cols-3 md:col-span-6">
       <ImageUploader
-        label="Hover video (MP4/WebM)"
+        label="Hover video — Shop grid (MP4/WebM)"
         value={values.hover_video_url}
         onChange={(url) => onChange({ hover_video_url: url })}
         accept="video/mp4,video/webm,video/quicktime"
@@ -100,7 +100,7 @@ function HoverMediaFields({ values, onChange }) {
         endpoint="/api/uploads/hover-image"
       />
       <ImageUploader
-        label="Detail page video (optional)"
+        label="Detail page video (optional — hover video is used if empty)"
         value={values.detail_video_url}
         onChange={(url) => onChange({ detail_video_url: url })}
         accept="video/mp4,video/webm,video/quicktime"
@@ -121,6 +121,7 @@ export default function ServicesPage() {
   const [expanded, setExpanded] = useState(null)
   const [windows, setWindows] = useState({})
   const [newWindow, setNewWindow] = useState({ day_of_week: 1, start_time: '09:00', end_time: '18:00' })
+  const [editingWin, setEditingWin] = useState(null) // { id, day_of_week, start_time, end_time }
   const [blackouts, setBlackouts] = useState({})
   const [newBlackout, setNewBlackout] = useState({ blackout_date: '', reason: '' })
 
@@ -273,11 +274,46 @@ export default function ServicesPage() {
   const addWindow = async (serviceId) => {
     setError('')
     try {
-      await apiPost(`/api/services/${serviceId}/availability`, {
-        day_of_week: Number(newWindow.day_of_week),
-        start_time: newWindow.start_time,
-        end_time: newWindow.end_time,
+      // "all" = add the same times for every day of the week, Sun–Sat.
+      const days = newWindow.day_of_week === 'all' ? [0, 1, 2, 3, 4, 5, 6] : [Number(newWindow.day_of_week)]
+      for (const day of days) {
+        await apiPost(`/api/services/${serviceId}/availability`, {
+          day_of_week: day,
+          start_time: newWindow.start_time,
+          end_time: newWindow.end_time,
+        })
+      }
+      loadWindows(serviceId)
+    } catch (err) {
+      setError(err.message)
+      loadWindows(serviceId)
+    }
+  }
+
+  const saveWindow = async (serviceId) => {
+    setError('')
+    try {
+      await apiPut(`/api/services/${serviceId}/availability/${editingWin.id}`, {
+        day_of_week: Number(editingWin.day_of_week),
+        start_time: editingWin.start_time,
+        end_time: editingWin.end_time,
       })
+      setEditingWin(null)
+      loadWindows(serviceId)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  // Remove every custom window so this service simply follows its
+  // branch's opening hours.
+  const useShopHours = async (serviceId) => {
+    if (!window.confirm('Remove all custom times for this service and follow the shop opening hours instead?')) return
+    setError('')
+    try {
+      for (const w of windows[serviceId] || []) {
+        await apiDelete(`/api/services/${serviceId}/availability/${w.id}`)
+      }
       loadWindows(serviceId)
     } catch (err) {
       setError(err.message)
@@ -485,25 +521,71 @@ export default function ServicesPage() {
 
             {expanded === s.id && (
               <div className="mt-4 border-t border-gold/20 pt-4">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-moss">Weekly windows</p>
-                <ul className="mb-3 space-y-1 text-sm">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">Booking times</p>
+                {(() => {
+                  const branch = branches.find((b) => b.id === s.branch_id)
+                  const custom = windows[s.id] || []
+                  if (!s.branch_id) {
+                    return <p className="mb-3 text-xs text-[#8a6d3b]">This service has no branch, so only the weekly times below apply. Pick a branch (Edit) and set that branch’s opening hours to use shop hours.</p>
+                  }
+                  if (!branch?.opening_hours) {
+                    return <p className="mb-3 text-xs text-[#8a6d3b]">{branch?.name || 'This branch'} has no opening hours yet — set them under Branches → Opening hours to open up Sundays and other days in one go.</p>
+                  }
+                  return (
+                    <p className="mb-3 max-w-2xl text-xs text-[#6a6656]">
+                      {custom.length === 0
+                        ? `No custom times — customers can book any time during ${branch.name}’s opening hours.`
+                        : `Custom times below are used, but never outside ${branch.name}’s opening hours. A day with no custom time here (e.g. Sunday) is not bookable.`}
+                      {custom.length > 0 && (
+                        <button onClick={() => useShopHours(s.id)} className="ml-2 underline text-forestDeep">Use shop hours instead</button>
+                      )}
+                    </p>
+                  )
+                })()}
+                <ul className="mb-3 space-y-1.5 text-sm">
                   {(windows[s.id] || []).map((w) => (
-                    <li key={w.id} className="flex items-center gap-3">
-                      <span className="w-10">{DAYS[w.day_of_week]}</span>
-                      <span>{w.start_time.slice(0, 5)}–{w.end_time.slice(0, 5)}</span>
-                      <button onClick={() => removeWindow(s.id, w.id)} className="text-xs text-[#a35a3a] underline">remove</button>
+                    <li key={w.id} className="flex flex-wrap items-center gap-3">
+                      {editingWin?.id === w.id ? (
+                        <>
+                          <select value={editingWin.day_of_week} onChange={(e) => setEditingWin({ ...editingWin, day_of_week: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-2 py-1">
+                            {DAYS.map((d, i) => <option key={d} value={i}>{d}</option>)}
+                          </select>
+                          <input type="time" value={editingWin.start_time} onChange={(e) => setEditingWin({ ...editingWin, start_time: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-2 py-1" />
+                          <span>to</span>
+                          <input type="time" value={editingWin.end_time} onChange={(e) => setEditingWin({ ...editingWin, end_time: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-2 py-1" />
+                          <button onClick={() => saveWindow(s.id)} className="rounded-full bg-forestDeep px-3 py-1 text-xs text-cream">Save</button>
+                          <button onClick={() => setEditingWin(null)} className="text-xs underline text-moss">Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-10">{DAYS[w.day_of_week]}</span>
+                          <span>{w.start_time.slice(0, 5)}–{w.end_time.slice(0, 5)}</span>
+                          <button
+                            onClick={() => setEditingWin({ id: w.id, day_of_week: w.day_of_week, start_time: w.start_time.slice(0, 5), end_time: w.end_time.slice(0, 5) })}
+                            className="text-xs underline text-forestDeep"
+                          >
+                            edit
+                          </button>
+                          <button onClick={() => removeWindow(s.id, w.id)} className="text-xs text-[#a35a3a] underline">remove</button>
+                        </>
+                      )}
                     </li>
                   ))}
-                  {(windows[s.id] || []).length === 0 && <li className="text-[#6a6656]">No windows set — this service has no bookable slots yet.</li>}
+                  {(windows[s.id] || []).length === 0 && (
+                    <li className="text-[#6a6656]">
+                      No custom times set{branches.find((b) => b.id === s.branch_id)?.opening_hours ? ' — following the shop opening hours.' : ' — this service has no bookable slots yet.'}
+                    </li>
+                  )}
                 </ul>
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <select value={newWindow.day_of_week} onChange={(e) => setNewWindow({ ...newWindow, day_of_week: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-2 py-1">
+                    <option value="all">Every day</option>
                     {DAYS.map((d, i) => <option key={d} value={i}>{d}</option>)}
                   </select>
                   <input type="time" value={newWindow.start_time} onChange={(e) => setNewWindow({ ...newWindow, start_time: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-2 py-1" />
                   <span>to</span>
                   <input type="time" value={newWindow.end_time} onChange={(e) => setNewWindow({ ...newWindow, end_time: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-2 py-1" />
-                  <button onClick={() => addWindow(s.id)} className="rounded-full bg-forestDeep px-3 py-1.5 text-xs text-cream">Add window</button>
+                  <button onClick={() => addWindow(s.id)} className="rounded-full bg-forestDeep px-3 py-1.5 text-xs text-cream">Add times</button>
                 </div>
 
                 <p className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-moss">

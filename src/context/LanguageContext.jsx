@@ -60,6 +60,12 @@ export function LanguageProvider({ children }) {
     }
   }
 
+  // Tell the browser which language the page is in (also lets CSS tune
+  // spacing for Sinhala/Tamil — see index.css).
+  useEffect(() => {
+    document.documentElement.lang = language
+  }, [language])
+
   const t = (key, vars) => translate(key, language, vars)
 
   return (

@@ -5,8 +5,10 @@ import { useAuth } from '../context/AuthContext.jsx'
 import StarRating from './StarRating.jsx'
 import StarRatingInput from './StarRatingInput.jsx'
 import { formatCalendarDate } from '../lib/date.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 function RatingBar({ star, count, total }) {
+  const { t } = useLanguage()
   const pct = total > 0 ? Math.round((count / total) * 100) : 0
   return (
     <div className="flex items-center gap-2 text-xs text-[#6a6656]">
@@ -20,6 +22,7 @@ function RatingBar({ star, count, total }) {
 }
 
 function ReviewForm({ productId, onSubmitted }) {
+  const { t } = useLanguage()
   const [rating, setRating] = useState(0)
   const [title, setTitle] = useState('')
   const [comment, setComment] = useState('')
@@ -46,20 +49,20 @@ function ReviewForm({ productId, onSubmitted }) {
 
   return (
     <form onSubmit={handleSubmit} className="rounded-sm border border-gold/30 bg-cream/60 p-5">
-      <p className="mb-2 text-sm font-semibold text-forestDeep">Write a review</p>
+      <p className="mb-2 text-sm font-semibold text-forestDeep">{t('rev_write')}</p>
       <StarRatingInput value={rating} onChange={setRating} />
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Give your review a title (optional)"
+        placeholder={t('rev_title_ph')}
         maxLength={120}
         className="mt-3 w-full rounded-sm border border-gold/30 bg-white px-3 py-2 text-sm"
       />
       <textarea
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        placeholder="What did you think? (optional)"
+        placeholder={t('rev_body_ph')}
         maxLength={2000}
         rows={3}
         className="mt-2 w-full rounded-sm border border-gold/30 bg-white px-3 py-2 text-sm"
@@ -77,6 +80,7 @@ function ReviewForm({ productId, onSubmitted }) {
 }
 
 export default function ProductReviews({ productId }) {
+  const { t } = useLanguage()
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [reviews, setReviews] = useState([])
@@ -114,7 +118,7 @@ export default function ProductReviews({ productId }) {
 
   return (
     <div className="mt-16 border-t border-gold/20 pt-10">
-      <h2 className="mb-5 text-2xl text-forestDeep">Reviews</h2>
+      <h2 className="mb-5 text-2xl text-forestDeep">{t('rev_reviews')}</h2>
 
       <div className="grid gap-8 md:grid-cols-[1fr_2fr]">
         <div>
@@ -137,7 +141,7 @@ export default function ProductReviews({ productId }) {
         <div>
           {reviews.length === 0 && (
             <p className="mb-5 text-sm text-[#6a6656]">
-              No reviews yet — be the first to share what you thought.
+              {t('rev_none')}
             </p>
           )}
           <ul className="space-y-5">
@@ -153,7 +157,7 @@ export default function ProductReviews({ productId }) {
                       onClick={() => handleDelete(r.id)}
                       className="text-xs uppercase tracking-wide text-[#a35a3a] underline"
                     >
-                      Remove
+                      {t('common_remove')}
                     </button>
                   )}
                 </div>
@@ -162,7 +166,7 @@ export default function ProductReviews({ productId }) {
                   {r.author_name} · {formatCalendarDate(r.created_at)}
                   {r.is_verified_purchase && (
                     <span className="ml-2 rounded-full bg-moss/15 px-2 py-0.5 text-[0.65rem] uppercase tracking-wide text-moss">
-                      Verified Purchase
+                      {t('rev_verified')}
                     </span>
                   )}
                 </p>
@@ -174,7 +178,7 @@ export default function ProductReviews({ productId }) {
             {!user && (
               <p className="text-sm text-[#6a6656]">
                 <Link to="/login" className="text-moss underline">
-                  Log in
+                  {t('rev_log_in')}
                 </Link>{' '}
                 to write a review (only customers who've purchased this product can review it).
               </p>
@@ -184,7 +188,7 @@ export default function ProductReviews({ productId }) {
                 onClick={() => setShowForm(true)}
                 className="rounded-full border border-forestDeep px-5 py-2.5 text-xs uppercase tracking-wide text-forestDeep hover:bg-forestDeep hover:text-cream"
               >
-                Write a Review
+                {t('rev_write')}
               </button>
             )}
             {user && showForm && (

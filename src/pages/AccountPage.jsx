@@ -25,6 +25,7 @@ function Section({ title, children }) {
 // useful since the original one (sent at registration) may have expired
 // (24 hours) or landed in spam.
 function VerificationBanner() {
+  const { t } = useLanguage()
   const { user } = useAuth()
   const [status, setStatus] = useState('idle') // idle | sending | sent
   const [error, setError] = useState('')
@@ -46,7 +47,7 @@ function VerificationBanner() {
   return (
     <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-[#c9a35c]/50 bg-[#fbf3df] px-5 py-3 text-sm">
       <div>
-        <p className="font-medium text-[#8a6d3b]">Please verify your email address</p>
+        <p className="font-medium text-[#8a6d3b]">{t('acct_verify_email')}</p>
         {status === 'sent' ? (
           <p className="text-xs text-[#8a6d3b]">
             Verification email sent to {user.email} — check your inbox (and spam folder).
@@ -70,6 +71,7 @@ function VerificationBanner() {
 }
 
 function ProfileSection() {
+  const { t } = useLanguage()
   const { user, refreshUser } = useAuth()
   const [firstName, setFirstName] = useState(user?.firstName || '')
   const [lastName, setLastName] = useState(user?.lastName || '')
@@ -97,10 +99,10 @@ function ProfileSection() {
   }
 
   return (
-    <Section title="Profile">
+    <Section title={t('acct_profile')}>
       <form onSubmit={save} className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">First name</label>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">{t('common_first_name')}</label>
           <input
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
@@ -108,25 +110,25 @@ function ProfileSection() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">Last name</label>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">{t('common_last_name')}</label>
           <input
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            placeholder="Optional"
+            placeholder={t('common_optional')}
             className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">Mobile</label>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">{t('common_mobile')}</label>
           <input
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
-            placeholder="Optional"
+            placeholder={t('common_optional')}
             className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">Email</label>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">{t('common_email')}</label>
           <input
             value={user?.email || ''}
             disabled
@@ -143,6 +145,7 @@ function ProfileSection() {
 }
 
 function PasswordSection() {
+  const { t } = useLanguage()
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [status, setStatus] = useState('idle')
@@ -165,10 +168,10 @@ function PasswordSection() {
   }
 
   return (
-    <Section title="Password">
+    <Section title={t('common_password')}>
       <form onSubmit={save} className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">Current password</label>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">{t('acct_current_password')}</label>
           <input
             type="password"
             required
@@ -178,7 +181,7 @@ function PasswordSection() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">New password</label>
+          <label className="mb-1 block text-xs uppercase tracking-wide text-moss">{t('acct_new_password')}</label>
           <input
             type="password"
             required
@@ -197,6 +200,7 @@ function PasswordSection() {
 }
 
 function AddressesSection() {
+  const { t } = useLanguage()
   const [addresses, setAddresses] = useState([])
   const [form, setForm] = useState({ line1: '', city: '', postal_code: '', phone: '' })
   const [error, setError] = useState('')
@@ -224,8 +228,8 @@ function AddressesSection() {
   }
 
   return (
-    <Section title="Saved addresses">
-      {addresses.length === 0 && <p className="mb-4 text-sm text-[#6a6656]">No saved addresses yet.</p>}
+    <Section title={t('acct_saved_addresses')}>
+      {addresses.length === 0 && <p className="mb-4 text-sm text-[#6a6656]">{t('acct_no_addresses')}</p>}
       <ul className="mb-4 space-y-2">
         {addresses.map((a) => (
           <li key={a.id} className="flex flex-col gap-2 rounded-sm border border-gold/20 bg-cream px-4 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between">
@@ -233,7 +237,7 @@ function AddressesSection() {
               {a.line1}, {a.city} {a.postal_code} {a.phone ? `· ${a.phone}` : ''}
             </span>
             <button onClick={() => remove(a.id)} className="text-xs text-[#a35a3a] underline">
-              Remove
+              {t('common_remove')}
             </button>
           </li>
         ))}
@@ -244,8 +248,8 @@ function AddressesSection() {
           onChange={(addr) => setForm({ ...form, ...addr })}
           className="col-span-2 grid grid-cols-2 gap-3 md:col-span-4 md:grid-cols-4"
         />
-        <input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto" />
-        <button className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">Add address</button>
+        <input placeholder={t('common_phone')} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm sm:w-auto" />
+        <button className="rounded-full bg-forestDeep px-4 py-2 text-xs uppercase tracking-wide text-cream">{t('acct_add_address')}</button>
       </form>
       {error && <p className="mt-2 text-sm text-[#a35a3a]">{error}</p>}
     </Section>
@@ -253,6 +257,7 @@ function AddressesSection() {
 }
 
 function PaymentMethodsSection() {
+  const { t } = useLanguage()
   const [methods, setMethods] = useState([])
 
   const load = () => apiGet('/api/account/payment-methods').then((r) => setMethods(r.payment_methods))
@@ -266,11 +271,10 @@ function PaymentMethodsSection() {
   }
 
   return (
-    <Section title="Saved payment methods">
+    <Section title={t('acct_saved_cards')}>
       {methods.length === 0 ? (
         <p className="text-sm text-[#6a6656]">
-          No saved cards yet. A card is saved automatically the next time you check out with a
-          gateway that supports "remember this card."
+          {t('acct_no_cards')}
         </p>
       ) : (
         <ul className="space-y-2">
@@ -280,7 +284,7 @@ function PaymentMethodsSection() {
                 {m.gateway.replace('_', ' ')} •••• {m.last4} {m.expiry ? `(exp ${m.expiry})` : ''}
               </span>
               <button onClick={() => remove(m.id)} className="text-xs text-[#a35a3a] underline">
-                Remove
+                {t('common_remove')}
               </button>
             </li>
           ))}
@@ -291,15 +295,16 @@ function PaymentMethodsSection() {
 }
 
 function OrderHistorySection() {
+  const { t } = useLanguage()
   const [orders, setOrders] = useState([])
   useEffect(() => {
     apiGet('/api/orders/mine').then((r) => setOrders(r.orders))
   }, [])
 
   return (
-    <Section title="Order history">
+    <Section title={t('acct_order_history')}>
       {orders.length === 0 ? (
-        <p className="text-sm text-[#6a6656]">No orders yet.</p>
+        <p className="text-sm text-[#6a6656]">{t('acct_no_orders')}</p>
       ) : (
         <div className="space-y-3">
           {orders.map((o) => (
@@ -321,7 +326,7 @@ function OrderHistorySection() {
                 to={`/orders/${o.id}`}
                 className="mt-2 inline-block text-xs font-semibold uppercase tracking-wide text-gold underline"
               >
-                View Details
+                {t('acct_view_details')}
               </Link>
             </div>
           ))}
@@ -332,15 +337,16 @@ function OrderHistorySection() {
 }
 
 function BookingsSection() {
+  const { t } = useLanguage()
   const [bookings, setBookings] = useState([])
   useEffect(() => {
     apiGet('/api/account/bookings').then((r) => setBookings(r.bookings))
   }, [])
 
   return (
-    <Section title="Your bookings">
+    <Section title={t('acct_your_bookings')}>
       {bookings.length === 0 ? (
-        <p className="text-sm text-[#6a6656]">No bookings yet.</p>
+        <p className="text-sm text-[#6a6656]">{t('acct_no_bookings')}</p>
       ) : (
         <ul className="space-y-2">
           {bookings.map((b) => (
@@ -390,6 +396,7 @@ function LanguageSection() {
 }
 
 export default function AccountPage() {
+  const { t } = useLanguage()
   const { user, logout } = useAuth()
 
   return (
@@ -398,11 +405,11 @@ export default function AccountPage() {
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl">My Account</h1>
+            <h1 className="text-3xl">{t('nav_my_account')}</h1>
             <p className="text-sm text-[#6a6656]">Signed in as {user?.email}</p>
           </div>
           <button onClick={logout} className="self-start text-xs uppercase tracking-wide text-[#a35a3a] underline sm:self-auto">
-            Sign out
+            {t('acct_sign_out')}
           </button>
         </div>
 

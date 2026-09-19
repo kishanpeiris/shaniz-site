@@ -5,6 +5,7 @@ import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import BrandLockup from '../components/BrandLockup.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
+import { resolveReturnTo, queueScrollRestore } from '../lib/returnTo.js'
 import matchaRitual from '../assets/textures/matcha-slate.jpg'
 
 export default function RegisterPage() {
@@ -35,7 +36,11 @@ export default function RegisterPage() {
         password,
         mobile: mobile.trim() || undefined,
       })
-      navigate('/account', { replace: true })
+      // New sign-ups are always customers: send them back to the page
+      // they were browsing (falls back to /account if there isn't one).
+      const dest = resolveReturnTo(null, { role: 'customer' })
+      queueScrollRestore(dest.url, dest.y)
+      navigate(dest.url, { replace: true })
     } catch (err) {
       setError(err.message)
     } finally {

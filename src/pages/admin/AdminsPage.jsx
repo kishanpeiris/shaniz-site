@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { apiGet, apiPost, apiDelete } from '../../api/client.js'
+import { useAuth } from '../../context/AuthContext.jsx'
+import AccountEditor from './AccountEditor.jsx'
 
 const emptyForm = { name: '', email: '', password: '', role: 'admin' }
 
@@ -7,6 +9,8 @@ export default function AdminsPage() {
   const [admins, setAdmins] = useState([])
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
+  const { user } = useAuth()
+  const [editingId, setEditingId] = useState(null)
 
   const load = () => apiGet('/api/admin/admins').then((r) => setAdmins(r.admins)).catch((e) => setError(e.message))
   useEffect(() => { load() }, [])
@@ -67,16 +71,38 @@ export default function AdminsPage() {
           </thead>
           <tbody>
             {admins.map((a) => (
-              <tr key={a.id} className="border-b border-gold/15">
+              <React.Fragment key={a.id}>
+              <tr className="border-b border-gold/15">
                 <td className="p-3">{a.name} {a.is_primary_superadmin && <span className="ml-1 text-xs text-gold">(primary)</span>}</td>
                 <td className="p-3">{a.email}</td>
                 <td className="p-3 capitalize">{a.role}</td>
                 <td className="p-3">
+                  <button
+                    onClick={() => setEditingId(editingId === a.id ? null : a.id)}
+                    className="mr-4 text-xs underline text-forestDeep"
+                  >
+                    {editingId === a.id ? 'Close' : 'Edit / password'}
+                  </button>
                   {!a.is_primary_superadmin && (
                     <button onClick={() => remove(a)} className="text-xs underline text-[#a35a3a]">Remove</button>
                   )}
                 </td>
               </tr>
+              {editingId === a.id && (
+                <tr className="border-b border-gold/15">
+                  <td colSpan={4} className="p-3">
+                    <AccountEditor
+                      account={a}
+                      kind="admin"
+                      canSetPassword
+                      isSelf={a.id === user?.id}
+                      onSaved={load}
+                      onClose={() => setEditingId(null)}
+                    />
+                  </td>
+                </tr>
+              )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>

@@ -56,7 +56,11 @@ export default function BookingsPage() {
                   {b.user_id ? (
                     <>
                       {b.user_name}
-                      <span className="block text-xs text-[#6a6656]">{b.user_email}</span>
+                      <span className="block text-xs text-[#6a6656]">
+                        {b.user_email}
+                        {(b.guest_mobile || b.user_mobile) ? ` · ${b.guest_mobile || b.user_mobile}` : ''}
+                        {b.guest_home_phone ? ` · Home: ${b.guest_home_phone}` : ''}
+                      </span>
                     </>
                   ) : (
                     <>
@@ -64,6 +68,7 @@ export default function BookingsPage() {
                       <span className="block text-xs text-[#6a6656]">
                         {b.guest_email}
                         {b.guest_mobile ? ` · ${b.guest_mobile}` : ''}
+                        {b.guest_home_phone ? ` · Home: ${b.guest_home_phone}` : ''}
                       </span>
                     </>
                   )}

@@ -7,13 +7,11 @@ import { useCatalog } from '../hooks/useCatalog.js'
 import { useHomepageContent } from '../hooks/useHomepageContent.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
-import fernTea from '../assets/textures/fern-tea.jpg'
 
 export default function Products() {
   const { loading, error, products, services } = useCatalog()
   const content = useHomepageContent()
   const { language } = useLanguage()
-  const backgroundTexture = content.ritual_background_url || fernTea
   const [bookingService, setBookingService] = useState(null)
   // Most-popular-first — units sold is already computed server-side for
   // both products and services (see UNITS_SOLD_SUBQUERY in
@@ -25,18 +23,7 @@ export default function Products() {
   const items = [...products, ...services].sort((a, b) => b.unitsSold - a.unitsSold)
 
   return (
-    <section id="products" className="relative overflow-hidden bg-forestDeep py-24 text-cream">
-      {/* Same treatment as "See It Made" / About: photo at a strong,
-          clearly visible opacity with a dark tint on top, light text
-          throughout. The product/service cards below keep their own
-          bright ivory background regardless — they're self-contained,
-          so they read fine floating on a dark backdrop. */}
-      <div
-        className="absolute inset-0 bg-repeat bg-top opacity-[0.5]"
-        style={{ backgroundImage: `url(${backgroundTexture})`, backgroundSize: '260px auto' }}
-        aria-hidden="true"
-      />
-      <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />
+    <section id="products" className="relative py-24">
       <div className="relative mx-auto max-w-6xl px-7">
         <div className="mx-auto mb-14 max-w-lg text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-goldLight">

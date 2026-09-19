@@ -7,6 +7,7 @@ import Strip from './components/Strip.jsx'
 import About from './components/About.jsx'
 import Products from './components/Products.jsx'
 import RitualVideo from './components/RitualVideo.jsx'
+import StoryBand from './components/StoryBand.jsx'
 import Visit from './components/Visit.jsx'
 import Footer from './components/Footer.jsx'
 import CartDrawer from './components/CartDrawer.jsx'
@@ -67,9 +68,11 @@ function Storefront() {
       <Nav />
       <Hero />
       <Strip />
-      <About />
-      <Products />
-      <RitualVideo />
+      <StoryBand>
+        <About />
+        <Products />
+        <RitualVideo />
+      </StoryBand>
       <Visit />
       <Footer />
     </>

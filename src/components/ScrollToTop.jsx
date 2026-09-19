@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { rememberPage, rememberScroll, takeScrollRestore } from '../lib/returnTo.js'
 
 /**
  * Resets scroll position to the top on every navigation — including
@@ -14,10 +15,44 @@ import { useLocation } from 'react-router-dom'
  * the specific section rather than the top.
  */
 export default function ScrollToTop() {
-  const { hash, key } = useLocation()
+  const location = useLocation()
+  const { hash, key, pathname } = location
+
+  // Remember the current page (and how far down it is scrolled) so that
+  // signing in can send the visitor straight back here.
+  useEffect(() => {
+    rememberPage(location)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+  useEffect(() => {
+    let timer = null
+    const onScroll = () => {
+      if (timer) return
+      timer = setTimeout(() => {
+        timer = null
+        rememberScroll(window.scrollY)
+      }, 200)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      clearTimeout(timer)
+    }
+  }, [])
 
   useEffect(() => {
     if (hash) return
+
+    // Just came back from signing in? Restore the old scroll position
+    // instead of jumping to the top. Retries cover pages whose content
+    // (catalog, images) finishes loading a moment after mount.
+    const restoreY = takeScrollRestore(pathname)
+    if (restoreY) {
+      const go = () => window.scrollTo(0, restoreY)
+      go()
+      const timers = [150, 400, 900].map((ms) => setTimeout(go, ms))
+      return () => timers.forEach(clearTimeout)
+    }
 
     // Scroll immediately, then a couple of follow-up attempts shortly
     // after. Pages with async content (Shop's catalog fetch, images

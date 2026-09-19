@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom'
 import { apiGet, apiPut, apiPost } from '../../api/client.js'
 import { formatLKR } from '../../lib/currency.js'
 import { formatCalendarDate } from '../../lib/date.js'
+import { useAuth } from '../../context/AuthContext.jsx'
+import AccountEditor from './AccountEditor.jsx'
 
 function Card({ title, children }) {
   return (
@@ -18,6 +20,8 @@ export default function CustomerDetailPage() {
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
   const [resendStatus, setResendStatus] = useState('')
+  const { user } = useAuth()
+  const [editing, setEditing] = useState(false)
 
   const load = () =>
     apiGet(`/api/admin/customers/${id}`)
@@ -61,6 +65,25 @@ export default function CustomerDetailPage() {
         ← Back to customers
       </Link>
       <h2 className="mb-6 text-3xl">{customer.name}</h2>
+
+      <div className="mb-6">
+        {editing ? (
+          <AccountEditor
+            account={customer}
+            kind="customer"
+            canSetPassword={user?.role === 'superadmin'}
+            onSaved={load}
+            onClose={() => setEditing(false)}
+          />
+        ) : (
+          <button
+            onClick={() => setEditing(true)}
+            className="rounded-full border border-forestDeep/30 px-4 py-1.5 text-xs uppercase tracking-wide text-forestDeep hover:bg-forestDeep hover:text-cream"
+          >
+            Edit account{user?.role === 'superadmin' ? ' / set password' : ''}
+          </button>
+        )}
+      </div>
 
       <Card title="Profile">
         <dl className="grid grid-cols-2 gap-y-2 text-sm md:grid-cols-4">

@@ -17,9 +17,9 @@ export default function Footer() {
           <div className="flex flex-wrap gap-10">
             <div>
               <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">{t('footer_shop')}</h5>
-              <Link to="/#products" className="block py-0.5 text-sm hover:text-goldLight">Hair Oil</Link>
-              <Link to="/#products" className="block py-0.5 text-sm hover:text-goldLight">Hair Mask</Link>
-              <Link to="/#products" className="block py-0.5 text-sm hover:text-goldLight">Scalp Ritual</Link>
+              <Link to="/#products" className="block py-0.5 text-sm hover:text-goldLight">{t('footer_hair_oil')}</Link>
+              <Link to="/#products" className="block py-0.5 text-sm hover:text-goldLight">{t('footer_hair_mask')}</Link>
+              <Link to="/#products" className="block py-0.5 text-sm hover:text-goldLight">{t('footer_scalp_ritual')}</Link>
             </div>
             <div>
               <h5 className="mb-2.5 text-xs uppercase tracking-[0.14em] text-goldLight">{t('footer_company')}</h5>

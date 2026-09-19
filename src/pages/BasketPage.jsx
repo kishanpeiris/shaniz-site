@@ -19,7 +19,7 @@ export default function BasketPage() {
   return (
     <>
       <Nav />
-      <PageHeroBand image={ritualScene} eyebrow="Your Basket" title="Almost there." compact />
+      <PageHeroBand image={ritualScene} eyebrow={t('basket_eyebrow')} title={t('basket_title')} compact />
       <div className="relative overflow-hidden bg-forestDeep">
         {/* Same treatment as "See It Made": photo at a strong, clearly
             visible opacity with a dark tint on top, light-colored text
@@ -42,7 +42,7 @@ export default function BasketPage() {
           <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-gold/30 bg-ivory px-5 py-4 text-sm">
             <span className="text-[#5c5949]">
               <Link to="/login" state={{ from: { pathname: '/basket' } }} className="underline">
-                Sign in
+                {t('common_sign_in')}
               </Link>{' '}
               to save this basket to your account, or continue as a guest at checkout.
             </span>
@@ -73,7 +73,7 @@ export default function BasketPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => changeQty(item.id, -1)}
-                          aria-label="Decrease quantity"
+                          aria-label={t('common_decrease_qty')}
                           className="h-11 w-11 rounded-full border border-gold/40 text-forestDeep"
                         >
                           −
@@ -81,7 +81,7 @@ export default function BasketPage() {
                         <span className="w-6 text-center">{item.qty}</span>
                         <button
                           onClick={() => changeQty(item.id, 1)}
-                          aria-label="Increase quantity"
+                          aria-label={t('common_increase_qty')}
                           className="h-11 w-11 rounded-full border border-gold/40 text-forestDeep"
                         >
                           +
@@ -94,7 +94,7 @@ export default function BasketPage() {
                         onClick={() => removeItem(item.id)}
                         className="text-xs text-[#a35a3a] underline"
                       >
-                        Remove
+                        {t('common_remove')}
                       </button>
                     </div>
                   </li>
@@ -111,7 +111,7 @@ export default function BasketPage() {
                 <span>{fmt(subtotal)}</span>
               </div>
               <p className="mb-5 text-xs text-[#6a6656]">
-                Delivery fees (or pickup) are calculated at checkout based on your location.
+                {t('basket_delivery_note')}
               </p>
               <Link
                 to="/checkout"

@@ -194,7 +194,7 @@ export default function OrderDetailPage() {
         </p>
 
         <div className="mb-6 rounded-sm border border-gold/30 bg-ivory p-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-forestDeep">Items</h2>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-forestDeep">{t('od_items')}</h2>
           <ul className="mb-4 space-y-2 text-sm text-[#5c5949]">
             {order.items.map((i, idx) => (
               <li key={idx} className="flex justify-between">
@@ -219,6 +219,35 @@ export default function OrderDetailPage() {
             <span>{fmt(order.total_lkr)}</span>
           </div>
         </div>
+
+        {order.delivery_method === 'pickup' && order.pickup_branch && (
+          <div className="mb-6 rounded-sm border border-gold/30 bg-ivory p-6">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-forestDeep">{t('od_collect_from')}</h2>
+            <p className="text-sm text-[#5c5949]">
+              {order.pickup_branch.name}
+              <br />
+              {order.pickup_branch.address}
+              {order.pickup_branch.phone && (
+                <>
+                  <br />
+                  {order.pickup_branch.phone}
+                </>
+              )}
+            </p>
+            <a
+              href={
+                order.pickup_branch.latitude != null && order.pickup_branch.longitude != null
+                  ? `https://www.google.com/maps/search/?api=1&query=${order.pickup_branch.latitude},${order.pickup_branch.longitude}`
+                  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.pickup_branch.address)}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block text-sm text-forestDeep underline"
+            >
+              {t('od_directions')}
+            </a>
+          </div>
+        )}
 
         {address && (
           <div className="mb-6 rounded-sm border border-gold/30 bg-ivory p-6">

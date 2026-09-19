@@ -1,6 +1,5 @@
 import React from 'react'
 import mask from '../assets/mask.jpg'
-import fernTea from '../assets/textures/fern-tea.jpg'
 import { useHomepageContent } from '../hooks/useHomepageContent.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
@@ -15,23 +14,9 @@ const INGREDIENTS = [
 export default function About() {
   const content = useHomepageContent()
   const { t, language } = useLanguage()
-  const backgroundTexture = content.about_background_url || fernTea
   const sideImage = content.about_image_url || mask
   return (
-    <section id="about" className="relative scroll-mt-24 overflow-hidden bg-forestDeep py-24 text-cream">
-      {/* Same treatment as "See It Made": photo at a strong, clearly
-          visible opacity with a dark tint on top, and light-colored text
-          throughout — rather than a faint photo behind dark text, which
-          is what kept causing legibility complaints no matter how the
-          opacity was tuned. Non-tiled — a single fitted image, not a
-          repeating pattern (Products.jsx below still tiles; only these
-          two "Our Story"/"See it made" sections use the fitted version). */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.5]"
-        style={{ backgroundImage: `url(${backgroundTexture})` }}
-        aria-hidden="true"
-      />
-      <div className="absolute inset-0 bg-forestDeep/45" aria-hidden="true" />
+    <section id="about" className="relative scroll-mt-24 py-24">
       <div className="relative mx-auto max-w-6xl px-7">
         <div className="grid items-center gap-16 md:grid-cols-[1.1fr_0.9fr]">
           <div>

@@ -81,7 +81,7 @@ export default function ProductCard({ product, large = false }) {
         {!hasHoverMedia && product.ingredients?.length > 0 && (
           <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-b from-forest/5 to-forestDeep/95 p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-goldLight">
-              Inside
+              {t('card_inside')}
             </p>
             <ul className="space-y-0.5 text-sm text-cream">
               {product.ingredients.map((ing) => (
@@ -97,7 +97,7 @@ export default function ProductCard({ product, large = false }) {
         )}
         {isPreorder && (
           <span className="absolute bottom-3 left-3 rounded-full bg-gold px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-wide text-forestDeep">
-            Pre-order
+            {t('card_preorder')}
           </span>
         )}
       </Link>

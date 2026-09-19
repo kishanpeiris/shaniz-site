@@ -17,6 +17,7 @@ import { localizedField } from '../lib/localize.js'
 // diverge later without the two dragging each other along. Handles both
 // photos and the optional detail video, same as ProductDetailPage.
 function Lightbox({ media, index, onClose, onNavigate }) {
+  const { t } = useLanguage()
   const item = media[index]
   return (
     <div
@@ -25,13 +26,13 @@ function Lightbox({ media, index, onClose, onNavigate }) {
       role="dialog"
       aria-modal="true"
     >
-      <button onClick={onClose} aria-label="Close" className="absolute right-5 top-5 text-3xl leading-none text-cream">
+      <button onClick={onClose} aria-label={t('common_close')} className="absolute right-5 top-5 text-3xl leading-none text-cream">
         &times;
       </button>
       {media.length > 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); onNavigate(-1) }}
-          aria-label="Previous"
+          aria-label={t('common_previous')}
           className="absolute left-3 top-1/2 -translate-y-1/2 px-3 py-4 text-3xl text-cream sm:left-6"
         >
           ‹
@@ -45,7 +46,7 @@ function Lightbox({ media, index, onClose, onNavigate }) {
       {media.length > 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); onNavigate(1) }}
-          aria-label="Next"
+          aria-label={t('common_next')}
           className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-4 text-3xl text-cream sm:right-6"
         >
           ›
@@ -64,7 +65,7 @@ export default function ServiceDetailPage() {
   const { id } = useParams()
   const { loading, error, service } = useService(id)
   const { addItem } = useCart()
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const [activeIndex, setActiveIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [bookingOpen, setBookingOpen] = useState(false)
@@ -73,7 +74,7 @@ export default function ServiceDetailPage() {
     return (
       <>
         <Nav />
-        <div className="py-24 text-center text-sm text-[#6a6656]">Loading…</div>
+        <div className="py-24 text-center text-sm text-[#6a6656]">{t('common_loading')}</div>
         <Footer />
       </>
     )
@@ -84,10 +85,10 @@ export default function ServiceDetailPage() {
       <>
         <Nav />
         <div className="py-24 text-center">
-          <h1 className="mb-2 text-2xl">We couldn't find that service</h1>
+          <h1 className="mb-2 text-2xl">{t('sd_not_found')}</h1>
           <p className="mb-6 text-sm text-[#6a6656]">{error}</p>
           <Link to="/shop" className="rounded-full bg-forestDeep px-5 py-2.5 text-xs uppercase tracking-wide text-cream">
-            Back to Shop
+            {t('common_back_to_shop')}
           </Link>
         </div>
         <Footer />
@@ -98,9 +99,12 @@ export default function ServiceDetailPage() {
   const isBookable = service.serviceType === 'bookable'
   const displayName = localizedField(service, 'name', language)
   const displayDescription = localizedField(service, 'description', language)
+  // Detail-page video first; fall back to the hover video so an
+  // uploaded video always shows up on this page.
+  const videoSrc = service.detailVideo || service.hoverVideo
   const media = [
     ...service.images.map((src) => ({ type: 'image', src })),
-    ...(service.detailVideo ? [{ type: 'video', src: service.detailVideo }] : []),
+    ...(videoSrc ? [{ type: 'video', src: videoSrc }] : []),
   ]
   const active = media[activeIndex] || media[0]
   const navigateLightbox = (dir) => setActiveIndex((i) => (i + dir + media.length) % media.length)
@@ -110,7 +114,7 @@ export default function ServiceDetailPage() {
       <Nav />
       <div className="mx-auto max-w-6xl px-6 py-12">
         <Link to="/shop" className="mb-6 inline-block text-xs uppercase tracking-wide text-moss underline">
-          ← Back to Shop
+          ← {t('common_back_to_shop')}
         </Link>
 
         <div className="grid gap-10 md:grid-cols-2">
@@ -118,7 +122,7 @@ export default function ServiceDetailPage() {
             <button
               onClick={() => setLightboxOpen(true)}
               className="block aspect-square w-full overflow-hidden rounded-sm border border-gold/30 bg-forestDeep"
-              aria-label="View full size"
+              aria-label={t('common_view_full_size')}
             >
               {active.type === 'video' ? (
                 <video src={active.src} muted loop autoPlay playsInline className="h-full w-full object-cover" />
@@ -172,7 +176,7 @@ export default function ServiceDetailPage() {
 
             {service.branch && (
               <div className="mt-4 rounded-sm border border-gold/20 bg-cream px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-moss">Location</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-moss">{t('sd_location')}</p>
                 <p className="mt-1 text-sm text-[#5c5949]">{service.branch.name}</p>
                 <p className="text-sm text-[#5c5949]">{service.branch.address}</p>
                 {service.branch.phone && <p className="text-sm text-[#5c5949]">{service.branch.phone}</p>}
@@ -182,7 +186,7 @@ export default function ServiceDetailPage() {
                   rel="noopener noreferrer"
                   className="mt-2 inline-block text-xs uppercase tracking-wide text-forestDeep underline"
                 >
-                  Open in Google Maps →
+                  {t('sd_open_maps')}
                 </a>
               </div>
             )}

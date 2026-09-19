@@ -51,3 +51,16 @@ h1, h2, h3, .font-display {
   }
 }
 
+
+
+/* Sinhala & Tamil: letter-spacing pulls joined characters apart and
+   makes words look broken, so switch it off; a roomier line-height
+   stops tall glyphs being clipped or colliding with the line above. */
+html[lang='si'] *,
+html[lang='ta'] * {
+  letter-spacing: normal !important;
+}
+html[lang='si'] body,
+html[lang='ta'] body {
+  line-height: 1.7;
+}

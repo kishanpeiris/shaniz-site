@@ -11,6 +11,8 @@ import ritualScene from '../assets/textures/spice-spoons.jpg'
 import herbsCitrus from '../assets/textures/herbs-citrus.jpg'
 import { formatLKR as fmt } from '../lib/currency.js'
 import AddressFields from '../components/AddressFields.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
+import { translateLabel } from '../i18n/translations.js'
 
 
 const GATEWAYS = [
@@ -49,6 +51,8 @@ function submitPayHereForm(url, fields) {
 
 
 export default function CheckoutPage() {
+  const { language, t } = useLanguage()
+  const L = (text) => translateLabel(text, language)
   const { items, subtotal, clearCart, addresses } = useCart()
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -61,6 +65,8 @@ export default function CheckoutPage() {
   const [deliveryMethod, setDeliveryMethod] = useState('delivery')
   const [regions, setRegions] = useState([])
   const [deliveryRegion, setDeliveryRegion] = useState('')
+  const [branches, setBranches] = useState([])
+  const [pickupBranchId, setPickupBranchId] = useState('')
 
   const [shippingMode, setShippingMode] = useState('new') // 'new' | saved address id
   const [shippingAddr, setShippingAddr] = useState({ line1: '', city: '', postal_code: '' })
@@ -85,6 +91,20 @@ export default function CheckoutPage() {
   }, [])
 
   useEffect(() => {
+    apiGet('/api/branches')
+      .then((r) => {
+        setBranches(r.branches)
+        // /api/branches already sorts the main branch first (see
+        // branches.routes.js), so this pre-selects it — a guest ready
+        // to pick up shouldn't have to know or care which branch is
+        // "the" one before picking a different one is even possible.
+        const main = r.branches.find((b) => b.is_main) || r.branches[0]
+        if (main) setPickupBranchId(main.id)
+      })
+      .catch(() => setBranches([]))
+  }, [])
+
+  useEffect(() => {
     if (user && addresses.length > 0) {
       setShippingMode(addresses[0].id)
       setBillingMode(addresses[0].id)
@@ -102,7 +122,7 @@ export default function CheckoutPage() {
         <div className="mx-auto max-w-2xl px-6 py-20 text-center">
           <h1 className="mb-4 text-3xl">Your basket is empty</h1>
           <Link to="/shop" className="rounded-full bg-forestDeep px-6 py-3 text-xs uppercase tracking-wide text-cream">
-            Browse the Shop
+            {t('browse_the_shop')}
           </Link>
         </div>
         <Footer />
@@ -112,6 +132,10 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (deliveryMethod === 'pickup' && !pickupBranchId) {
+      setError('Please choose a branch to collect your order from.')
+      return
+    }
     setSubmitting(true)
     setError('')
     try {
@@ -134,6 +158,8 @@ export default function CheckoutPage() {
         } else {
           payload.shipping_address = { first_name: firstName, last_name: lastName, phone, ...shippingAddr }
         }
+      } else {
+        payload.pickup_branch_id = pickupBranchId
       }
 
       if (deliveryMethod === 'pickup' || !billingSame) {
@@ -173,7 +199,7 @@ export default function CheckoutPage() {
   return (
     <>
       <Nav />
-      <PageHeroBand image={ritualScene} eyebrow="Checkout" title="Complete your ritual." compact />
+      <PageHeroBand image={ritualScene} eyebrow={t('checkout')} title={t('checkout_title')} compact />
       <div className="relative overflow-hidden bg-forestDeep">
         {/* Same texture family as the Basket page and cart drawer,
             applied once across the whole page, same treatment as "See
@@ -189,9 +215,9 @@ export default function CheckoutPage() {
         <div className="relative mx-auto max-w-5xl px-6 py-12">
         {!user && (
           <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-gold/30 bg-ivory px-5 py-4 text-sm">
-            <span className="text-[#5c5949]">Checking out as a guest.</span>
+            <span className="text-[#5c5949]">{t('checkout_guest_note')}</span>
             <Link to="/login" state={{ from: { pathname: '/checkout' } }} className="underline text-forestDeep">
-              Already have an account? Sign in
+              {t('checkout_have_account')} {t('common_sign_in')}
             </Link>
           </div>
         )}
@@ -200,26 +226,26 @@ export default function CheckoutPage() {
           <div className="space-y-8 md:col-span-2">
             {/* Contact */}
             <section className="rounded-sm border border-gold/30 bg-ivory p-6">
-              <h2 className="mb-4 text-xl">Contact details</h2>
+              <h2 className="mb-4 text-xl">{t('checkout_contact_details')}</h2>
               <div className="grid grid-cols-2 gap-3">
-                <input required placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
-                <input required placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
-                <input required type="tel" placeholder="Mobile number" value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
+                <input required placeholder={t('common_first_name')} value={firstName} onChange={(e) => setFirstName(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
+                <input required placeholder={t('common_last_name')} value={lastName} onChange={(e) => setLastName(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
+                <input required type="tel" placeholder={t('common_mobile_number')} value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
                 {user ? (
                   <input disabled value={user.email} className="rounded-sm border border-gold/30 bg-cream/60 px-3 py-2.5 text-sm text-[#6a6656]" />
                 ) : (
-                  <input required type="email" placeholder="Email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
+                  <input required type="email" placeholder={t('common_email')} value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} className="rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm" />
                 )}
               </div>
             </section>
 
             {/* Delivery */}
             <section className="rounded-sm border border-gold/30 bg-ivory p-6">
-              <h2 className="mb-4 text-xl">Delivery</h2>
+              <h2 className="mb-4 text-xl">{t('delivery_label')}</h2>
               <div className="mb-4 flex gap-3">
                 {[
-                  ['pickup', 'Pickup (Free)'],
-                  ['delivery', 'Home Delivery'],
+                  ['pickup', L('Pickup (Free)')],
+                  ['delivery', L('Home Delivery')],
                 ].map(([id, label]) => (
                   <button
                     type="button"
@@ -236,7 +262,7 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              {deliveryMethod === 'delivery' && (
+              {deliveryMethod === 'delivery' ? (
                 <>
                   <select
                     value={deliveryRegion}
@@ -272,12 +298,49 @@ export default function CheckoutPage() {
                     <AddressFields value={shippingAddr} onChange={setShippingAddr} prefix="delivery address" />
                   )}
                 </>
+              ) : (
+                <div>
+                  <p className="mb-3 text-sm text-[#5c5949]">{t('checkout_collect_from')}</p>
+                  {branches.length === 0 ? (
+                    <p className="text-sm text-[#6a6656]">
+                      {t('checkout_no_branches')}
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {branches.map((b) => (
+                        <label
+                          key={b.id}
+                          className={`flex cursor-pointer items-start gap-3 rounded-sm border p-3 text-sm ${
+                            pickupBranchId === b.id ? 'border-forestDeep bg-cream' : 'border-gold/30'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="pickup_branch"
+                            checked={pickupBranchId === b.id}
+                            onChange={() => setPickupBranchId(b.id)}
+                            className="mt-1 accent-forestDeep"
+                          />
+                          <span>
+                            <span className="font-medium text-forestDeep">
+                              {b.name}
+                              {b.is_main && <span className="ml-2 text-xs uppercase tracking-wide text-moss">{t('checkout_main')}</span>}
+                            </span>
+                            <br />
+                            <span className="text-[#6a6656]">{b.address}</span>
+                            {b.phone && <span className="text-[#6a6656]"> · {b.phone}</span>}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
             </section>
 
             {/* Billing */}
             <section className="rounded-sm border border-gold/30 bg-ivory p-6">
-              <h2 className="mb-4 text-xl">Billing address</h2>
+              <h2 className="mb-4 text-xl">{t('checkout_billing_address')}</h2>
               {deliveryMethod === 'delivery' && (
                 <label className="mb-4 flex items-center gap-2 text-sm text-[#5c5949]">
                   <input
@@ -286,7 +349,7 @@ export default function CheckoutPage() {
                     onChange={(e) => setBillingSame(e.target.checked)}
                     className="accent-forestDeep"
                   />
-                  Same as delivery address
+                  {t('checkout_same_as_delivery')}
                 </label>
               )}
               {(deliveryMethod === 'pickup' || !billingSame) && (
@@ -314,7 +377,7 @@ export default function CheckoutPage() {
 
             {/* Payment */}
             <section className="rounded-sm border border-gold/30 bg-ivory p-6">
-              <h2 className="mb-4 text-xl">Payment method</h2>
+              <h2 className="mb-4 text-xl">{t('checkout_payment_method')}</h2>
               <div className="space-y-2.5">
                 {GATEWAYS.map((g) => (
                   <label
@@ -332,8 +395,8 @@ export default function CheckoutPage() {
                         className="accent-forestDeep"
                       />
                       <span>
-                        <span className="block font-medium text-forestDeep">{g.label}</span>
-                        <span className="block text-xs text-[#6a6656]">{g.hint}</span>
+                        <span className="block font-medium text-forestDeep">{L(g.label)}</span>
+                        <span className="block text-xs text-[#6a6656]">{L(g.hint)}</span>
                       </span>
                     </span>
                     {g.card && <CardBrandRow />}
@@ -343,7 +406,7 @@ export default function CheckoutPage() {
               {gateway === 'payhere' && user && (
                 <label className="mt-3 flex items-center gap-2 text-sm text-[#5c5949]">
                   <input type="checkbox" checked={saveCard} onChange={(e) => setSaveCard(e.target.checked)} className="accent-forestDeep" />
-                  Save this card to my account for next time
+                  {t('checkout_save_card')}
                 </label>
               )}
             </section>
@@ -352,7 +415,7 @@ export default function CheckoutPage() {
           {/* Summary */}
           <div className="h-fit space-y-4">
             <div className="rounded-sm border border-gold/30 bg-ivory p-6">
-              <h2 className="mb-5 text-xl">Order Summary</h2>
+              <h2 className="mb-5 text-xl">{t('checkout_order_summary')}</h2>
             <ul className="space-y-2.5 text-sm text-[#5c5949]">
               {items.map((i) => (
                 <li key={i.id} className="flex justify-between gap-4">
@@ -363,15 +426,15 @@ export default function CheckoutPage() {
             </ul>
             <div className="mt-5 space-y-2.5 border-t border-gold/20 pt-4 text-sm">
               <div className="flex justify-between text-[#5c5949]">
-                <span>Subtotal</span>
+                <span>{t('subtotal')}</span>
                 <span>{fmt(subtotal)}</span>
               </div>
               <div className="flex justify-between text-[#5c5949]">
-                <span>Delivery</span>
+                <span>{t('delivery_label')}</span>
                 <span>{deliveryFee ? fmt(deliveryFee) : 'Free'}</span>
               </div>
               <div className="flex justify-between border-t border-gold/20 pt-3 text-base font-semibold text-forestDeep">
-                <span>Total</span>
+                <span>{t('total_label')}</span>
                 <span>{fmt(total)}</span>
               </div>
             </div>
@@ -384,7 +447,7 @@ export default function CheckoutPage() {
               {submitting ? 'Placing order…' : 'Place Order'}
             </button>
             <p className="mt-3 text-center text-xs text-[#6a6656]">
-              All prices in LKR. You'll enter payment details on the next step.
+              {t('checkout_prices_note')}
             </p>
             </div>
           </div>

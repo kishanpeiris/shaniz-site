@@ -1,6 +1,73 @@
 import React, { useEffect, useState } from 'react'
 import { apiGet, apiPost, apiPut, apiDelete } from '../../api/client.js'
 import { formatLKR as fmt } from '../../lib/currency.js'
+import { searchCities } from '../../data/sriLankaCities.js'
+
+// Sri Lanka's 9 provinces plus its 25 districts — the two ways a
+// delivery zone is realistically named. Just a plain <datalist> here
+// (not the fancier custom dropdown used elsewhere for the 2,000+-town
+// list) since 34 options is small enough that the browser's native
+// autocomplete handles it fine on its own.
+const SRI_LANKA_ZONE_NAMES = [
+  'Western Province', 'Central Province', 'Southern Province', 'Northern Province',
+  'Eastern Province', 'North Western Province', 'North Central Province',
+  'Uva Province', 'Sabaragamuwa Province',
+  'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 'Nuwara Eliya', 'Galle',
+  'Matara', 'Hambantota', 'Jaffna', 'Kilinochchi', 'Mannar', 'Vavuniya',
+  'Mullaitivu', 'Batticaloa', 'Ampara', 'Trincomalee', 'Kurunegala', 'Puttalam',
+  'Anuradhapura', 'Polonnaruwa', 'Badulla', 'Monaragala', 'Ratnapura', 'Kegalle',
+]
+
+// A plain text input for the comma-separated "example towns" list, with
+// a dropdown of real Sri Lankan towns (same dataset checkout's address
+// autocomplete uses) suggested as you type after the last comma —
+// picking one appends it and starts the next, so building up
+// "Kandy, Galle, Jaffna" is a few clicks instead of hand-typing each
+// name. Still just a plain comma-separated string underneath — nothing
+// else about how zones are stored/displayed needed to change for this.
+function TownsInput({ value, onChange, placeholder, wrapperClassName = 'relative col-span-2', inputClassName = 'w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm' }) {
+  const [open, setOpen] = useState(false)
+  const segments = value.split(',')
+  const currentSegment = segments[segments.length - 1].trim()
+  const matches = open && currentSegment ? searchCities(currentSegment, 6) : []
+
+  const pickTown = (city) => {
+    const before = segments.slice(0, -1)
+    const newValue = [...before, ` ${city}`].join(',').replace(/^,\s*/, '')
+    onChange(newValue + ', ')
+    setOpen(false)
+  }
+
+  return (
+    <div className={wrapperClassName}>
+      <input
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value)
+          setOpen(true)
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 120)}
+        className={inputClassName}
+      />
+      {matches.length > 0 && (
+        <ul className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-sm border border-gold/30 bg-ivory shadow-lg">
+          {matches.map((m) => (
+            <li
+              key={m.city}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => pickTown(m.city)}
+              className="cursor-pointer px-3 py-2 text-sm text-forestDeep hover:bg-gold/10"
+            >
+              {m.city}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 const EMPTY_FORM = { label: '', fee_lkr: '', example: '' }
 
@@ -114,11 +181,12 @@ export default function DeliveryPage() {
                         />
                       </td>
                       <td className="px-4 py-3">
-                        <input
+                        <TownsInput
                           value={editForm.example}
-                          onChange={(e) => setEditForm({ ...editForm, example: e.target.value })}
+                          onChange={(example) => setEditForm({ ...editForm, example })}
                           placeholder="e.g. Kandy, Galle, Jaffna"
-                          className="w-full rounded-sm border border-gold/30 bg-cream px-2 py-1.5 text-sm"
+                          wrapperClassName="relative"
+                          inputClassName="w-full rounded-sm border border-gold/30 bg-cream px-2 py-1.5 text-sm"
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -175,16 +243,21 @@ export default function DeliveryPage() {
         <form onSubmit={addRegion} className="grid grid-cols-2 gap-3">
           <input
             required
+            list="zone-name-suggestions"
             placeholder="Zone name (e.g. Central Province)"
             value={form.label}
             onChange={(e) => setForm({ ...form, label: e.target.value })}
             className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
           />
-          <input
-            placeholder="Example towns (optional)"
+          <datalist id="zone-name-suggestions">
+            {SRI_LANKA_ZONE_NAMES.map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
+          <TownsInput
+            placeholder="Example towns (optional) — start typing a town name"
             value={form.example}
-            onChange={(e) => setForm({ ...form, example: e.target.value })}
-            className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
+            onChange={(example) => setForm({ ...form, example })}
           />
           <input
             required

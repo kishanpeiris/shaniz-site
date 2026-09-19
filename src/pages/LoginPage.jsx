@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
+import { resolveReturnTo, queueScrollRestore } from '../lib/returnTo.js'
 import matchaRitual from '../assets/textures/matcha-slate.jpg'
 
 export default function LoginPage() {
@@ -22,10 +23,11 @@ export default function LoginPage() {
     setError('')
     try {
       const loggedInUser = await login(email, password)
-      const dest =
-        location.state?.from?.pathname ||
-        (['admin', 'superadmin'].includes(loggedInUser.role) ? '/admin' : '/account')
-      navigate(dest, { replace: true })
+      // Go back to the page (and scroll spot) they were on, not
+      // automatically to the account/admin page.
+      const dest = resolveReturnTo(location.state?.from, loggedInUser)
+      queueScrollRestore(dest.url, dest.y)
+      navigate(dest.url, { replace: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -41,7 +43,10 @@ export default function LoginPage() {
   // renders or, in stricter React versions, break entirely).
   useEffect(() => {
     if (!user) return
-    navigate(['admin', 'superadmin'].includes(user.role) ? '/admin' : '/account', { replace: true })
+    const dest = resolveReturnTo(location.state?.from, user)
+    queueScrollRestore(dest.url, dest.y)
+    navigate(dest.url, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate])
 
   return (

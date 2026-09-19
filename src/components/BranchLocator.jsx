@@ -1,5 +1,6 @@
 import React from 'react'
 import RowCarousel from './RowCarousel.jsx'
+import BranchHours from './BranchHours.jsx'
 import { googleMapsUrl, googleMapsEmbedUrl } from '../lib/maps.js'
 
 function BranchCard({ branch }) {
@@ -48,6 +49,7 @@ function BranchCard({ branch }) {
             {branch.phone}
           </a>
         )}
+        <BranchHours hours={branch.opening_hours} />
       </div>
     </div>
   )

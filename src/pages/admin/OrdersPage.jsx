@@ -12,6 +12,9 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([])
   const [error, setError] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  // '' = all, 'delivery' = delivery orders only, otherwise a branch id.
+  const [branchFilter, setBranchFilter] = useState('')
+  const [branches, setBranches] = useState([])
   // Which order's detail row is expanded — the list endpoint already
   // returns every column (items, shipping_address, etc. — it's a plain
   // `SELECT *`), so expanding a row is free: no second fetch needed,
@@ -23,10 +26,16 @@ export default function OrdersPage() {
   const [expandedId, setExpandedId] = useState(highlightId)
 
   const load = () => {
-    const qs = statusFilter ? `?status=${statusFilter}` : ''
+    const params = new URLSearchParams()
+    if (statusFilter) params.set('status', statusFilter)
+    if (branchFilter) params.set('pickup_branch', branchFilter)
+    const qs = params.toString() ? `?${params}` : ''
     apiGet(`/api/orders${qs}`).then((r) => setOrders(r.orders)).catch((e) => setError(e.message))
   }
-  useEffect(() => { load() }, [statusFilter])
+  useEffect(() => { load() }, [statusFilter, branchFilter])
+  useEffect(() => {
+    apiGet('/api/branches').then((r) => setBranches(r.branches)).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (!highlightId || orders.length === 0) return
@@ -58,7 +67,17 @@ export default function OrdersPage() {
           >
             Export CSV
           </a>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-sm border border-gold/30 bg-ivory px-3 py-2 text-sm">
+          <select
+            value={branchFilter}
+            onChange={(e) => setBranchFilter(e.target.value)}
+            aria-label="Filter by pickup branch"
+            className="rounded-sm border border-gold/30 bg-ivory px-3 py-2 text-sm"
+          >
+            <option value="">All locations</option>
+            <option value="delivery">Delivery only</option>
+            {branches.map((b) => <option key={b.id} value={b.id}>Pickup: {b.name}</option>)}
+          </select>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Filter by status" className="rounded-sm border border-gold/30 bg-ivory px-3 py-2 text-sm">
             <option value="">All statuses</option>
             {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>

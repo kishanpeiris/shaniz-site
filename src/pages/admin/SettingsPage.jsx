@@ -445,7 +445,11 @@ function PageContentEditor() {
           />
           <div className="grid gap-4 border-t border-gold/20 pt-4 sm:grid-cols-2">
             <BackgroundField label="Side photo (next to the text)" value={form.about_image_url} onChange={set('about_image_url')} />
-            <BackgroundField label="Background texture" value={form.about_background_url} onChange={set('about_background_url')} />
+            <BackgroundField
+              label="Background texture (behind this whole band — Our Story, The Ritual, and See It Made together)"
+              value={form.about_background_url}
+              onChange={set('about_background_url')}
+            />
           </div>
         </Section>
 
@@ -462,14 +466,22 @@ function PageContentEditor() {
               { key: 'ritual_subtext', label: 'Subtext' },
             ]}
           />
-          <div className="border-t border-gold/20 pt-4 sm:max-w-xs">
-            <BackgroundField label="Background texture" value={form.ritual_background_url} onChange={set('ritual_background_url')} />
-          </div>
         </Section>
 
         <Section title="See It Made (process videos)">
-          <BackgroundField label="Background texture" value={form.ritual_video_background_url} onChange={set('ritual_video_background_url')} />
-          <p className="-mt-2 text-xs text-[#6a6656]">
+          <Field label="Eyebrow" value={form.ritual_video_eyebrow} onChange={set('ritual_video_eyebrow')} />
+          <Field label="Headline" value={form.ritual_video_headline} onChange={set('ritual_video_headline')} />
+          <Field label="Subtext" value={form.ritual_video_subtext} onChange={set('ritual_video_subtext')} textarea />
+          <TranslationFields
+            values={form}
+            onChange={patch}
+            fields={[
+              { key: 'ritual_video_eyebrow', label: 'Eyebrow' },
+              { key: 'ritual_video_headline', label: 'Headline' },
+              { key: 'ritual_video_subtext', label: 'Subtext' },
+            ]}
+          />
+          <p className="border-t border-gold/20 pt-4 text-xs text-[#6a6656]">
             Shows as a row of up to 3 videos on the homepage, with arrows to page through more if
             you add more than 3. Leave this empty to keep showing the original Facebook video.
           </p>

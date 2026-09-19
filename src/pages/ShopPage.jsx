@@ -11,6 +11,7 @@ import PageHeroBand from '../components/PageHeroBand.jsx'
 import { useCatalog } from '../hooks/useCatalog.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
+import { translateLabel } from '../i18n/translations.js'
 import shopHero from '../assets/textures/shop-hero-spices.jpg'
 
 // "Best Match" isn't a static comparator like the others — its ranking
@@ -64,7 +65,8 @@ const PAGE_SIZE = 9
 
 export default function ShopPage() {
   const { loading, error, products, services } = useCatalog()
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
+  const L = (text) => translateLabel(text, language)
   const [searchParams, setSearchParams] = useSearchParams()
   const [type, setType] = useState('all')
   const [category, setCategory] = useState('all')
@@ -181,7 +183,7 @@ export default function ShopPage() {
     <div className="flex flex-col gap-5">
       <div>
         <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-moss">
-          Product Type
+          {t('shop_product_type')}
         </label>
         <select
           value={type}
@@ -190,7 +192,7 @@ export default function ShopPage() {
         >
           {Object.entries(TYPES).map(([id, label]) => (
             <option key={id} value={id}>
-              {label}
+              {L(label)}
             </option>
           ))}
         </select>
@@ -198,7 +200,7 @@ export default function ShopPage() {
 
       <div>
         <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-moss">
-          Category
+          {t('shop_category')}
         </label>
         <select
           value={category}
@@ -215,12 +217,12 @@ export default function ShopPage() {
 
       <div>
         <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-moss">
-          Price Range
+          {t('shop_price_range')}
         </label>
         <select value={priceBand} onChange={(e) => setPriceBand(e.target.value)} className={selectClass}>
           {Object.entries(PRICE_BANDS).map(([id, b]) => (
             <option key={id} value={id}>
-              {b.label}
+              {L(b.label)}
             </option>
           ))}
         </select>
@@ -238,7 +240,7 @@ export default function ShopPage() {
           onChange={(e) => setInStockOnly(e.target.checked)}
           className="accent-forestDeep"
         />
-        In stock only
+        {t('shop_in_stock_only')}
       </label>
 
       {filtersActive && (
@@ -246,7 +248,7 @@ export default function ShopPage() {
           onClick={clearFilters}
           className="self-start text-xs uppercase tracking-wide text-moss underline decoration-gold/50 hover:text-forestDeep"
         >
-          Clear filters
+          {t('shop_clear_filters')}
         </button>
       )}
     </div>
@@ -257,9 +259,9 @@ export default function ShopPage() {
       <Nav />
       <PageHeroBand
         image={shopHero}
-        eyebrow="Shop All"
-        title="The full collection."
-        subtitle="Every product we make, in one place — new additions to the catalog show up here automatically."
+        eyebrow={t('shop_eyebrow')}
+        title={t('shop_full_collection')}
+        subtitle={t('shop_subtitle')}
       />
 
       <section className="bg-ivory pb-16 pt-10">
@@ -270,11 +272,11 @@ export default function ShopPage() {
                 far down the page on small screens. */}
             <aside className="w-full shrink-0 md:w-56">
               <div className="hidden rounded-sm border border-gold/25 bg-cream/60 p-5 md:block">
-                <h2 className="mb-4 font-serif text-lg text-forestDeep">Filters</h2>
+                <h2 className="mb-4 font-serif text-lg text-forestDeep">{t('shop_filters')}</h2>
                 {FilterFields}
               </div>
               <details className="rounded-sm border border-gold/25 bg-cream/60 p-5 md:hidden">
-                <summary className="cursor-pointer font-serif text-lg text-forestDeep">Filters</summary>
+                <summary className="cursor-pointer font-serif text-lg text-forestDeep">{t('shop_filters')}</summary>
                 <div className="mt-4">{FilterFields}</div>
               </details>
             </aside>
@@ -302,13 +304,13 @@ export default function ShopPage() {
                 >
                   {Object.entries(SORTS).map(([id, s]) => (
                     <option key={id} value={id}>
-                      Sort: {s.label}
+                      {t('shop_sort')}: {L(s.label)}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {loading && <p className="text-center text-sm text-[#6a6656]">Loading the catalog…</p>}
+              {loading && <p className="text-center text-sm text-[#6a6656]">{t('shop_loading_catalog')}</p>}
               {error && (
                 <p className="mx-auto max-w-md text-center text-sm text-[#a35a3a]">
                   Couldn&rsquo;t reach the catalog API ({error}).
@@ -316,7 +318,7 @@ export default function ShopPage() {
               )}
 
               {!loading && !error && visible.length === 0 && (
-                <p className="text-center text-sm text-[#6a6656]">Nothing matches those filters.</p>
+                <p className="text-center text-sm text-[#6a6656]">{t('shop_no_matches')}</p>
               )}
 
               {!loading && !error && visible.length > 0 && (
@@ -342,18 +344,18 @@ export default function ShopPage() {
                       page buttons. */}
                   {isMobile && (
                     <div ref={loadMoreRef} className="mt-8 flex justify-center">
-                      {hasMoreMobile && <p className="text-xs uppercase tracking-wide text-moss">Loading more…</p>}
+                      {hasMoreMobile && <p className="text-xs uppercase tracking-wide text-moss">{t('shop_loading_more')}</p>}
                     </div>
                   )}
 
                   {!isMobile && pageCount > 1 && (
-                    <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Shop pagination">
+                    <nav className="mt-12 flex items-center justify-center gap-2" aria-label={t('shop_pagination_label')}>
                       <button
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page === 1}
                         className="rounded-full border border-gold/40 px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep transition-colors hover:border-forestDeep disabled:cursor-not-allowed disabled:opacity-30"
                       >
-                        Prev
+                        {t('common_prev')}
                       </button>
                       {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
                         <button
@@ -372,7 +374,7 @@ export default function ShopPage() {
                         disabled={page === pageCount}
                         className="rounded-full border border-gold/40 px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep transition-colors hover:border-forestDeep disabled:cursor-not-allowed disabled:opacity-30"
                       >
-                        Next
+                        {t('common_next')}
                       </button>
                     </nav>
                   )}

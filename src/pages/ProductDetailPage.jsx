@@ -13,6 +13,7 @@ import StarRating from '../components/StarRating.jsx'
 import ProductReviews from '../components/ProductReviews.jsx'
 
 function AvailabilityNote({ product }) {
+  const { t } = useLanguage()
   if (product.availability === 'preorder') {
     return (
       <p className="rounded-sm border border-gold/40 bg-gold/10 px-3 py-2 text-sm text-[#8a6d1f]">
@@ -24,7 +25,7 @@ function AvailabilityNote({ product }) {
   if (product.availability === 'out_of_stock') {
     return (
       <p className="rounded-sm border border-[#a35a3a]/30 bg-[#a35a3a]/10 px-3 py-2 text-sm text-[#a35a3a]">
-        Currently sold out. Check back soon, or follow us for restock updates.
+        {t('pd_sold_out')}
       </p>
     )
   }
@@ -35,6 +36,7 @@ function AvailabilityNote({ product }) {
 // every item (photos and, if the product has one, its detail video),
 // close before doing anything else.
 function Lightbox({ media, index, onClose, onNavigate }) {
+  const { t } = useLanguage()
   const item = media[index]
   return (
     <div
@@ -45,7 +47,7 @@ function Lightbox({ media, index, onClose, onNavigate }) {
     >
       <button
         onClick={onClose}
-        aria-label="Close"
+        aria-label={t('common_close')}
         className="absolute right-5 top-5 text-3xl leading-none text-cream"
       >
         &times;
@@ -57,7 +59,7 @@ function Lightbox({ media, index, onClose, onNavigate }) {
             e.stopPropagation()
             onNavigate(-1)
           }}
-          aria-label="Previous"
+          aria-label={t('common_previous')}
           className="absolute left-3 top-1/2 -translate-y-1/2 px-3 py-4 text-3xl text-cream sm:left-6"
         >
           ‹
@@ -88,7 +90,7 @@ function Lightbox({ media, index, onClose, onNavigate }) {
             e.stopPropagation()
             onNavigate(1)
           }}
-          aria-label="Next"
+          aria-label={t('common_next')}
           className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-4 text-3xl text-cream sm:right-6"
         >
           ›
@@ -108,7 +110,7 @@ export default function ProductDetailPage() {
   const { id } = useParams()
   const { loading, error, product } = useProduct(id)
   const { addItem } = useCart()
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const [activeIndex, setActiveIndex] = useState(0)
   const [qty, setQty] = useState(1)
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -117,7 +119,7 @@ export default function ProductDetailPage() {
     return (
       <>
         <Nav />
-        <div className="py-24 text-center text-sm text-[#6a6656]">Loading…</div>
+        <div className="py-24 text-center text-sm text-[#6a6656]">{t('common_loading')}</div>
         <Footer />
       </>
     )
@@ -128,10 +130,10 @@ export default function ProductDetailPage() {
       <>
         <Nav />
         <div className="py-24 text-center">
-          <h1 className="mb-2 text-2xl">We couldn't find that product</h1>
+          <h1 className="mb-2 text-2xl">{t('pd_not_found')}</h1>
           <p className="mb-6 text-sm text-[#6a6656]">{error}</p>
           <Link to="/shop" className="rounded-full bg-forestDeep px-5 py-2.5 text-xs uppercase tracking-wide text-cream">
-            Back to Shop
+            {t('common_back_to_shop')}
           </Link>
         </div>
         <Footer />
@@ -146,9 +148,12 @@ export default function ProductDetailPage() {
   // A single media list — photos plus the optional detail video at the
   // end — so the gallery, thumbnails, and lightbox all share one set of
   // prev/next navigation instead of juggling two separate lists.
+  // Use the dedicated detail-page video if there is one; otherwise fall
+  // back to the hover video, so an uploaded video always shows up here.
+  const videoSrc = product.detailVideo || product.hoverVideo
   const media = [
     ...product.images.map((src) => ({ type: 'image', src })),
-    ...(product.detailVideo ? [{ type: 'video', src: product.detailVideo }] : []),
+    ...(videoSrc ? [{ type: 'video', src: videoSrc }] : []),
   ]
   const active = media[activeIndex] || media[0]
 
@@ -161,7 +166,7 @@ export default function ProductDetailPage() {
       <Nav />
       <div className="mx-auto max-w-6xl px-6 py-12">
         <Link to="/shop" className="mb-6 inline-block text-xs uppercase tracking-wide text-moss underline">
-          ← Back to Shop
+          ← {t('common_back_to_shop')}
         </Link>
 
         <div className="grid gap-10 md:grid-cols-2">
@@ -170,7 +175,7 @@ export default function ProductDetailPage() {
             <button
               onClick={() => setLightboxOpen(true)}
               className="block aspect-square w-full overflow-hidden rounded-sm border border-gold/30 bg-[#e9e2cd]"
-              aria-label="View full size"
+              aria-label={t('common_view_full_size')}
             >
               {active.type === 'video' ? (
                 <video src={active.src} muted loop autoPlay playsInline className="h-full w-full object-cover" />
@@ -205,7 +210,7 @@ export default function ProductDetailPage() {
                 ))}
               </div>
             )}
-            <p className="mt-2 text-xs text-[#6a6656]">Click to view full size and navigate through all photos{product.detailVideo ? ' and the video' : ''}.</p>
+            <p className="mt-2 text-xs text-[#6a6656]">Click to view full size and navigate through all photos{videoSrc ? ' and the video' : ''}.</p>
           </div>
 
           {/* Details */}
@@ -228,7 +233,7 @@ export default function ProductDetailPage() {
 
             {product.ingredients?.length > 0 && (
               <div className="mt-5">
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-moss">Inside the jar</p>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-moss">{t('pd_inside_jar')}</p>
                 <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-[#5c5949]">
                   {product.ingredients.map((ing) => (
                     <li key={ing}>· {ing}</li>
@@ -247,7 +252,7 @@ export default function ProductDetailPage() {
                   <button
                     onClick={() => setQty((q) => Math.max(1, q - 1))}
                     className="flex h-11 w-11 items-center justify-center text-lg text-forestDeep"
-                    aria-label="Decrease quantity"
+                    aria-label={t('common_decrease_qty')}
                   >
                     −
                   </button>
@@ -255,7 +260,7 @@ export default function ProductDetailPage() {
                   <button
                     onClick={() => setQty((q) => q + 1)}
                     className="flex h-11 w-11 items-center justify-center text-lg text-forestDeep"
-                    aria-label="Increase quantity"
+                    aria-label={t('common_increase_qty')}
                   >
                     +
                   </button>

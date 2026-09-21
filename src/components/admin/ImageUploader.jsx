@@ -9,7 +9,7 @@ import { apiUpload } from '../../api/client.js'
 // kind='video' renders a muted looping <video> preview instead of an
 // <img>, and posts to a different endpoint (video uploads skip the
 // image re-encode pipeline — see uploads.js for why).
-export default function ImageUploader({ label, value, onChange, accept = 'image/*', kind = 'image', endpoint = '/api/uploads' }) {
+export default function ImageUploader({ label, value, onChange, accept = 'image/*', kind = 'image', endpoint = '/api/uploads', previewClassName = 'h-14 w-14 rounded-sm border border-gold/30 object-cover' }) {
   const inputRef = useRef(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -31,14 +31,14 @@ export default function ImageUploader({ label, value, onChange, accept = 'image/
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       {label && <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">{label}</p>}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {value && kind === 'video' && (
           <video src={value} muted loop autoPlay playsInline className="h-14 w-14 rounded-sm border border-gold/30 object-cover" />
         )}
         {value && kind === 'image' && (
-          <img src={value} alt="" className="h-14 w-14 rounded-sm border border-gold/30 object-cover" />
+          <img src={value} alt="" className={previewClassName} />
         )}
         <div>
           <input
@@ -47,7 +47,7 @@ export default function ImageUploader({ label, value, onChange, accept = 'image/
             accept={accept}
             onChange={handleFile}
             disabled={busy}
-            className="text-xs"
+            className="w-full max-w-full text-xs"
           />
           {busy && <p className="mt-1 text-xs text-[#6a6656]">Uploading…</p>}
           {error && <p className="mt-1 text-xs text-[#a35a3a]">{error}</p>}

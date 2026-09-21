@@ -9,6 +9,8 @@ import { useLanguage } from '../context/LanguageContext.jsx'
 import ritualScene from '../assets/textures/spice-spoons.jpg'
 import herbsCitrus from '../assets/textures/herbs-citrus.jpg'
 import { formatLKR as fmt } from '../lib/currency.js'
+import BookingLine from '../components/BookingLine.jsx'
+import ProviderBadge from '../components/ProviderBadge.jsx'
 
 
 export default function BasketPage() {
@@ -64,43 +66,42 @@ export default function BasketPage() {
             <div className="md:col-span-2">
               <ul className="divide-y divide-gold/20 rounded-sm border border-gold/30 bg-ivory">
                 {items.map((item) => (
-                  <li key={item.id} className="flex flex-wrap items-center justify-between gap-4 p-5">
+                  <li key={item.id} className="flex flex-wrap items-start justify-between gap-4 p-5">
                     <div>
                       <p className="font-serif text-xl text-forestDeep">{item.name}</p>
-                      <p className="text-sm text-[#6a6656]">{fmt(item.price)} each</p>
+                      <p className="text-sm text-[#6a6656]">{item.booking ? fmt(item.price) : `${fmt(item.price)} ${t('basket_each')}`}</p>
+                      {item.booking && <BookingLine item={item} />}
+                      {item.type === 'service' && !item.booking && <ProviderBadge variant="text" />}
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => changeQty(item.id, -1)}
-                          aria-label={t('common_decrease_qty')}
-                          className="h-11 w-11 rounded-full border border-gold/40 text-forestDeep"
-                        >
-                          −
-                        </button>
-                        <span className="w-6 text-center">{item.qty}</span>
-                        <button
-                          onClick={() => changeQty(item.id, 1)}
-                          aria-label={t('common_increase_qty')}
-                          className="h-11 w-11 rounded-full border border-gold/40 text-forestDeep"
-                        >
-                          +
-                        </button>
-                      </div>
-                      <span className="w-24 text-right font-serif text-lg text-forestDeep">
-                        {fmt(item.price * item.qty)}
-                      </span>
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="text-xs text-[#a35a3a] underline"
-                      >
+                      {!item.booking && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => changeQty(item.id, -1)}
+                            aria-label={t('common_decrease_qty')}
+                            className="h-11 w-11 rounded-full border border-gold/40 text-forestDeep"
+                          >
+                            −
+                          </button>
+                          <span className="w-6 text-center">{item.qty}</span>
+                          <button
+                            onClick={() => changeQty(item.id, 1)}
+                            aria-label={t('common_increase_qty')}
+                            className="h-11 w-11 rounded-full border border-gold/40 text-forestDeep"
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
+                      <span className="w-24 text-right font-serif text-lg text-forestDeep">{fmt(item.price * item.qty)}</span>
+                      <button onClick={() => removeItem(item.id)} className="text-sm text-[#a35a3a] underline">
                         {t('common_remove')}
                       </button>
                     </div>
                   </li>
                 ))}
               </ul>
-              <Link to="/shop" className="mt-4 inline-block text-sm text-goldLight underline">
+              <Link to="/shop" className="mt-4 inline-block text-base text-goldLight underline">
                 ← {t('continue_shopping')}
               </Link>
             </div>

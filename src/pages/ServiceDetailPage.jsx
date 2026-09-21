@@ -11,6 +11,10 @@ import { formatLKR as fmt } from '../lib/currency.js'
 import { googleMapsUrl } from '../lib/maps.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
+import Price from '../components/Price.jsx'
+import ProviderBadge from '../components/ProviderBadge.jsx'
+import { useServiceProvider } from '../hooks/useServiceProvider.js'
+import { providerBranchLabel } from '../lib/serviceProvider.js'
 
 // Same full-screen gallery viewer as ProductDetailPage — kept as a
 // separate copy rather than a shared import so either page's gallery can
@@ -66,6 +70,7 @@ export default function ServiceDetailPage() {
   const { loading, error, service } = useService(id)
   const { addItem } = useCart()
   const { language, t } = useLanguage()
+  const { provider } = useServiceProvider()
   const [activeIndex, setActiveIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [bookingOpen, setBookingOpen] = useState(false)
@@ -113,7 +118,7 @@ export default function ServiceDetailPage() {
     <>
       <Nav />
       <div className="mx-auto max-w-6xl px-6 py-12">
-        <Link to="/shop" className="mb-6 inline-block text-xs uppercase tracking-wide text-moss underline">
+        <Link to="/shop" className="mb-6 inline-block text-sm uppercase tracking-wide text-moss underline">
           ← {t('common_back_to_shop')}
         </Link>
 
@@ -165,8 +170,11 @@ export default function ServiceDetailPage() {
             )}
             <span className="block text-xs uppercase tracking-[0.14em] text-moss">{service.tagline}</span>
             <h1 className="mt-1 text-4xl">{displayName}</h1>
-            <p className="mt-4 text-2xl font-semibold text-forestDeep">{fmt(service.price)}</p>
+            <p className="mt-4 text-2xl font-semibold text-forestDeep"><Price item={service} /></p>
             <RichText text={displayDescription} className="mt-5 text-[#5c5949]" />
+
+            {/* Which company provides this service (name/logo/wording set in Admin -> Services) */}
+            <ProviderBadge variant="block" className="mt-5" />
 
             {isBookable && (
               <p className="mt-5 rounded-sm border border-gold/40 bg-gold/10 px-3 py-2 text-sm text-[#8a6d1f]">
@@ -174,20 +182,21 @@ export default function ServiceDetailPage() {
               </p>
             )}
 
-            {service.branch && (
-              <div className="mt-4 rounded-sm border border-gold/20 bg-cream px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-moss">{t('sd_location')}</p>
-                <p className="mt-1 text-sm text-[#5c5949]">{service.branch.name}</p>
-                <p className="text-sm text-[#5c5949]">{service.branch.address}</p>
-                {service.branch.phone && <p className="text-sm text-[#5c5949]">{service.branch.phone}</p>}
-                <a
-                  href={googleMapsUrl(service.branch)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-block text-xs uppercase tracking-wide text-forestDeep underline"
-                >
-                  {t('sd_open_maps')}
-                </a>
+            {service.branches.length > 0 && (
+              <div className="mt-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-moss">{t('sd_available_at')}</p>
+                <ul className="mt-2 space-y-3">
+                  {service.branches.map((b) => (
+                    <li key={b.id} className="text-sm text-[#5c5949]">
+                      <p className="font-semibold text-forestDeep">{providerBranchLabel(provider, b.name)}</p>
+                      <p>{b.address}</p>
+                      {b.phone && <p>{b.phone}</p>}
+                      <a href={googleMapsUrl(b)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-base uppercase tracking-wide text-forestDeep underline">
+                        {t('sd_open_maps')}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 

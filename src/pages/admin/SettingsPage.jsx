@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { apiGet, apiPut } from '../../api/client.js'
-import { HOMEPAGE_CONTENT_DEFAULTS } from '../../hooks/useHomepageContent.js'
+import { apiGet, apiPost, apiPut } from '../../api/client.js'
+import { useAuth } from '../../context/AuthContext.jsx'
+import { HOMEPAGE_CONTENT_DEFAULTS, migrateLegacyHomepage } from '../../hooks/useHomepageContent.js'
+import RichTextEditor from '../../components/admin/RichTextEditor.jsx'
 import ImageUploader from '../../components/admin/ImageUploader.jsx'
 import TranslationFields from '../../components/admin/TranslationFields.jsx'
 
@@ -286,18 +288,27 @@ function OrderPoliciesForm() {
   )
 }
 
-function Field({ label, value, onChange, textarea, hint }) {
-  const Tag = textarea ? 'textarea' : 'input'
+function Field({ label, value, onChange, textarea, rich, hint }) {
   return (
     <div>
       <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-moss">{label}</label>
       {hint && <p className="mb-1 text-xs text-[#6a6656]">{hint}</p>}
-      <Tag
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={textarea ? 3 : undefined}
-        className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm"
-      />
+      {rich ? (
+        <RichTextEditor value={value || ''} onChange={onChange} rows={6} />
+      ) : textarea ? (
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          rows={4}
+          className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-base"
+        />
+      ) : (
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-base"
+        />
+      )}
     </div>
   )
 }
@@ -337,43 +348,67 @@ function BackgroundField({ label, value, onChange, hint, accept = 'image/jpeg,im
   )
 }
 
-function Section({ title, children }) {
+function Section({ title, children, onSave, status = 'idle', error = '' }) {
   return (
     <section className="mb-8 rounded-sm border border-gold/30 bg-ivory p-6">
       <h4 className="mb-4 text-lg">{title}</h4>
       <div className="grid gap-4">{children}</div>
+      {onSave && (
+        <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-gold/20 pt-4">
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={status === 'saving'}
+            className="rounded-full bg-forestDeep px-6 py-2.5 text-xs uppercase tracking-wide text-cream disabled:opacity-60"
+          >
+            {status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved ✓' : `Save ${title.split(' (')[0]}`}
+          </button>
+          {status === 'saved' && <span role="status" className="text-sm text-moss">Saved — live on the website now.</span>}
+          {error && <span role="alert" className="text-sm text-[#a35a3a]">{error}</span>}
+        </div>
+      )}
     </section>
   )
 }
 
 function PageContentEditor() {
   const [form, setForm] = useState(HOMEPAGE_CONTENT_DEFAULTS)
-  const [status, setStatus] = useState('idle') // idle | loading | saving | saved
+  const [statuses, setStatuses] = useState({}) // per section: idle | saving | saved
+  const [errors, setErrors] = useState({})
   const [error, setError] = useState('')
 
   useEffect(() => {
     apiGet('/api/admin/settings/homepage-content')
-      .then((res) => setForm({ ...HOMEPAGE_CONTENT_DEFAULTS, ...res.homepage_content }))
+      .then((res) => setForm({ ...HOMEPAGE_CONTENT_DEFAULTS, ...migrateLegacyHomepage(res.homepage_content || {}) }))
       .catch((e) => setError(e.message))
   }, [])
 
   const set = (key) => (value) => setForm((f) => ({ ...f, [key]: value }))
   const patch = (fields) => setForm((f) => ({ ...f, ...fields }))
 
-  const save = async (e) => {
-    e.preventDefault()
-    setStatus('saving')
-    setError('')
+  // Each section saves ONLY its own fields, so a problem in one section can
+  // never stop another section from saving — and the message appears right
+  // beside the button that was pressed.
+  const saveSection = async (id, match) => {
+    setStatuses((x) => ({ ...x, [id]: 'saving' }))
+    setErrors((x) => ({ ...x, [id]: '' }))
     try {
-      const res = await apiPut('/api/admin/settings/homepage-content', form)
-      setForm({ ...HOMEPAGE_CONTENT_DEFAULTS, ...res.homepage_content })
-      setStatus('saved')
-      setTimeout(() => setStatus('idle'), 1800)
+      const payload = Object.fromEntries(Object.entries(form).filter(([k]) => match(k)))
+      const res = await apiPut('/api/admin/settings/homepage-content', payload)
+      const saved = res.homepage_content || {}
+      setForm((f) => ({ ...f, ...Object.fromEntries(Object.entries(saved).filter(([k]) => match(k))) }))
+      setStatuses((x) => ({ ...x, [id]: 'saved' }))
+      setTimeout(() => setStatuses((x) => ({ ...x, [id]: 'idle' })), 3000)
     } catch (err) {
-      setError(err.message)
-      setStatus('idle')
+      setErrors((x) => ({ ...x, [id]: err.message }))
+      setStatuses((x) => ({ ...x, [id]: 'idle' }))
     }
   }
+  const saver = (id, match) => ({ onSave: () => saveSection(id, match), status: statuses[id] || 'idle', error: errors[id] || '' })
+  const isHero = (k) => k.startsWith('hero_')
+  const isAbout = (k) => k.startsWith('about_')
+  const isRitual = (k) => k.startsWith('ritual_') && !k.startsWith('ritual_video')
+  const isVideos = (k) => k.startsWith('ritual_video') || k === 'see_it_made_videos'
 
   return (
     <section>
@@ -385,11 +420,11 @@ function PageContentEditor() {
       </p>
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
-      <form onSubmit={save}>
-        <Section title="Hero (top of homepage)">
+      <div>
+        <Section title="Hero (top of homepage)" {...saver('hero', isHero)}>
           <Field label="Eyebrow (small text above the headline)" value={form.hero_eyebrow} onChange={set('hero_eyebrow')} />
           <Field label="Headline" value={form.hero_headline} onChange={set('hero_headline')} textarea />
-          <Field label="Subtext" value={form.hero_subtext} onChange={set('hero_subtext')} textarea />
+          <Field label="Subtext" value={form.hero_subtext} onChange={set('hero_subtext')} rich />
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Button 1 label" value={form.hero_cta1_label} onChange={set('hero_cta1_label')} />
             <Field label="Button 2 label" value={form.hero_cta2_label} onChange={set('hero_cta2_label')} />
@@ -400,7 +435,7 @@ function PageContentEditor() {
             fields={[
               { key: 'hero_eyebrow', label: 'Eyebrow' },
               { key: 'hero_headline', label: 'Headline' },
-              { key: 'hero_subtext', label: 'Subtext' },
+              { key: 'hero_subtext', label: 'Subtext', richText: true },
               { key: 'hero_cta1_label', label: 'Button 1 label' },
               { key: 'hero_cta2_label', label: 'Button 2 label' },
             ]}
@@ -422,7 +457,7 @@ function PageContentEditor() {
           </div>
         </Section>
 
-        <Section title="Our Story (About section)">
+        <Section title="Our Story (About section)" {...saver('about', isAbout)}>
           <Field label="Eyebrow" value={form.about_eyebrow} onChange={set('about_eyebrow')} />
           <Field
             label="Headline"
@@ -431,16 +466,16 @@ function PageContentEditor() {
             textarea
             hint="A line break here (press Enter) shows as a line break on the page."
           />
-          <Field label="Paragraph 1" value={form.about_paragraph1} onChange={set('about_paragraph1')} textarea />
-          <Field label="Paragraph 2" value={form.about_paragraph2} onChange={set('about_paragraph2')} textarea />
+          <Field label="Paragraph 1" value={form.about_paragraph1} onChange={set('about_paragraph1')} rich />
+          <Field label="Paragraph 2" value={form.about_paragraph2} onChange={set('about_paragraph2')} rich />
           <TranslationFields
             values={form}
             onChange={patch}
             fields={[
               { key: 'about_eyebrow', label: 'Eyebrow' },
               { key: 'about_headline', label: 'Headline' },
-              { key: 'about_paragraph1', label: 'Paragraph 1' },
-              { key: 'about_paragraph2', label: 'Paragraph 2' },
+              { key: 'about_paragraph1', label: 'Paragraph 1', richText: true },
+              { key: 'about_paragraph2', label: 'Paragraph 2', richText: true },
             ]}
           />
           <div className="grid gap-4 border-t border-gold/20 pt-4 sm:grid-cols-2">
@@ -453,32 +488,32 @@ function PageContentEditor() {
           </div>
         </Section>
 
-        <Section title="The Ritual (shop preview section)">
+        <Section title="The Ritual (shop preview section)" {...saver('ritual', isRitual)}>
           <Field label="Eyebrow" value={form.ritual_eyebrow} onChange={set('ritual_eyebrow')} />
           <Field label="Headline" value={form.ritual_headline} onChange={set('ritual_headline')} />
-          <Field label="Subtext" value={form.ritual_subtext} onChange={set('ritual_subtext')} textarea />
+          <Field label="Subtext" value={form.ritual_subtext} onChange={set('ritual_subtext')} rich />
           <TranslationFields
             values={form}
             onChange={patch}
             fields={[
               { key: 'ritual_eyebrow', label: 'Eyebrow' },
               { key: 'ritual_headline', label: 'Headline' },
-              { key: 'ritual_subtext', label: 'Subtext' },
+              { key: 'ritual_subtext', label: 'Subtext', richText: true },
             ]}
           />
         </Section>
 
-        <Section title="See It Made (process videos)">
+        <Section title="See It Made (process videos)" {...saver('videos', isVideos)}>
           <Field label="Eyebrow" value={form.ritual_video_eyebrow} onChange={set('ritual_video_eyebrow')} />
           <Field label="Headline" value={form.ritual_video_headline} onChange={set('ritual_video_headline')} />
-          <Field label="Subtext" value={form.ritual_video_subtext} onChange={set('ritual_video_subtext')} textarea />
+          <Field label="Subtext" value={form.ritual_video_subtext} onChange={set('ritual_video_subtext')} rich />
           <TranslationFields
             values={form}
             onChange={patch}
             fields={[
               { key: 'ritual_video_eyebrow', label: 'Eyebrow' },
               { key: 'ritual_video_headline', label: 'Headline' },
-              { key: 'ritual_video_subtext', label: 'Subtext' },
+              { key: 'ritual_video_subtext', label: 'Subtext', richText: true },
             ]}
           />
           <p className="border-t border-gold/20 pt-4 text-xs text-[#6a6656]">
@@ -492,23 +527,68 @@ function PageContentEditor() {
           />
         </Section>
 
-        <button
-          type="submit"
-          disabled={status === 'saving'}
-          className="rounded-full bg-forestDeep px-6 py-2.5 text-xs uppercase tracking-wide text-cream disabled:opacity-60"
-        >
-          {status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved ✓' : 'Save Page Content'}
+      </div>
+    </section>
+  )
+}
+
+// Super admin only: sends a real test email and shows exactly what happened,
+// so email problems (wrong key, unverified domain…) are visible straight away.
+function EmailCheckCard() {
+  const { user } = useAuth()
+  const [to, setTo] = useState(user?.email || '')
+  const [busy, setBusy] = useState(false)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState('')
+
+  const send = async () => {
+    setBusy(true)
+    setResult(null)
+    setError('')
+    try {
+      setResult(await apiPost('/api/admin/email-test', { to }))
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <section className="mb-8 rounded-sm border border-gold/30 bg-ivory p-6">
+      <h4 className="mb-1 text-lg">Email check</h4>
+      <p className="mb-4 text-sm text-[#5c5949]">
+        Sends a test message using the same settings as order, booking and password-reset emails.
+      </p>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="min-w-[16rem] flex-1 text-xs font-semibold uppercase tracking-wide text-moss">
+          Send test to
+          <input type="email" value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 w-full rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-base font-normal normal-case" />
+        </label>
+        <button type="button" onClick={send} disabled={busy || !to} className="rounded-full bg-forestDeep px-6 py-2.5 text-xs uppercase tracking-wide text-cream disabled:opacity-60">
+          {busy ? 'Sending…' : 'Send test email'}
         </button>
-      </form>
+      </div>
+      {error && <p role="alert" className="mt-3 text-sm text-[#a35a3a]">{error}</p>}
+      {result && (
+        <div role="status" className={`mt-4 rounded-sm border p-3 text-sm ${result.ok ? 'border-moss/40 bg-cream text-moss' : 'border-[#a35a3a]/40 bg-cream text-[#a35a3a]'}`}>
+          <p className="font-semibold">{result.ok ? 'Sent — check that inbox (and spam).' : 'Not sent.'}</p>
+          <p className="mt-1 text-[#5c5949]">Sending from: {result.from}</p>
+          {result.error && <p className="mt-1">Reason: {result.error}</p>}
+          {result.hint && <p className="mt-1 text-[#5c5949]">{result.hint}</p>}
+        </div>
+      )}
     </section>
   )
 }
 
 export default function SettingsPage() {
+  const { user } = useAuth()
   return (
     <div>
       <h2 className="mb-6 text-3xl">Settings</h2>
       <BusinessInfoForm />
+      {user?.role === 'superadmin' && <EmailCheckCard />}
       <BookingRemindersForm />
       <OrderPoliciesForm />
       <PageContentEditor />

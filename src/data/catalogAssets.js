@@ -1,28 +1,16 @@
 import boxImg from '../assets/box.jpg'
 import maskImg from '../assets/mask.jpg'
+import logoImg from '../assets/logo.jpg'
 
-// The backend's `products.images` column is real (an array of URLs) but
-// nothing uploads to it yet — there's no image-hosting step wired up
-// (Cloudinary/Supabase Storage, per project-spec.md Section 1). Until
-// that exists, match by product name to the photos we already have
-// locally. Once image upload is built, delete this file and use
-// product.images[0] directly.
-
+// Local photos for the two original demo products, used only if no photo has
+// been uploaded for them in the admin panel. (Their ingredient lists and
+// badges used to be hard-coded here too, which made them impossible to edit;
+// they now live in the database — see Admin → Products.)
 export const PRODUCT_VISUALS = {
-  'Aangraa Hair Oil': {
-    image: boxImg,
-    badge: '100% Herbal',
-    ingredients: ['Coconut Oil', 'Neem & Dill', 'Curry Leaves', 'Rosemary', 'Natural preservatives'],
-  },
-  'Premium Herbal Hair Mask': {
-    image: maskImg,
-    badge: '100% Natural',
-    ingredients: ['Amla', 'Rosemary', 'Curry Leaf', 'Mint & Bay', 'Dried whole herbs'],
-  },
+  'Aangraa Hair Oil': { image: boxImg },
+  'Premium Herbal Hair Mask': { image: maskImg },
 }
 
-export const DEFAULT_VISUAL = {
-  image: maskImg,
-  badge: null,
-  ingredients: [],
-}
+// Anything without an uploaded photo shows the Shani'z logo rather than
+// some other product's picture.
+export const DEFAULT_VISUAL = { image: logoImg }

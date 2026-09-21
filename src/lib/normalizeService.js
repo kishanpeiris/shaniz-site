@@ -1,4 +1,5 @@
 import { DEFAULT_VISUAL } from '../data/catalogAssets.js'
+import { discountLabel } from './normalizeProduct.js'
 
 // Turns a raw /api/services row into the shape the UI works with
 // (ServiceCard, ServiceDetailPage). Single source of truth so the Shop
@@ -6,6 +7,7 @@ import { DEFAULT_VISUAL } from '../data/catalogAssets.js'
 // normalizeProduct.js for products.
 export function normalizeService(s) {
   const uploadedImages = s.images?.length ? s.images : null
+  const sale = s.sale_price_lkr != null ? Number(s.sale_price_lkr) : null
   return {
     id: s.id,
     type: 'service',
@@ -20,7 +22,9 @@ export function normalizeService(s) {
     description: s.description,
     description_si: s.description_si || null,
     description_ta: s.description_ta || null,
-    price: Number(s.price_lkr),
+    price: sale ?? Number(s.price_lkr),
+    listPrice: sale != null ? Number(s.price_lkr) : null,
+    discountLabel: sale != null ? discountLabel(s) : null,
     serviceType: s.service_type,
     durationMinutes: s.duration_minutes,
     images: uploadedImages || [DEFAULT_VISUAL.image],
@@ -32,15 +36,14 @@ export function normalizeService(s) {
     imageFocal: { x: Number(s.image_focal_x ?? 50), y: Number(s.image_focal_y ?? 50) },
     badges: s.badges || [],
     unitsSold: Number(s.units_sold) || 0,
-    branch: s.branch_id
-      ? {
-          id: s.branch_id,
-          name: s.branch_name,
-          address: s.branch_address,
-          latitude: s.branch_latitude,
-          longitude: s.branch_longitude,
-          phone: s.branch_phone,
-        }
-      : null,
+    // Every branch that offers this service (set in Admin → Branches).
+    branches: (s.branches || []).map((b) => ({
+      id: b.id,
+      name: b.name,
+      address: b.address,
+      latitude: b.latitude,
+      longitude: b.longitude,
+      phone: b.phone,
+    })),
   }
 }

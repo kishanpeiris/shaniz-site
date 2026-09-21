@@ -76,7 +76,7 @@ export default function Visit() {
               <button
                 type="button"
                 onClick={() => setStatus('idle')}
-                className="mt-2 text-xs font-semibold uppercase tracking-wide text-gold underline"
+                className="mt-2 text-sm font-semibold uppercase tracking-wide text-gold underline"
               >
                 {t('contact_send_another')}
               </button>

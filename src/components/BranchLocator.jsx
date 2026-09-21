@@ -1,11 +1,16 @@
 import React from 'react'
 import RowCarousel from './RowCarousel.jsx'
 import BranchHours from './BranchHours.jsx'
+import ConsentGate from './ConsentGate.jsx'
+import { useConsent } from '../context/ConsentContext.jsx'
 import { googleMapsUrl, googleMapsEmbedUrl } from '../lib/maps.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 function BranchCard({ branch }) {
+  const { t } = useLanguage()
   const mapsUrl = googleMapsUrl(branch)
   const embedUrl = googleMapsEmbedUrl(branch)
+  const { allowed } = useConsent()
 
   return (
     <div className="overflow-hidden rounded-sm border border-gold/30 bg-ivory">
@@ -17,14 +22,16 @@ function BranchCard({ branch }) {
           instead, opening the full Google Maps app/site in a new tab. */}
       <div className="relative aspect-[16/9] w-full bg-forestDeep/10">
         {embedUrl && (
-          <iframe
-            title={`Map showing ${branch.name}`}
-            src={embedUrl}
-            loading="lazy"
-            className="pointer-events-none absolute inset-0 h-full w-full border-0"
-            aria-hidden="true"
-            tabIndex={-1}
-          />
+          <ConsentGate kind="map" className="absolute inset-0 h-full w-full">
+            <iframe
+              title={`Map showing ${branch.name}`}
+              src={embedUrl}
+              loading="lazy"
+              className="pointer-events-none absolute inset-0 h-full w-full border-0"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+          </ConsentGate>
         )}
         {mapsUrl && (
           <a
@@ -32,10 +39,10 @@ function BranchCard({ branch }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open ${branch.name} in Google Maps`}
-            className="absolute inset-0 flex items-end justify-end p-3"
+            className={allowed('thirdParty') ? 'absolute inset-0 flex items-end justify-end p-3' : 'absolute bottom-3 right-3 z-10'}
           >
             <span className="rounded-full bg-forestDeep/90 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-wide text-cream shadow-brand">
-              Get Directions ↗
+              {t('loc_directions')}
             </span>
           </a>
         )}
@@ -45,7 +52,7 @@ function BranchCard({ branch }) {
         <h4 className="text-lg">{branch.name}</h4>
         <p className="mt-1 text-sm text-[#5c5949]">{branch.address}</p>
         {branch.phone && (
-          <a href={`tel:${branch.phone}`} className="mt-2 inline-block text-sm underline text-forestDeep">
+          <a href={`tel:${branch.phone}`} className="mt-2 inline-block text-base underline text-forestDeep">
             {branch.phone}
           </a>
         )}
@@ -60,11 +67,12 @@ function BranchCard({ branch }) {
 // sections use) so this never turns into a stack of cards on a narrow
 // phone screen; it's always exactly one row, on any screen size.
 export default function BranchLocator({ branches }) {
+  const { t } = useLanguage()
   if (!branches || branches.length === 0) return null
 
   return (
     <div className="mt-16">
-      <p className="mb-6 text-xs font-semibold uppercase tracking-[0.22em] text-gold">Our Locations</p>
+      <p className="mb-6 text-xs font-semibold uppercase tracking-[0.22em] text-gold">{t('loc_our_locations')}</p>
       <RowCarousel
         items={branches}
         perPage={1}

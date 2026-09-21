@@ -7,11 +7,12 @@ import { useCatalog } from '../hooks/useCatalog.js'
 import { useHomepageContent } from '../hooks/useHomepageContent.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
+import RichText from './RichText.jsx'
 
 export default function Products() {
   const { loading, error, products, services } = useCatalog()
   const content = useHomepageContent()
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   const [bookingService, setBookingService] = useState(null)
   // Most-popular-first — units sold is already computed server-side for
   // both products and services (see UNITS_SOLD_SUBQUERY in
@@ -30,10 +31,10 @@ export default function Products() {
             {localizedField(content, 'ritual_eyebrow', language)}
           </p>
           <h2 className="mt-3 text-4xl text-ivory">{localizedField(content, 'ritual_headline', language)}</h2>
-          <p className="mt-3 text-cream/80">{localizedField(content, 'ritual_subtext', language)}</p>
+          <RichText text={localizedField(content, 'ritual_subtext', language)} className="mt-3 text-cream/80" />
         </div>
 
-        {loading && <p className="text-center text-sm text-cream/70">Loading the catalog…</p>}
+        {loading && <p className="text-center text-sm text-cream/70">{t('shop_loading_catalog')}</p>}
 
         {error && (
           <p className="mx-auto max-w-md text-center text-sm text-[#e2947a]">

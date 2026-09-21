@@ -4,8 +4,10 @@ import { apiGet } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 export default function EmailVerifyPage() {
+  const { t } = useLanguage()
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
   const { refreshUser } = useAuth()
@@ -37,32 +39,32 @@ export default function EmailVerifyPage() {
     <>
       <Nav />
       <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-6 py-16 text-center">
-        {status === 'checking' && <p className="text-sm text-[#6a6656]">Confirming your email…</p>}
+        {status === 'checking' && <p className="text-sm text-[#6a6656]">{t('verify_confirming')}</p>}
 
         {status === 'success' && (
           <>
-            <h1 className="text-2xl text-forestDeep">Email confirmed ✓</h1>
+            <h1 className="text-2xl text-forestDeep">{t('verify_done')}</h1>
             <p className="mt-3 text-sm text-[#5c5949]">
-              Thanks — your email address is now verified.
+              {t('verify_done_text')}
             </p>
             <Link
               to="/account"
               className="mt-6 rounded-full bg-forestDeep px-6 py-2.5 text-xs uppercase tracking-wide text-cream"
             >
-              Go to my account
+              {t('verify_go_account')}
             </Link>
           </>
         )}
 
         {status === 'error' && (
           <>
-            <h1 className="text-2xl text-[#a35a3a]">Couldn&rsquo;t confirm your email</h1>
+            <h1 className="text-2xl text-[#a35a3a]">{t('verify_failed')}</h1>
             <p className="mt-3 text-sm text-[#5c5949]">{error}</p>
             <p className="mt-1 text-xs text-[#6a6656]">
-              Verification links expire after 24 hours. You can request a new one from your account page.
+              {t('verify_failed_text')}
             </p>
-            <Link to="/account" className="mt-6 text-xs underline text-forestDeep">
-              Go to my account
+            <Link to="/account" className="mt-6 text-sm underline text-forestDeep">
+              {t('verify_go_account')}
             </Link>
           </>
         )}

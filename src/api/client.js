@@ -41,7 +41,7 @@ export function apiSend(method, path, data) {
 
 export const apiPost = (path, data) => apiSend('POST', path, data)
 export const apiPut = (path, data) => apiSend('PUT', path, data)
-export const apiDelete = (path) => apiSend('DELETE', path)
+export const apiDelete = (path, data) => apiSend('DELETE', path, data)
 
 // File uploads use FormData, so no Content-Type header — the browser sets
 // the multipart boundary itself. The CSRF header still applies.

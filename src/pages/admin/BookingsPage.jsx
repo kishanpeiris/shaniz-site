@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { apiGet, apiPut } from '../../api/client.js'
 import { formatCalendarDate } from '../../lib/date.js'
+import { useServiceProvider } from '../../hooks/useServiceProvider.js'
+import { providerBranchLabel } from '../../lib/serviceProvider.js'
 
 export default function BookingsPage() {
+  const { provider } = useServiceProvider()
   const [bookings, setBookings] = useState([])
   const [error, setError] = useState('')
 
@@ -41,6 +44,7 @@ export default function BookingsPage() {
               <th className="p-3">Service</th>
               <th className="p-3">Date</th>
               <th className="p-3">Time</th>
+              <th className="p-3">Branch</th>
               <th className="p-3">Customer</th>
               <th className="p-3">Status</th>
               <th className="p-3">Actions</th>
@@ -52,6 +56,7 @@ export default function BookingsPage() {
                 <td className="p-3">{b.service_name}</td>
                 <td className="p-3">{formatCalendarDate(b.booked_date)}</td>
                 <td className="p-3">{b.booked_time.slice(0, 5)}</td>
+                <td className="p-3">{b.branch_name ? providerBranchLabel(provider, b.branch_name) : <span className="text-[#6a6656]">—</span>}</td>
                 <td className="p-3">
                   {b.user_id ? (
                     <>
@@ -64,16 +69,16 @@ export default function BookingsPage() {
                     </>
                   ) : (
                     <>
-                      {b.guest_name || 'Guest'}
+                      {b.guest_name || [b.customer_first_name, b.customer_last_name].filter(Boolean).join(' ') || 'Guest'}
                       <span className="block text-xs text-[#6a6656]">
-                        {b.guest_email}
-                        {b.guest_mobile ? ` · ${b.guest_mobile}` : ''}
+                        {b.guest_email || b.order_email}
+                        {b.guest_mobile || b.order_phone ? ` · ${b.guest_mobile || b.order_phone}` : ''}
                         {b.guest_home_phone ? ` · Home: ${b.guest_home_phone}` : ''}
                       </span>
                     </>
                   )}
                 </td>
-                <td className="p-3 capitalize">{b.status}</td>
+                <td className="p-3 capitalize">{b.status === 'held' ? 'Awaiting payment' : b.status}</td>
                 <td className="p-3 whitespace-nowrap">
                   {b.status === 'confirmed' && (
                     <>
@@ -85,7 +90,7 @@ export default function BookingsPage() {
               </tr>
             ))}
             {bookings.length === 0 && (
-              <tr><td colSpan={6} className="p-4 text-center text-[#6a6656]">No upcoming bookings.</td></tr>
+              <tr><td colSpan={7} className="p-4 text-center text-[#6a6656]">No upcoming bookings.</td></tr>
             )}
           </tbody>
         </table>

@@ -12,6 +12,10 @@ import Visit from './components/Visit.jsx'
 import Footer from './components/Footer.jsx'
 import CartDrawer from './components/CartDrawer.jsx'
 import WhatsAppButton from './components/WhatsAppButton.jsx'
+import CookieBanner from './components/CookieBanner.jsx'
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx'
+import UnsubscribePage from './pages/UnsubscribePage.jsx'
+import NotFoundPage from './pages/NotFoundPage.jsx'
 import OutageBanner from './components/OutageBanner.jsx'
 import MaintenancePlaceholder from './components/MaintenancePlaceholder.jsx'
 import { useScrollToHash } from './hooks/useScrollToHash.js'
@@ -56,7 +60,7 @@ import MaintenancePage from './pages/admin/MaintenancePage.jsx'
 // one page (Maintenance) that turns it back off. /login and the password
 // reset flow are included too, since you can't reach /admin without
 // signing in first.
-const MAINTENANCE_BYPASS_EXACT = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email']
+const MAINTENANCE_BYPASS_EXACT = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/privacy', '/cookies', '/unsubscribe']
 function isMaintenanceBypassPath(pathname) {
   return pathname.startsWith('/admin') || MAINTENANCE_BYPASS_EXACT.includes(pathname)
 }
@@ -107,6 +111,9 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify-email" element={<EmailVerifyPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/cookies" element={<Navigate to="/privacy#cookies" replace />} />
+        <Route path="/unsubscribe" element={<UnsubscribePage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/shop" element={<ShopPage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
@@ -158,8 +165,16 @@ export default function App() {
           />
           <Route path="logs" element={<LogsPage />} />
           <Route path="settings" element={<SettingsPage />} />
-          <Route path="maintenance" element={<MaintenancePage />} />
+          <Route
+            path="maintenance"
+            element={
+              <RequireRole roles={['superadmin']}>
+                <MaintenancePage />
+              </RequireRole>
+            }
+          />
         </Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       {/* Rendered once at the top level (outside all routes) so they
           show on every page — Shop, checkout, account, anywhere — not
@@ -168,6 +183,7 @@ export default function App() {
           did nothing visible; moved here to fix that. */}
       <CartDrawer />
       <WhatsAppButton />
+      <CookieBanner />
     </>
   )
 }

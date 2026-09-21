@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { apiGet, apiPut } from '../api/client.js'
+import { apiGet, apiPut, apiDelete } from '../api/client.js'
 import { useAuth } from './AuthContext.jsx'
 
 const CartContext = createContext(null)
@@ -82,7 +82,8 @@ export function CartProvider({ children }) {
   // every change — this is a small JSON blob, not a heavy write.
   useEffect(() => {
     if (authLoading || !user) return
-    const list = Object.values(items)
+    // Reserved appointment slots are short-lived, so they're not saved to the account.
+    const list = Object.values(items).filter((i) => !i.booking)
     const handle = setTimeout(() => {
       apiPut('/api/account/cart', { items: list }).catch(() => {})
     }, 600)
@@ -118,13 +119,53 @@ export function CartProvider({ children }) {
     })
   }
 
+  // A bookable service is added with the slot the customer reserved
+  // (date, time and branch). Each booking is its own basket line.
+  const addBooking = (service, booking) => {
+    const key = `booking:${booking.holdId}`
+    setItems((prev) => ({
+      ...prev,
+      [key]: {
+        id: key,
+        serviceId: service.id,
+        type: 'service',
+        name: service.name,
+        price: service.price,
+        qty: 1,
+        booking,
+      },
+    }))
+    setIsOpen(true)
+  }
+
   const removeItem = (id) => {
     setItems((prev) => {
+      const line = prev[id]
+      // Let go of the reserved slot so someone else can book it.
+      if (line?.booking) {
+        apiDelete(`/api/bookings/hold/${line.booking.holdId}`, { token: line.booking.holdToken }).catch(() => {})
+      }
       const next = { ...prev }
       delete next[id]
       return next
     })
   }
+
+  // A reserved slot is only held for a short time; drop lines that ran out.
+  useEffect(() => {
+    const tick = () =>
+      setItems((prev) => {
+        const now = Date.now()
+        const expired = Object.values(prev).filter((i) => i.booking && new Date(i.booking.expiresAt).getTime() <= now)
+        if (!expired.length) return prev
+        const next = { ...prev }
+        for (const i of expired) delete next[i.id]
+        return next
+      })
+    tick()
+    const id = setInterval(tick, 15000)
+    return () => clearInterval(id)
+  }, [])
 
   const clearCart = () => setItems({})
 
@@ -140,6 +181,7 @@ export function CartProvider({ children }) {
     open: () => setIsOpen(true),
     close: () => setIsOpen(false),
     addItem,
+    addBooking,
     changeQty,
     removeItem,
     clearCart,

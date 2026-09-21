@@ -14,8 +14,10 @@ export default {
         ink: '#26261f',
       },
       fontFamily: {
-        serif: ['"Cormorant Garamond"', 'serif'],
-        sans: ['"Jost"', 'sans-serif'],
+        // Latin text uses Cormorant / Jost; Sinhala and Tamil fall through to
+        // Noto (self-hosted), so those scripts look the same on every device.
+        serif: ['"Cormorant Garamond"', '"Noto Sans Sinhala"', '"Noto Sans Tamil"', 'serif'],
+        sans: ['"Jost"', '"Noto Sans Sinhala"', '"Noto Sans Tamil"', 'sans-serif'],
       },
       keyframes: {
         marquee: {

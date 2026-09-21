@@ -27,6 +27,7 @@ const GROUPS = [
       { to: '/admin/bookings', label: 'Bookings' },
       { to: '/admin/orders', label: 'Orders' },
       { to: '/admin/delivery', label: 'Delivery' },
+      { to: '/admin/refunds', label: 'Refund Requests' },
     ],
   },
   {
@@ -40,11 +41,8 @@ const GROUPS = [
   },
   {
     id: 'risk',
-    label: 'Risk & Support',
-    links: [
-      { to: '/admin/fraud', label: 'Fraud Alerts' },
-      { to: '/admin/refunds', label: 'Refund Requests' },
-    ],
+    label: 'Risk',
+    links: [{ to: '/admin/fraud', label: 'Fraud Alerts' }],
   },
   {
     id: 'system',
@@ -52,7 +50,7 @@ const GROUPS = [
     links: [
       { to: '/admin/logs', label: 'Logs' },
       { to: '/admin/settings', label: 'Settings' },
-      { to: '/admin/maintenance', label: 'Maintenance' },
+      { to: '/admin/maintenance', label: 'Maintenance', superadminOnly: true },
     ],
   },
 ]
@@ -97,6 +95,55 @@ function ChevronIcon({ open }) {
   )
 }
 
+
+// Many admin forms show a visible caption above a field without linking the
+// two in code, so screen readers announce just "edit text". This gives every
+// unnamed field an accessible name from its placeholder, its wrapping label,
+// or the nearest caption just before it. It never overrides an existing name.
+function nameUnlabelledFields(root) {
+  const fields = root.querySelectorAll('input:not([type=hidden]), select, textarea')
+  fields.forEach((el) => {
+    if (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.title) return
+    if (el.id && root.querySelector(`label[for="${CSS.escape(el.id)}"]`)) return
+    if (el.closest('label')) return
+    const clean = (t) => (t || '').replace(/\s+/g, ' ').trim()
+    let text = clean(el.placeholder)
+    if (!text) {
+      let node = el
+      for (let depth = 0; depth < 3 && !text && node; depth++) {
+        let prev = node.previousElementSibling
+        while (prev && !text) {
+          if (/^(LABEL|P|SPAN|LEGEND|H4|H5|DT)$/.test(prev.tagName)) {
+            const t = clean(prev.textContent)
+            if (t && t.length <= 60) text = t
+          }
+          prev = prev.previousElementSibling
+        }
+        node = node.parentElement
+      }
+    }
+    if (!text) {
+      // a field inside a table row: use its column heading
+      const td = el.closest('td')
+      const table = el.closest('table')
+      const th = td && table ? table.querySelectorAll('thead th')[td.cellIndex] : null
+      text = clean(th?.textContent)
+    }
+    if (!text && el.name) text = el.name.replace(/[_-]+/g, ' ')
+    if (!text) {
+      // last resort, from what kind of field it is
+      if (el.type === 'file') text = /video/.test(el.accept) ? 'Choose a video file' : 'Choose an image file'
+      else if (el.type === 'datetime-local') text = 'Date and time'
+      else if (el.type === 'number') text = 'Number'
+      else if (el.tagName === 'SELECT') {
+        const first = clean(el.options[0]?.text)
+        text = /categor/i.test(first) ? 'Category' : /bookable/i.test(first) ? 'Service type' : /^admin$/i.test(first) ? 'Role' : `Choose: ${first}`
+      }
+    }
+    if (text) el.setAttribute('aria-label', text)
+  })
+}
+
 export default function AdminLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -104,6 +151,21 @@ export default function AdminLayout() {
   // Sidebar is an off-canvas drawer below the md breakpoint, permanently
   // visible at md+ (see the `md:translate-x-0 md:static` overrides below).
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
+  useEffect(() => {
+    let timer = null
+    const run = () => nameUnlabelledFields(document.body)
+    const observer = new MutationObserver(() => {
+      clearTimeout(timer)
+      timer = setTimeout(run, 150)
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+    run()
+    return () => {
+      observer.disconnect()
+      clearTimeout(timer)
+    }
+  }, [])
 
   // Which sidebar sections are expanded. Starts with just the section
   // containing the current page open, so a fresh admin session isn't

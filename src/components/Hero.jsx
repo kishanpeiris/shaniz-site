@@ -5,6 +5,7 @@ import heroVideo from '../assets/video/hero-ritual.mp4'
 import { useHomepageContent } from '../hooks/useHomepageContent.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
+import RichText from './RichText.jsx'
 
 // This clip has no dramatic "intro" moment (unlike the earlier footage
 // it replaces) — it's a steady ambient shot, so a plain native loop
@@ -95,10 +96,14 @@ export default function Hero() {
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-goldLight">
           {localizedField(content, 'hero_eyebrow', language)}
         </p>
-        <h1 className="mt-4 max-w-xl text-4xl leading-tight text-ivory sm:text-5xl md:text-6xl">
+        <h1
+          className={`mt-4 max-w-xl leading-tight text-ivory ${
+            language === 'en' ? 'text-4xl sm:text-5xl md:text-6xl' : 'text-3xl leading-snug sm:text-4xl md:text-5xl'
+          }`}
+        >
           {localizedField(content, 'hero_headline', language)}
         </h1>
-        <p className="mt-5 max-w-md text-base text-cream/80">{localizedField(content, 'hero_subtext', language)}</p>
+        <RichText text={localizedField(content, 'hero_subtext', language)} className="mt-5 max-w-md text-base text-cream/80" />
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
             to="/shop"

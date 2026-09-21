@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
           </form>
         )}
 
-        <p className="mt-6 text-center text-xs text-[#6a6656]">
+        <p className="mt-6 text-center text-sm text-[#6a6656]">
           <Link to="/login" className="underline">
             {t('auth_back_to_sign_in')}
           </Link>

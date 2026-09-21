@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom'
 import { useIsMobile } from '../hooks/useIsMobile.js'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
-import CartDrawer from '../components/CartDrawer.jsx'
 import ProductCard from '../components/ProductCard.jsx'
 import ServiceCard from '../components/ServiceCard.jsx'
 import BookingWidget from '../components/BookingWidget.jsx'
@@ -187,6 +186,7 @@ export default function ShopPage() {
         </label>
         <select
           value={type}
+          aria-label={t('shop_product_type')}
           onChange={(e) => setType(e.target.value)}
           className={selectClass}
         >
@@ -204,6 +204,7 @@ export default function ShopPage() {
         </label>
         <select
           value={category}
+          aria-label={t('shop_category')}
           onChange={(e) => setCategory(e.target.value)}
           className={selectClass}
         >
@@ -219,7 +220,7 @@ export default function ShopPage() {
         <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-moss">
           {t('shop_price_range')}
         </label>
-        <select value={priceBand} onChange={(e) => setPriceBand(e.target.value)} className={selectClass}>
+        <select value={priceBand} onChange={(e) => setPriceBand(e.target.value)} aria-label={t('shop_price_range')} className={selectClass}>
           {Object.entries(PRICE_BANDS).map(([id, b]) => (
             <option key={id} value={id}>
               {L(b.label)}
@@ -246,7 +247,7 @@ export default function ShopPage() {
       {filtersActive && (
         <button
           onClick={clearFilters}
-          className="self-start text-xs uppercase tracking-wide text-moss underline decoration-gold/50 hover:text-forestDeep"
+          className="self-start text-sm uppercase tracking-wide text-moss underline decoration-gold/50 hover:text-forestDeep"
         >
           {t('shop_clear_filters')}
         </button>
@@ -287,7 +288,7 @@ export default function ShopPage() {
                   type="search"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search products &amp; services…"
+                  placeholder={t('nav_search_placeholder')}
                   className="w-full rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm text-forestDeep placeholder:text-moss/70 focus:outline-none focus:ring-1 focus:ring-gold"
                 />
               </div>
@@ -300,6 +301,7 @@ export default function ShopPage() {
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value)}
+                  aria-label={t('shop_sort')}
                   className="rounded-sm border border-gold/30 bg-cream px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep"
                 >
                   {Object.entries(SORTS).map(([id, s]) => (
@@ -385,7 +387,6 @@ export default function ShopPage() {
         </div>
       </section>
       <Footer />
-      <CartDrawer />
 
       <BookingWidget
         service={bookingService}

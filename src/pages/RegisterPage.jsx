@@ -114,15 +114,20 @@ export default function RegisterPage() {
             >
               {busy ? t('auth_creating_account') : t('auth_create_account_button')}
             </button>
+            <p className="text-center text-sm text-[#6a6656]">
+              {t('privacy_notice_account_pre')}{' '}
+              <Link to="/privacy" className="underline text-forestDeep">{t('privacy_link_acc')}</Link>
+              {t('privacy_notice_account_post')}
+            </p>
           </form>
 
-          <p className="mt-6 text-center text-xs text-[#6a6656]">
+          <p className="mt-6 text-center text-sm text-[#6a6656]">
             {t('auth_already_have_account')}{' '}
             <Link to="/login" className="underline">
               {t('auth_sign_in_heading')}
             </Link>
           </p>
-          <p className="mt-2 text-center text-xs text-[#6a6656]">
+          <p className="mt-2 text-center text-sm text-[#6a6656]">
             <Link to="/" className="underline">
               {t('auth_back_to_storefront')}
             </Link>

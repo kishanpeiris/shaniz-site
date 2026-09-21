@@ -9,6 +9,9 @@ import { formatLKR as fmt } from '../lib/currency.js'
 import { formatCalendarDate } from '../lib/date.js'
 import { apiGet, API_URL } from '../api/client.js'
 import ritualScene from '../assets/textures/thankyou-candles.jpg'
+import ProviderBadge from '../components/ProviderBadge.jsx'
+import { useServiceProvider } from '../hooks/useServiceProvider.js'
+import { providerBranchLabel } from '../lib/serviceProvider.js'
 
 
 export default function ThankYouPage() {
@@ -17,6 +20,7 @@ export default function ThankYouPage() {
   const guestEmail = searchParams.get('email') || ''
   const { user } = useAuth()
   const { t } = useLanguage()
+  const { provider } = useServiceProvider()
   const [order, setOrder] = useState(null)
   // Distinct from "still loading" (order === null before this ever
   // resolves) — without this, a failed lookup (bad id, wrong guest
@@ -69,6 +73,12 @@ export default function ThankYouPage() {
                   <li key={idx} className="flex justify-between">
                     <span>
                       {i.name} × {i.qty}
+                      {i.booking && (
+                        <span className="block text-xs text-[#5c5949]">
+                          📅 {formatCalendarDate(i.booking.date)} · {i.booking.time} · 📍 {providerBranchLabel(provider, i.booking.branch_name)}
+                        </span>
+                      )}
+                      {i.type === 'service' && !i.booking && <ProviderBadge variant="text" className="mt-0.5" />}
                       {i.is_preorder && (
                         <span className="block text-xs text-[#8a6d3b]">
                           {t('thankyou_preorder_arrival', { date: formatCalendarDate(i.preorder_eta_date) })}
@@ -79,10 +89,12 @@ export default function ThankYouPage() {
                   </li>
                 ))}
               </ul>
-              <div className="flex justify-between border-t border-gold/20 pt-2 text-sm text-[#5c5949]">
-                <span>{t('delivery_label')}</span>
-                <span>{Number(order.delivery_fee_lkr) ? fmt(order.delivery_fee_lkr) : t('free_pickup')}</span>
-              </div>
+              {order.items.some((i) => i.type === 'product') && (
+                <div className="flex justify-between border-t border-gold/20 pt-2 text-sm text-[#5c5949]">
+                  <span>{t('delivery_label')}</span>
+                  <span>{Number(order.delivery_fee_lkr) ? fmt(order.delivery_fee_lkr) : t('free_pickup')}</span>
+                </div>
+              )}
               <div className="flex justify-between pt-1 font-serif text-lg font-semibold text-forestDeep">
                 <span>{t('total_label')}</span>
                 <span>{fmt(order.total_lkr)}</span>

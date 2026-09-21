@@ -4,14 +4,18 @@ import { PRODUCT_VISUALS, DEFAULT_VISUAL } from '../data/catalogAssets.js'
 // (ProductCard, ProductDetailPage, CartContext). Single source of truth
 // so the Shop grid and the product detail page never disagree about
 // what "in stock" or "pre-order" means for a given product.
+export const discountLabel = (row) =>
+  row.discount_type === 'percent'
+    ? `-${Number(row.discount_value)}%`
+    : `-Rs. ${Number(row.discount_value).toLocaleString('en-US')}`
+
 export function normalizeProduct(p) {
   const visual = PRODUCT_VISUALS[p.name] ?? DEFAULT_VISUAL
   const uploadedImages = p.images?.length ? p.images : null
-  // Admin-set banners (badges TEXT[] from the database) take priority;
-  // the old hardcoded per-name visual.badge is kept only as a fallback
-  // for demo products that predate the real banners feature, so nothing
-  // that already looked right suddenly loses its badge.
-  const badges = p.badges?.length ? p.badges : visual.badge ? [visual.badge] : []
+  const badges = p.badges || []
+  // A live discount arrives as sale_price_lkr; `price` is always what the
+  // customer pays, `listPrice` the crossed-out original.
+  const sale = p.sale_price_lkr != null ? Number(p.sale_price_lkr) : null
   return {
     id: p.id,
     type: 'product',
@@ -24,7 +28,9 @@ export function normalizeProduct(p) {
     description: p.description,
     description_si: p.description_si || null,
     description_ta: p.description_ta || null,
-    price: Number(p.price_lkr),
+    price: sale ?? Number(p.price_lkr),
+    listPrice: sale != null ? Number(p.price_lkr) : null,
+    discountLabel: sale != null ? discountLabel(p) : null,
     stockQty: p.stock_qty,
     outOfStock: p.out_of_stock,
     images: uploadedImages || [visual.image],
@@ -36,7 +42,7 @@ export function normalizeProduct(p) {
     imageFocal: { x: Number(p.image_focal_x ?? 50), y: Number(p.image_focal_y ?? 50) },
     badges,
     badge: badges[0] || null,
-    ingredients: visual.ingredients,
+    ingredients: p.ingredients || [],
     createdAt: p.created_at,
     availability: p.availability || (p.out_of_stock ? 'out_of_stock' : 'in_stock'),
     preorderEtaDays: p.preorder_eta_days || null,

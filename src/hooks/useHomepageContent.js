@@ -101,18 +101,13 @@ export function useHomepageContent() {
     let cancelled = false
     sharedFetch.then((res) => {
       if (cancelled) return
-      const saved = { ...(res.homepage_content || {}) }
+      const saved = migrateLegacyHomepage(res.homepage_content || {})
       // A blank Sinhala/Tamil box in the admin form means "not translated
       // yet" — keep our built-in translation instead of falling back to English.
       for (const key of Object.keys(saved)) {
         if (/_(si|ta)$/.test(key) && !String(saved[key] ?? '').trim() && HOMEPAGE_CONTENT_DEFAULTS[key]) {
           delete saved[key]
         }
-      }
-      // The old default headline may already be saved in the database
-      // (the admin form saves every field) — upgrade it automatically.
-      if (saved.hero_headline === "Ceylon's herbal ritual, bottled by hand.") {
-        delete saved.hero_headline
       }
       setContent({ ...HOMEPAGE_CONTENT_DEFAULTS, ...saved })
     })
@@ -122,4 +117,18 @@ export function useHomepageContent() {
   }, [])
 
   return content
+}
+
+// Older saved content may still say "Ceylon". Swap it for "Sri Lanka" in the
+// English headline, and drop any saved Sinhala/Tamil headline that still has
+// the old wording so the corrected built-in translation is used instead.
+export function migrateLegacyHomepage(saved) {
+  const out = { ...saved }
+  if (typeof out.hero_headline === 'string' && /Ceylon/i.test(out.hero_headline)) {
+    out.hero_headline = out.hero_headline.replace(/Ceylon['’]s/g, "Sri Lanka's").replace(/Ceylon/g, 'Sri Lanka')
+  }
+  for (const key of ['hero_headline_si', 'hero_headline_ta']) {
+    if (typeof out[key] === 'string' && /Ceylon|සිලෝන්|சிலோன்|செய்லான்/i.test(out[key])) delete out[key]
+  }
+  return out
 }

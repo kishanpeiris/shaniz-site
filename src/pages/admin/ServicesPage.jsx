@@ -6,9 +6,11 @@ import CategoryPicker from '../../components/admin/CategoryPicker.jsx'
 import BadgesInput from '../../components/admin/BadgesInput.jsx'
 import FocalPointPicker from '../../components/admin/FocalPointPicker.jsx'
 import RichTextEditor from '../../components/admin/RichTextEditor.jsx'
+import ServiceProviderEditor from '../../components/admin/ServiceProviderEditor.jsx'
 import TranslationFields from '../../components/admin/TranslationFields.jsx'
 import { formatLKR } from '../../lib/currency.js'
 import { formatCalendarDate } from '../../lib/date.js'
+import DiscountFields, { emptyDiscount, discountFromRow, discountPayload } from '../../components/admin/DiscountFields.jsx'
 
 // Same AI description helper as the Products page — the backend
 // endpoint already writes naturally for either a retail product or a
@@ -75,7 +77,7 @@ const emptyForm = {
   detail_video_url: '',
   image_focal_x: 50,
   image_focal_y: 50,
-  branch_id: '',
+  ...emptyDiscount,
 }
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -159,7 +161,7 @@ export default function ServicesPage() {
         detail_video_url: form.detail_video_url || null,
         image_focal_x: form.image_focal_x,
         image_focal_y: form.image_focal_y,
-        branch_id: form.branch_id || undefined,
+        ...discountPayload(form),
       })
       setForm(emptyForm)
       load()
@@ -188,7 +190,7 @@ export default function ServicesPage() {
       detail_video_url: s.detail_video_url || '',
       image_focal_x: s.image_focal_x ?? 50,
       image_focal_y: s.image_focal_y ?? 50,
-      branch_id: s.branch_id || '',
+      ...discountFromRow(s),
     })
   }
 
@@ -217,7 +219,7 @@ export default function ServicesPage() {
         detail_video_url: editForm.detail_video_url || null,
         image_focal_x: editForm.image_focal_x,
         image_focal_y: editForm.image_focal_y,
-        branch_id: editForm.branch_id || null,
+        ...discountPayload(editForm),
       })
       cancelEdit()
       load()
@@ -350,6 +352,8 @@ export default function ServicesPage() {
       <h2 className="mb-6 text-3xl">Services</h2>
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
+      <ServiceProviderEditor />
+
       <form onSubmit={handleCreate} className="mb-8 grid grid-cols-2 gap-3 rounded-sm border border-gold/30 bg-ivory p-5 md:grid-cols-6">
         <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2" />
         <select value={form.service_type} onChange={(e) => setForm({ ...form, service_type: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm">
@@ -379,12 +383,12 @@ export default function ServicesPage() {
           ]}
         />
 
-        <select value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2">
-          <option value="">No branch / location set</option>
-          {branches.map((b) => (
-            <option key={b.id} value={b.id}>{b.name}</option>
-          ))}
-        </select>
+        <div className="col-span-2 md:col-span-6">
+          <DiscountFields value={form} onChange={(d) => setForm({ ...form, ...d })} price={form.price_lkr} />
+        </div>
+        <p className="col-span-2 text-xs text-[#6a6656] md:col-span-6">
+          Which branches offer this service is set under <strong>Branches → Services offered</strong>.
+        </p>
 
         <div className="col-span-2 md:col-span-6">
           <BadgesInput value={form.badges} onChange={(badges) => setForm({ ...form, badges })} />
@@ -427,7 +431,7 @@ export default function ServicesPage() {
                     {s.service_type} {s.duration_minutes ? `· ${s.duration_minutes} min` : ''} ·{' '}
                     {formatLKR(s.price_lkr)} ·{' '}
                     <span className={s.is_active ? 'text-moss' : 'text-[#a35a3a]'}>{s.is_active ? 'Active' : 'Inactive'}</span>
-                    {s.branch_name && <> · {s.branch_name}</>}
+                    {s.service_type === 'bookable' && (s.branches?.length ? <> · {s.branches.map((b) => b.name).join(', ')}</> : <span className="text-[#a35a3a]"> · no branch yet</span>)}
                     {s.category && <> · {s.category}</>}
                   </p>
                   {s.badges?.length > 0 && (
@@ -491,12 +495,12 @@ export default function ServicesPage() {
                   ]}
                 />
 
-                <select value={editForm.branch_id} onChange={(e) => setEditForm({ ...editForm, branch_id: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2">
-                  <option value="">No branch / location set</option>
-                  {branches.map((b) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
+                <div className="col-span-2 md:col-span-6">
+                  <DiscountFields value={editForm} onChange={(d) => setEditForm({ ...editForm, ...d })} price={editForm.price_lkr} />
+                </div>
+                <p className="col-span-2 text-xs text-[#6a6656] md:col-span-6">
+                  Which branches offer this service is set under <strong>Branches → Services offered</strong>.
+                </p>
 
                 <div className="col-span-2 md:col-span-6">
                   <BadgesInput value={editForm.badges} onChange={(badges) => setEditForm({ ...editForm, badges })} />
@@ -523,19 +527,22 @@ export default function ServicesPage() {
               <div className="mt-4 border-t border-gold/20 pt-4">
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">Booking times</p>
                 {(() => {
-                  const branch = branches.find((b) => b.id === s.branch_id)
+                  const offered = s.branches || []
                   const custom = windows[s.id] || []
-                  if (!s.branch_id) {
-                    return <p className="mb-3 text-xs text-[#8a6d3b]">This service has no branch, so only the weekly times below apply. Pick a branch (Edit) and set that branch’s opening hours to use shop hours.</p>
+                  if (offered.length === 0) {
+                    return <p className="mb-3 text-xs text-[#8a6d3b]">Not offered at any branch yet — tick it under Branches → Services offered, otherwise customers cannot book it online.</p>
                   }
-                  if (!branch?.opening_hours) {
-                    return <p className="mb-3 text-xs text-[#8a6d3b]">{branch?.name || 'This branch'} has no opening hours yet — set them under Branches → Opening hours to open up Sundays and other days in one go.</p>
+                  const hoursOf = (b) => branches.find((x) => x.id === b.id)?.opening_hours
+                  const withHours = offered.filter(hoursOf)
+                  if (withHours.length === 0) {
+                    return <p className="mb-3 text-xs text-[#8a6d3b]">{offered.map((b) => b.name).join(', ')} {offered.length > 1 ? 'have' : 'has'} no opening hours yet — set them under Branches → Opening hours to open up Sundays and other days in one go.</p>
                   }
+                  const names = withHours.map((b) => b.name).join(', ')
                   return (
                     <p className="mb-3 max-w-2xl text-xs text-[#6a6656]">
                       {custom.length === 0
-                        ? `No custom times — customers can book any time during ${branch.name}’s opening hours.`
-                        : `Custom times below are used, but never outside ${branch.name}’s opening hours. A day with no custom time here (e.g. Sunday) is not bookable.`}
+                        ? `No custom times — customers can book any time during each branch's opening hours (${names}).`
+                        : `Custom times below are used, but never outside a branch's opening hours (${names}). A day with no custom time here (e.g. Sunday) is not bookable.`}
                       {custom.length > 0 && (
                         <button onClick={() => useShopHours(s.id)} className="ml-2 underline text-forestDeep">Use shop hours instead</button>
                       )}
@@ -573,7 +580,7 @@ export default function ServicesPage() {
                   ))}
                   {(windows[s.id] || []).length === 0 && (
                     <li className="text-[#6a6656]">
-                      No custom times set{branches.find((b) => b.id === s.branch_id)?.opening_hours ? ' — following the shop opening hours.' : ' — this service has no bookable slots yet.'}
+                      No custom times set{(s.branches || []).some((b) => branches.find((x) => x.id === b.id)?.opening_hours) ? ' — following the shop opening hours.' : ' — this service has no bookable slots yet.'}
                     </li>
                   )}
                 </ul>

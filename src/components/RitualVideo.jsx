@@ -1,4 +1,6 @@
 import React from 'react'
+import ConsentGate from './ConsentGate.jsx'
+import RichText from './RichText.jsx'
 import RowCarousel from './RowCarousel.jsx'
 import { useHomepageContent } from '../hooks/useHomepageContent.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
@@ -25,7 +27,7 @@ function VideoCard({ src }) {
 
 export default function RitualVideo() {
   const content = useHomepageContent()
-  const { language } = useLanguage()
+  const { language, t } = useLanguage()
   // Admin-uploaded process videos (Settings → Page Content → See It
   // Made) take over once there's at least one — until then this keeps
   // showing the original single Facebook embed, so a fresh install
@@ -40,9 +42,7 @@ export default function RitualVideo() {
           {localizedField(content, 'ritual_video_eyebrow', language)}
         </p>
         <h2 className="mt-3 text-4xl text-ivory">{localizedField(content, 'ritual_video_headline', language)}</h2>
-        <p className="mx-auto mt-3 max-w-lg text-cream/75">
-          {localizedField(content, 'ritual_video_subtext', language)}
-        </p>
+        <RichText text={localizedField(content, 'ritual_video_subtext', language)} className="mx-auto mt-3 max-w-lg text-cream/75" />
 
         {hasUploadedVideos ? (
           <div className="mt-10">
@@ -57,6 +57,7 @@ export default function RitualVideo() {
           <>
             <div className="mx-auto mt-10 max-w-[540px] rounded-sm border border-gold/40 bg-white/[0.02] p-2.5">
               <div className="relative w-full pb-[125%]">
+                <ConsentGate kind="video" tone="light" className="absolute inset-0 h-full w-full">
                 <iframe
                   src={EMBED_SRC}
                   title="Shani'z ritual video"
@@ -66,6 +67,7 @@ export default function RitualVideo() {
                   allowFullScreen
                   allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                 />
+                </ConsentGate>
               </div>
             </div>
             <p className="mt-4 text-sm">
@@ -74,9 +76,9 @@ export default function RitualVideo() {
                 href={FB_SHARE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border-b border-goldLight text-goldLight"
+                className="inline-block border-b border-goldLight py-2 text-goldLight"
               >
-                Watch it directly on Facebook →
+                {t('ritual_watch_fb')}
               </a>
             </p>
           </>

@@ -11,14 +11,14 @@ import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
 import StarRating from '../components/StarRating.jsx'
 import ProductReviews from '../components/ProductReviews.jsx'
+import Price from '../components/Price.jsx'
 
 function AvailabilityNote({ product }) {
   const { t } = useLanguage()
   if (product.availability === 'preorder') {
     return (
       <p className="rounded-sm border border-gold/40 bg-gold/10 px-3 py-2 text-sm text-[#8a6d1f]">
-        <strong>Pre-order.</strong> Ships in ~{product.preorderEtaDays || 14} days — we'll email your
-        estimated delivery date once you check out.
+        <strong>{t('pd_preorder_label')}</strong> {t('pd_preorder_text', { days: product.preorderEtaDays || 14 })}
       </p>
     )
   }
@@ -165,7 +165,7 @@ export default function ProductDetailPage() {
     <>
       <Nav />
       <div className="mx-auto max-w-6xl px-6 py-12">
-        <Link to="/shop" className="mb-6 inline-block text-xs uppercase tracking-wide text-moss underline">
+        <Link to="/shop" className="mb-6 inline-block text-sm uppercase tracking-wide text-moss underline">
           ← {t('common_back_to_shop')}
         </Link>
 
@@ -227,7 +227,7 @@ export default function ProductDetailPage() {
                 <StarRating rating={product.avgRating} count={product.reviewCount} />
               </div>
             )}
-            <p className="mt-4 text-2xl font-semibold text-forestDeep">{fmt(product.price)}</p>
+            <p className="mt-4 text-2xl font-semibold text-forestDeep"><Price item={product} /></p>
 
             <RichText text={displayDescription} className="mt-5 text-[#5c5949]" />
 

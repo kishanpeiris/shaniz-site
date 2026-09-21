@@ -1,5 +1,6 @@
 import React from 'react'
 import { useBusinessInfo } from '../hooks/useBusinessInfo.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 // A floating click-to-chat button, shown site-wide (mounted once in
 // App.jsx, same pattern as CartDrawer) — a very common, often-expected
@@ -7,6 +8,7 @@ import { useBusinessInfo } from '../hooks/useBusinessInfo.js'
 // than a contact form. Hides itself entirely if no WhatsApp number has
 // been set in Settings, rather than showing a broken/dead button.
 export default function WhatsAppButton() {
+  const { t } = useLanguage()
   const info = useBusinessInfo()
   if (!info.whatsapp_number) return null
 
@@ -19,7 +21,7 @@ export default function WhatsAppButton() {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat with us on WhatsApp"
+      aria-label={t('aria_whatsapp')}
       className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform hover:scale-105"
     >
       <svg viewBox="0 0 32 32" className="h-7 w-7 fill-white">

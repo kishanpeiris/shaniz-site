@@ -5,6 +5,8 @@ import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import BadgeRow from './BadgeRow.jsx'
 import { localizedField } from '../lib/localize.js'
+import Price from './Price.jsx'
+import ProviderBadge from './ProviderBadge.jsx'
 
 export default function ServiceCard({ service, onReserve, large = false }) {
   const { addItem } = useCart()
@@ -42,6 +44,7 @@ export default function ServiceCard({ service, onReserve, large = false }) {
             <BadgeRow badges={service.badges} />
           </div>
         )}
+        <ProviderBadge variant="overlay" decorative />
         {showHoverVideo ? (
           <video
             key={service.hoverVideo}
@@ -66,6 +69,7 @@ export default function ServiceCard({ service, onReserve, large = false }) {
       </Link>
       <div className={`flex flex-1 flex-col gap-2 ${large ? 'p-6' : 'p-5'}`}>
         <span className="text-[0.68rem] uppercase tracking-[0.14em] text-moss">{service.tagline}</span>
+        <ProviderBadge variant="text" className="min-h-[1rem]" />
         <Link to={`/service/${service.id}`}>
           <h3
             className={`line-clamp-2 font-serif text-forestDeep hover:text-moss ${large ? 'min-h-[4.5rem] text-3xl' : 'min-h-16 text-2xl'}`}
@@ -76,7 +80,7 @@ export default function ServiceCard({ service, onReserve, large = false }) {
         <div className="flex-1" aria-hidden="true" />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <span className={`whitespace-nowrap font-serif font-semibold text-forestDeep ${large ? 'text-2xl' : 'text-xl'}`}>
-            {fmt(service.price)}
+            <Price item={service} />
           </span>
           <button
             onClick={() => (isBookable ? onReserve?.() : addItem(service))}

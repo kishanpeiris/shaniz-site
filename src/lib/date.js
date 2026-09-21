@@ -12,5 +12,6 @@
 // input is a bare "YYYY-MM-DD" or the fuller ISO string.
 export function formatCalendarDate(raw) {
   const [y, m, d] = String(raw).slice(0, 10).split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString()
+  // e.g. "28 Sep 2026" — unambiguous whichever country the visitor is in
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 }

@@ -6,6 +6,7 @@ import { formatLKR as fmt } from '../lib/currency.js'
 import BadgeRow from './BadgeRow.jsx'
 import { localizedField } from '../lib/localize.js'
 import StarRating from './StarRating.jsx'
+import Price from './Price.jsx'
 
 export default function ProductCard({ product, large = false }) {
   const { addItem } = useCart()
@@ -124,7 +125,7 @@ export default function ProductCard({ product, large = false }) {
         )}
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <span className={`whitespace-nowrap font-serif font-semibold text-forestDeep ${large ? 'text-2xl' : 'text-xl'}`}>
-            {fmt(product.price)}
+            <Price item={product} />
           </span>
           <button
             onClick={() => addItem(product)}

@@ -72,6 +72,7 @@ export default function CustomerDetailPage() {
             account={customer}
             kind="customer"
             canSetPassword={user?.role === 'superadmin'}
+            canSendReset
             onSaved={load}
             onClose={() => setEditing(false)}
           />

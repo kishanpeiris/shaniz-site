@@ -155,7 +155,7 @@ export default function ProductReviews({ productId }) {
                   {canDelete(r) && (
                     <button
                       onClick={() => handleDelete(r.id)}
-                      className="text-xs uppercase tracking-wide text-[#a35a3a] underline"
+                      className="text-sm uppercase tracking-wide text-[#a35a3a] underline"
                     >
                       {t('common_remove')}
                     </button>

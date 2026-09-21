@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 // Two different browsing patterns share this component:
 //
@@ -23,6 +24,7 @@ export default function RowCarousel({
   mode = 'page',
   visibleOnMobile = 2,
 }) {
+  const { t } = useLanguage()
   if (mode === 'scroll') return <ScrollRow items={items} renderItem={renderItem} visibleOnMobile={visibleOnMobile} />
 
   const [page, setPage] = useState(0)
@@ -45,7 +47,7 @@ export default function RowCarousel({
           <button
             onClick={() => goTo(-1)}
             disabled={clampedPage === 0}
-            aria-label="Show previous"
+            aria-label={t('aria_prev')}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-ivory text-xl text-forestDeep shadow-brand disabled:cursor-not-allowed disabled:opacity-30"
           >
             ‹
@@ -56,7 +58,7 @@ export default function RowCarousel({
           <button
             onClick={() => goTo(1)}
             disabled={clampedPage === totalPages - 1}
-            aria-label="Show next"
+            aria-label={t('aria_next')}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-ivory text-xl text-forestDeep shadow-brand disabled:cursor-not-allowed disabled:opacity-30"
           >
             ›
@@ -68,6 +70,7 @@ export default function RowCarousel({
 }
 
 function ScrollRow({ items, renderItem, visibleOnMobile }) {
+  const { t } = useLanguage()
   const trackRef = useRef(null)
   // Whether there's actually anything to scroll to, and which
   // direction — computed from real scroll geometry (scrollWidth vs
@@ -135,7 +138,7 @@ function ScrollRow({ items, renderItem, visibleOnMobile }) {
           <button
             onClick={() => scrollByScreen(-1)}
             disabled={!canScrollLeft}
-            aria-label="Scroll left"
+            aria-label={t('aria_scroll_left')}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-ivory text-xl text-forestDeep shadow-brand disabled:cursor-not-allowed disabled:opacity-30"
           >
             ‹
@@ -143,7 +146,7 @@ function ScrollRow({ items, renderItem, visibleOnMobile }) {
           <button
             onClick={() => scrollByScreen(1)}
             disabled={!canScrollRight}
-            aria-label="Scroll right"
+            aria-label={t('aria_scroll_right')}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-ivory text-xl text-forestDeep shadow-brand disabled:cursor-not-allowed disabled:opacity-30"
           >
             ›

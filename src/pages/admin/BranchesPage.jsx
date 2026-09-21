@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import BranchHoursEditor from './BranchHoursEditor.jsx'
+import BranchServicesEditor from './BranchServicesEditor.jsx'
 import { apiGet, apiPost, apiPut, apiDelete } from '../../api/client.js'
 import LocationPicker from '../../components/admin/LocationPicker.jsx'
 
@@ -10,6 +11,7 @@ export default function BranchesPage() {
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
   const [hoursOpenId, setHoursOpenId] = useState(null)
+  const [servicesOpenId, setServicesOpenId] = useState(null)
   const [editForm, setEditForm] = useState(emptyForm)
   const [error, setError] = useState('')
 
@@ -82,6 +84,11 @@ export default function BranchesPage() {
         the address text alone, just slightly less precisely. The <strong>Main</strong> branch is the one pre-selected
         by default in checkout's pickup picker; the first branch you add becomes Main automatically.
       </p>
+      <p className="mb-6 rounded-sm border border-gold/30 bg-cream px-4 py-3 text-sm text-[#5c5949]">
+        Branches are the branches of the service provider set in <strong>Admin → Services</strong>. Customers see
+        every appointment location as “<em>provider name</em> — <em>branch name</em>”, so name a branch by its
+        town or area (e.g. “Kandy”) rather than repeating the company name.
+      </p>
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
       <form onSubmit={create} className="mb-8 grid grid-cols-2 gap-3 rounded-sm border border-gold/30 bg-ivory p-5 md:grid-cols-5">
@@ -143,6 +150,9 @@ export default function BranchesPage() {
                   {!b.is_main && (
                     <button onClick={() => setMain(b.id)} className="underline text-forestDeep">Set as main</button>
                   )}
+                  <button onClick={() => setServicesOpenId(servicesOpenId === b.id ? null : b.id)} className="underline text-forestDeep">
+                    {servicesOpenId === b.id ? 'Hide services' : 'Services offered'}
+                  </button>
                   <button onClick={() => setHoursOpenId(hoursOpenId === b.id ? null : b.id)} className="underline text-forestDeep">
                     {hoursOpenId === b.id ? 'Hide hours' : 'Opening hours'}
                   </button>
@@ -151,6 +161,7 @@ export default function BranchesPage() {
                 </div>
               </div>
             )}
+            {servicesOpenId === b.id && editingId !== b.id && <BranchServicesEditor key={`svc-${b.id}`} branch={b} />}
             {hoursOpenId === b.id && editingId !== b.id && (
               <BranchHoursEditor key={b.id} branch={b} onSaved={load} />
             )}

@@ -64,3 +64,36 @@ html[lang='si'] body,
 html[lang='ta'] body {
   line-height: 1.7;
 }
+
+/* Formatted text from the admin editor (descriptions, story paragraphs).
+   Used by both the storefront and the editor itself, so what you see while
+   editing matches what customers see. */
+.rich-content { line-height: 1.7; }
+.rich-content p { margin: 0 0 0.75rem; }
+.rich-content > :last-child { margin-bottom: 0; }
+.rich-content h2 { margin: 1rem 0 0.5rem; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.6rem; line-height: 1.25; font-weight: 600; }
+.rich-content h3 { margin: 1rem 0 0.4rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85; }
+.rich-content h4 { margin: 0.75rem 0 0.3rem; font-weight: 600; }
+.rich-content ul { margin: 0 0 0.75rem; padding-left: 1.3rem; list-style: disc; }
+.rich-content ol { margin: 0 0 0.75rem; padding-left: 1.3rem; list-style: decimal; }
+.rich-content li { margin-bottom: 0.25rem; }
+.rich-content a { text-decoration: underline; }
+.rich-content blockquote { margin: 0 0 0.75rem; padding-left: 0.9rem; border-left: 3px solid #c9a35c; opacity: 0.9; }
+.rich-content > :first-child { margin-top: 0; }
+.rich-editor:empty::before { content: attr(data-placeholder); color: #9a957f; pointer-events: none; }
+
+/* Touch screens: make small text links and footer links comfortable to tap
+   (at least ~44px tall). Desktop layout is unchanged. */
+@media (pointer: coarse) {
+  footer a,
+  footer button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  a.underline,
+  button.underline {
+    display: inline-block;
+    padding-block: 0.6rem;
+  }
+}

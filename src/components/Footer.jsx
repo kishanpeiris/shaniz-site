@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom'
 import BrandLockup from './BrandLockup.jsx'
 import { useBusinessInfo } from '../hooks/useBusinessInfo.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
+import { useConsent } from '../context/ConsentContext.jsx'
 import { FacebookIcon, InstagramIcon, TikTokIcon, LinkedInIcon, WhatsAppIcon } from './SocialIcons.jsx'
 
 export default function Footer() {
   const info = useBusinessInfo()
   const { t } = useLanguage()
+  const { openSettings } = useConsent()
   return (
     <footer className="bg-forestDeep pb-6 pt-12 text-cream/70">
       <div className="mx-auto max-w-6xl px-7">
@@ -67,7 +69,13 @@ export default function Footer() {
 
         <div className="flex flex-wrap justify-between gap-2 pt-5 text-xs">
           <span>© {new Date().getFullYear()} Shani&rsquo;z Herbal Hair &amp; Skin Care. {t('footer_rights')}</span>
-          <span>{t('footer_made_in_sl')} 🇱🇰</span>
+          <span className="flex flex-wrap items-center gap-x-5 gap-y-1">
+            <Link to="/privacy" className="text-sm underline hover:text-goldLight">{t('footer_privacy')}</Link>
+            <button type="button" onClick={openSettings} className="text-sm underline hover:text-goldLight">
+              {t('footer_cookie_settings')}
+            </button>
+            <span>{t('footer_made_in_sl')} 🇱🇰</span>
+          </span>
         </div>
       </div>
     </footer>

@@ -7,11 +7,13 @@ import { apiGet, apiPost } from '../api/client.js'
 import { CardBrandRow, guessBrand } from '../components/PaymentBadges.jsx'
 import ritualScene from '../assets/textures/spice-spoons.jpg'
 import { formatLKR as fmt } from '../lib/currency.js'
+import { useLanguage } from '../context/LanguageContext.jsx'
 
 
 const GATEWAY_LABELS = { koko: 'Koko', intpay: 'IntPay', payhere: 'PayHere', dialog_genie: 'Credit / Debit Card (legacy)' }
 
 export default function PaymentPage() {
+  const { t } = useLanguage()
   const { orderId } = useParams()
   const [searchParams] = useSearchParams()
   const guestEmail = searchParams.get('email') || ''
@@ -76,10 +78,10 @@ export default function PaymentPage() {
       <>
         <Nav />
         <div className="mx-auto max-w-lg px-6 py-20 text-center">
-          <h1 className="mb-3 text-3xl">We couldn&rsquo;t find that order</h1>
+          <h1 className="mb-3 text-3xl">{t('pay_order_not_found')}</h1>
           <p className="mb-6 text-sm text-[#6a6656]">{loadError}</p>
           <Link to="/shop" className="rounded-full bg-forestDeep px-6 py-3 text-xs uppercase tracking-wide text-cream">
-            Back to Shop
+            {t('common_back_to_shop')}
           </Link>
         </div>
         <Footer />
@@ -91,7 +93,7 @@ export default function PaymentPage() {
     return (
       <>
         <Nav />
-        <div className="py-24 text-center text-sm text-[#6a6656]">Loading your order…</div>
+        <div className="py-24 text-center text-sm text-[#6a6656]">{t('pay_loading')}</div>
         <Footer />
       </>
     )
@@ -104,7 +106,7 @@ export default function PaymentPage() {
         <div className="mx-auto max-w-lg px-6 py-20 text-center">
           <h1 className="mb-3 text-3xl">This order is already {order.status}</h1>
           <Link to="/shop" className="rounded-full bg-forestDeep px-6 py-3 text-xs uppercase tracking-wide text-cream">
-            Continue shopping
+            {t('continue_shopping')}
           </Link>
         </div>
         <Footer />
@@ -130,13 +132,13 @@ export default function PaymentPage() {
           {['payhere', 'dialog_genie'].includes(order.gateway_used) ? (
             <>
               <div className="mb-5 flex items-center justify-between">
-                <span className="text-sm text-[#5c5949]">Card details</span>
+                <span className="text-sm text-[#5c5949]">{t('pay_card_details')}</span>
                 <CardBrandRow />
               </div>
               <form onSubmit={handleCardSubmit} className="space-y-3">
                 <input
                   required
-                  placeholder="Name on card"
+                  placeholder={t('pay_name_on_card')}
                   value={cardName}
                   onChange={(e) => setCardName(e.target.value)}
                   className="w-full rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-sm"
@@ -144,7 +146,7 @@ export default function PaymentPage() {
                 <input
                   required
                   inputMode="numeric"
-                  placeholder="Card number"
+                  placeholder={t('pay_card_number')}
                   maxLength={19}
                   value={cardNumber}
                   onChange={(e) => setCardNumber(e.target.value)}

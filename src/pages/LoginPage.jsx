@@ -91,19 +91,19 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-4 text-center text-xs text-[#6a6656]">
+          <p className="mt-4 text-center text-sm text-[#6a6656]">
             <Link to="/forgot-password" className="underline">
               {t('auth_forgot_password')}
             </Link>
           </p>
-          <p className="mt-2 text-center text-xs text-[#6a6656]">
+          <p className="mt-2 text-center text-sm text-[#6a6656]">
             {t('auth_new_here')}{' '}
             <Link to="/register" className="underline">
               {t('create_an_account')}
             </Link>
           </p>
 
-          <p className="mt-6 text-center text-xs text-[#6a6656]">
+          <p className="mt-6 text-center text-sm text-[#6a6656]">
             <Link to="/" className="underline">
               {t('auth_back_to_storefront')}
             </Link>

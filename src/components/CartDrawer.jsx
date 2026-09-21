@@ -4,6 +4,8 @@ import { useCart } from '../context/CartContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import herbsCitrus from '../assets/textures/herbs-citrus.jpg'
 import { formatLKR as fmt } from '../lib/currency.js'
+import BookingLine from './BookingLine.jsx'
+import ProviderBadge from './ProviderBadge.jsx'
 
 // Quick slide-in preview after "Add to Basket" — full basket management
 // (quantities, removing items) and checkout itself live on their own
@@ -40,7 +42,7 @@ export default function CartDrawer() {
         <div className="relative flex h-full flex-col">
         <div className="flex items-center justify-between border-b border-gold/25 px-6 py-5">
           <h3 className="font-serif text-2xl text-ivory">{t('your_basket')}</h3>
-          <button onClick={close} className="text-2xl leading-none text-cream">
+          <button onClick={close} aria-label={t('common_close')} className="flex h-11 w-11 items-center justify-center text-2xl leading-none text-cream">
             &times;
           </button>
         </div>
@@ -51,29 +53,34 @@ export default function CartDrawer() {
           ) : (
             <ul className="space-y-4">
               {items.map((item) => (
-                <li key={item.id} className="flex items-center justify-between gap-3 border-b border-gold/20 pb-4">
+                <li key={item.id} className="flex items-start justify-between gap-3 border-b border-gold/20 pb-4">
                   <div>
                     <p className="font-serif text-lg text-ivory">{item.name}</p>
                     <p className="text-sm text-cream/70">{fmt(item.price)}</p>
+                    {item.booking && <BookingLine item={item} tone="dark" />}
+                    {item.type === 'service' && !item.booking && <ProviderBadge variant="text" tone="dark" />}
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => changeQty(item.id, -1)}
-                      className="h-7 w-7 rounded-full border border-gold/50 text-cream"
-                    >
-                      −
-                    </button>
-                    <span className="w-5 text-center text-sm">{item.qty}</span>
-                    <button
-                      onClick={() => changeQty(item.id, 1)}
-                      className="h-7 w-7 rounded-full border border-gold/50 text-cream"
-                    >
-                      +
-                    </button>
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="ml-2 text-xs text-[#e2947a] underline"
-                    >
+                    {!item.booking && (
+                      <>
+                        <button
+                          onClick={() => changeQty(item.id, -1)}
+                          aria-label={t('common_decrease_qty')}
+                          className="h-7 w-7 rounded-full border border-gold/50 text-cream"
+                        >
+                          −
+                        </button>
+                        <span className="w-5 text-center text-sm">{item.qty}</span>
+                        <button
+                          onClick={() => changeQty(item.id, 1)}
+                          aria-label={t('common_increase_qty')}
+                          className="h-7 w-7 rounded-full border border-gold/50 text-cream"
+                        >
+                          +
+                        </button>
+                      </>
+                    )}
+                    <button onClick={() => removeItem(item.id)} className="ml-2 text-sm text-[#e2947a] underline">
                       {t('common_remove')}
                     </button>
                   </div>

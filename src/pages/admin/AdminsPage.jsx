@@ -95,6 +95,7 @@ export default function AdminsPage() {
                       account={a}
                       kind="admin"
                       canSetPassword
+                      canSendReset
                       isSelf={a.id === user?.id}
                       onSaved={load}
                       onClose={() => setEditingId(null)}

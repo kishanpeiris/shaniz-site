@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { apiPut } from '../../api/client.js'
+import { apiPost, apiPut } from '../../api/client.js'
 
 const inputClass = 'w-full rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm'
 
@@ -30,7 +30,26 @@ function generatePassword(length = 14) {
  * Passwords are stored as one-way hashes, so an existing password can
  * never be displayed — this only lets you choose a NEW one.
  */
-export default function AccountEditor({ account, kind, canSetPassword, isSelf, onSaved, onClose }) {
+function EyeIcon({ open }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {open ? (
+        <>
+          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+          <circle cx="12" cy="12" r="3" />
+        </>
+      ) : (
+        <>
+          <path d="M3 3l18 18" />
+          <path d="M10.6 5.1A10.9 10.9 0 0 1 12 5c6.4 0 10 7 10 7a17.5 17.5 0 0 1-3.2 4.2M6.6 6.6A17.4 17.4 0 0 0 2 12s3.6 7 10 7c1.9 0 3.6-.5 5-1.2" />
+          <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+        </>
+      )}
+    </svg>
+  )
+}
+
+export default function AccountEditor({ account, kind, canSetPassword, canSendReset, isSelf, onSaved, onClose }) {
   const [form, setForm] = useState({
     name: account.name || '',
     first_name: account.first_name || '',
@@ -49,6 +68,8 @@ export default function AccountEditor({ account, kind, canSetPassword, isSelf, o
   const [pwError, setPwError] = useState('')
   const [pwDone, setPwDone] = useState('') // the password just set — shown once
   const [copied, setCopied] = useState(false)
+  const [resetMsg, setResetMsg] = useState('')
+  const [resetBusy, setResetBusy] = useState(false)
 
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value })
   const base = kind === 'admin' ? `/api/admin/admins/${account.id}` : `/api/admin/customers/${account.id}`
@@ -91,6 +112,19 @@ export default function AccountEditor({ account, kind, canSetPassword, isSelf, o
       setPwError(err.message)
     } finally {
       setPwBusy(false)
+    }
+  }
+
+  const sendReset = async () => {
+    setResetBusy(true)
+    setResetMsg('')
+    try {
+      await apiPost(`/api/admin/users/${account.id}/send-reset`, {})
+      setResetMsg(`A password reset link was emailed to ${account.email}. It works for 20 minutes.`)
+    } catch (err) {
+      setResetMsg(err.message)
+    } finally {
+      setResetBusy(false)
     }
   }
 
@@ -165,6 +199,20 @@ export default function AccountEditor({ account, kind, canSetPassword, isSelf, o
         </div>
       </form>
 
+      {canSendReset && !passwordLocked && (
+        <div className="mt-6 border-t border-gold/30 pt-5">
+          <h4 className="text-sm font-semibold text-forestDeep">Password reset email</h4>
+          <p className="mt-1 max-w-xl text-xs text-[#6a6656]">
+            Emails {account.email} a secure link to choose a new password themselves — the safest way to help someone
+            who is locked out. Passwords can't be viewed by anyone, by design.
+          </p>
+          <button type="button" onClick={sendReset} disabled={resetBusy} className="mt-3 rounded-full border border-forestDeep/40 px-5 py-2 text-xs uppercase tracking-wide text-forestDeep disabled:opacity-60">
+            {resetBusy ? 'Sending…' : 'Send password reset email'}
+          </button>
+          {resetMsg && <p role="status" className="mt-2 text-sm text-moss">{resetMsg}</p>}
+        </div>
+      )}
+
       {canSetPassword && (
         <div className="mt-6 border-t border-gold/30 pt-5">
           <h4 className="text-sm font-semibold text-forestDeep">Set a new password</h4>
@@ -181,15 +229,26 @@ export default function AccountEditor({ account, kind, canSetPassword, isSelf, o
             <form onSubmit={setPassword} className="mt-3 flex flex-wrap items-end gap-3">
               <label className="min-w-[14rem] flex-1 text-xs uppercase tracking-wide text-moss">
                 New password
-                <input
-                  required
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="10+ characters, 1 capital, 1 number"
-                  className={`mt-1 ${inputClass}`}
-                />
+                <span className="relative mt-1 block">
+                  <input
+                    required
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="10+ characters, 1 capital, 1 number"
+                    className={`${inputClass} pr-11`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
+                    className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-forestDeep"
+                  >
+                    <EyeIcon open={showPassword} />
+                  </button>
+                </span>
               </label>
               <button
                 type="button"
@@ -200,13 +259,6 @@ export default function AccountEditor({ account, kind, canSetPassword, isSelf, o
                 className="rounded-full border border-forestDeep/30 px-4 py-2 text-xs uppercase tracking-wide text-forestDeep"
               >
                 Generate
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="text-xs underline text-forestDeep"
-              >
-                {showPassword ? 'Hide' : 'Show'}
               </button>
               <button
                 type="submit"

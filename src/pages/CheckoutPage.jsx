@@ -13,6 +13,8 @@ import { formatLKR as fmt } from '../lib/currency.js'
 import AddressFields from '../components/AddressFields.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { translateLabel } from '../i18n/translations.js'
+import BookingLine from '../components/BookingLine.jsx'
+import ProviderBadge from '../components/ProviderBadge.jsx'
 
 
 const GATEWAYS = [
@@ -112,7 +114,12 @@ export default function CheckoutPage() {
   }, [user, addresses])
 
   const selectedRegion = regions.find((r) => r.id === deliveryRegion)
-  const deliveryFee = deliveryMethod === 'pickup' ? 0 : selectedRegion?.fee_lkr ?? 0
+  // Only physical products are delivered or collected. Services (bookings,
+  // vouchers) are attended at a branch, so a basket with no products skips
+  // the delivery and billing-address steps entirely.
+  const hasProducts = items.some((i) => i.type === 'product')
+  const bookings = items.filter((i) => i.booking)
+  const deliveryFee = !hasProducts || deliveryMethod === 'pickup' ? 0 : selectedRegion?.fee_lkr ?? 0
   const total = subtotal + deliveryFee
 
   if (items.length === 0) {
@@ -120,7 +127,7 @@ export default function CheckoutPage() {
       <>
         <Nav />
         <div className="mx-auto max-w-2xl px-6 py-20 text-center">
-          <h1 className="mb-4 text-3xl">Your basket is empty</h1>
+          <h1 className="mb-4 text-3xl">{t('basket_empty')}</h1>
           <Link to="/shop" className="rounded-full bg-forestDeep px-6 py-3 text-xs uppercase tracking-wide text-cream">
             {t('browse_the_shop')}
           </Link>
@@ -132,7 +139,7 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (deliveryMethod === 'pickup' && !pickupBranchId) {
+    if (hasProducts && deliveryMethod === 'pickup' && !pickupBranchId) {
       setError('Please choose a branch to collect your order from.')
       return
     }
@@ -140,18 +147,25 @@ export default function CheckoutPage() {
     setError('')
     try {
       const payload = {
-        items: items.map((i) => ({ type: i.type, id: i.id, qty: i.qty })),
+        items: items.map((i) => ({
+          type: i.type,
+          id: i.serviceId || i.id,
+          qty: i.qty,
+          ...(i.booking ? { hold_id: i.booking.holdId, hold_token: i.booking.holdToken } : {}),
+        })),
         gateway,
         first_name: firstName,
         last_name: lastName,
         phone,
-        delivery_method: deliveryMethod,
-        billing_same_as_shipping: deliveryMethod === 'delivery' ? billingSame : false,
+        ...(hasProducts ? { delivery_method: deliveryMethod } : {}),
+        billing_same_as_shipping: !hasProducts ? true : deliveryMethod === 'delivery' ? billingSame : false,
         save_card: saveCard,
       }
       if (!user) payload.guest_email = guestEmail
 
-      if (deliveryMethod === 'delivery') {
+      if (!hasProducts) {
+        // nothing to deliver or collect
+      } else if (deliveryMethod === 'delivery') {
         payload.delivery_region = deliveryRegion
         if (user && shippingMode !== 'new') {
           payload.shipping_address_id = shippingMode
@@ -162,7 +176,7 @@ export default function CheckoutPage() {
         payload.pickup_branch_id = pickupBranchId
       }
 
-      if (deliveryMethod === 'pickup' || !billingSame) {
+      if (hasProducts && (deliveryMethod === 'pickup' || !billingSame)) {
         if (user && billingMode !== 'new') {
           payload.billing_address_id = billingMode
         } else {
@@ -240,6 +254,24 @@ export default function CheckoutPage() {
             </section>
 
             {/* Delivery */}
+            {bookings.length > 0 && (
+              <section className="rounded-sm border border-gold/30 bg-ivory p-6">
+                <h2 className="mb-1 text-xl">{t('checkout_service_location')}</h2>
+                <p className="mb-4 text-sm text-[#5c5949]">{t('checkout_services_note')}</p>
+                <ProviderBadge variant="block" className="mb-4" />
+                <ul className="divide-y divide-gold/20">
+                  {bookings.map((b) => (
+                    <li key={b.id} className="py-3 first:pt-0 last:pb-0">
+                      <p className="font-serif text-lg text-forestDeep">{b.name}</p>
+                      <BookingLine item={b} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {hasProducts && (
+              <>
             <section className="rounded-sm border border-gold/30 bg-ivory p-6">
               <h2 className="mb-4 text-xl">{t('delivery_label')}</h2>
               <div className="mb-4 flex gap-3">
@@ -374,6 +406,8 @@ export default function CheckoutPage() {
                 </>
               )}
             </section>
+              </>
+            )}
 
             {/* Payment */}
             <section className="rounded-sm border border-gold/30 bg-ivory p-6">
@@ -419,7 +453,10 @@ export default function CheckoutPage() {
             <ul className="space-y-2.5 text-sm text-[#5c5949]">
               {items.map((i) => (
                 <li key={i.id} className="flex justify-between gap-4">
-                  <span className="min-w-0 flex-1">{i.name} × {i.qty}</span>
+                  <span className="min-w-0 flex-1">
+                    {i.name} × {i.qty}
+                    {i.type === 'service' && <ProviderBadge variant="text" className="mt-0.5" />}
+                  </span>
                   <span className="shrink-0 whitespace-nowrap text-right">{fmt(i.price * i.qty)}</span>
                 </li>
               ))}
@@ -429,10 +466,12 @@ export default function CheckoutPage() {
                 <span>{t('subtotal')}</span>
                 <span>{fmt(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-[#5c5949]">
-                <span>{t('delivery_label')}</span>
-                <span>{deliveryFee ? fmt(deliveryFee) : 'Free'}</span>
-              </div>
+              {hasProducts && (
+                <div className="flex justify-between text-[#5c5949]">
+                  <span>{t('delivery_label')}</span>
+                  <span>{deliveryFee ? fmt(deliveryFee) : t('free_label')}</span>
+                </div>
+              )}
               <div className="flex justify-between border-t border-gold/20 pt-3 text-base font-semibold text-forestDeep">
                 <span>{t('total_label')}</span>
                 <span>{fmt(total)}</span>
@@ -444,10 +483,15 @@ export default function CheckoutPage() {
               disabled={submitting}
               className="mt-6 w-full rounded-full bg-forestDeep py-3.5 text-sm uppercase tracking-wide text-cream disabled:opacity-60"
             >
-              {submitting ? 'Placing order…' : 'Place Order'}
+              {submitting ? t('checkout_placing') : t('checkout_place_order')}
             </button>
             <p className="mt-3 text-center text-xs text-[#6a6656]">
               {t('checkout_prices_note')}
+            </p>
+            <p className="mt-2 text-center text-xs text-[#6a6656]">
+              {t('privacy_notice_order_pre')}{' '}
+              <Link to="/privacy" className="underline">{t('privacy_link_acc')}</Link>
+              {t('privacy_notice_order_post')}
             </p>
             </div>
           </div>

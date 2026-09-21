@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import BrandLockup from './BrandLockup.jsx'
 import { useCart } from '../context/CartContext.jsx'
@@ -21,12 +21,12 @@ const LINK_KEYS = [
 // or Tamil. Persists to the account if logged in, otherwise just this
 // browser (see LanguageContext.jsx).
 function LanguageSwitcher({ className = '' }) {
-  const { language, setLanguage } = useLanguage()
+  const { language, setLanguage, t } = useLanguage()
   return (
     <select
       value={language}
       onChange={(e) => setLanguage(e.target.value)}
-      aria-label="Language"
+      aria-label={t('aria_language')}
       className={`rounded-full border border-gold/30 bg-transparent px-2 py-1 text-xs text-forestDeep ${className}`}
     >
       {Object.entries(LANGUAGES).map(([code, { native }]) => (
@@ -125,8 +125,42 @@ export default function Nav() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [search, setSearch] = useState('')
 
-  // Sinhala & Tamil labels are wider and taller than English ones.
-  const wide = language !== 'en'
+  // The full menu is only shown when it genuinely fits. Rather than guess
+  // with fixed screen sizes (Sinhala and Tamil words are much wider than
+  // English, and the width depends on the fonts on each person's computer),
+  // the header measures itself: a hidden copy of the menu tells us how wide
+  // it needs to be, and if the row can't hold it we use the compact menu.
+  const rowRef = useRef(null)
+  const logoRef = useRef(null)
+  const measureRef = useRef(null)
+  const rightRef = useRef(null)
+  const [collapsed, setCollapsed] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024)
+
+  useLayoutEffect(() => {
+    const check = () => {
+      const row = rowRef.current
+      if (!row || !measureRef.current || !logoRef.current || !rightRef.current) return
+      const cs = getComputedStyle(row)
+      const avail = row.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+      const gap = parseFloat(cs.columnGap) || 16
+      const needed =
+        logoRef.current.getBoundingClientRect().width +
+        measureRef.current.getBoundingClientRect().width +
+        rightRef.current.getBoundingClientRect().width +
+        gap * 2 +
+        16 // a little breathing room
+      setCollapsed(needed > avail)
+    }
+    check()
+    const ro = new ResizeObserver(check)
+    ;[rowRef, logoRef, rightRef].forEach((r) => r.current && ro.observe(r.current))
+    window.addEventListener('resize', check)
+    document.fonts?.ready?.then(check)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', check)
+    }
+  }, [language, user, totalQty])
 
   const isStaff = ['admin', 'superadmin'].includes(user?.role)
 
@@ -140,12 +174,19 @@ export default function Nav() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-gold/30 bg-cream/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-7">
-        <Link to="/">
-          <BrandLockup size="nav" taglineClassName="hidden xl:block" />
+      <div ref={rowRef} className="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-7">
+        <Link to="/" ref={logoRef} className="shrink-0">
+          <BrandLockup size="nav" taglineClassName="hidden 2xl:block" />
         </Link>
 
-        <nav className={`items-center gap-5 xl:gap-8 ${wide ? 'hidden lg:flex' : 'hidden md:flex'}`}>
+        {/* Invisible copy of the menu, used only to measure how wide it is. */}
+        <nav ref={measureRef} aria-hidden="true" className="pointer-events-none invisible fixed -left-[9999px] top-0 -z-10 flex items-center gap-5 whitespace-nowrap xl:gap-8">
+          {LINK_KEYS.map(([key, href]) => (
+            <span key={href} className="text-sm leading-normal">{t(key)}</span>
+          ))}
+        </nav>
+
+        <nav className={`items-center gap-5 xl:gap-8 ${collapsed ? 'hidden' : 'flex'}`}>
           {LINK_KEYS.map(([key, href]) => (
             <Link key={href} to={href} className="group relative whitespace-nowrap text-sm leading-normal text-forestDeep">
               {t(key)}
@@ -154,27 +195,36 @@ export default function Nav() {
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2.5 sm:gap-4">
+        <div ref={rightRef} className="flex shrink-0 items-center gap-2.5 sm:gap-4">
           <LanguageSwitcher className="hidden sm:inline-block" />
           {/* Desktop: an expanding search field so it doesn't permanently
               crowd the nav row. Click the icon to reveal an input. */}
-          <div className={`relative items-center ${wide ? 'hidden lg:flex' : 'hidden md:flex'}`}>
+          {/* The search icon keeps a fixed width; when opened, the field FLOATS
+              over the menu instead of pushing the header wider (a wider header
+              would make the menu collapse, which would close the search). */}
+          <div className={`relative h-11 w-11 shrink-0 items-center justify-center ${collapsed ? 'hidden' : 'flex'}`}>
             {searchOpen ? (
-              <form onSubmit={submitSearch} className="flex items-center">
+              <form
+                onSubmit={submitSearch}
+                role="search"
+                className="absolute right-0 top-1/2 z-30 flex -translate-y-1/2 items-center rounded-full bg-ivory shadow-brand"
+              >
                 <input
                   autoFocus
                   type="search"
+                  aria-label={t('aria_search')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onBlur={() => !search && setSearchOpen(false)}
+                  onKeyDown={(e) => e.key === 'Escape' && setSearchOpen(false)}
                   placeholder={t('nav_search_placeholder')}
-                  className="w-48 rounded-full border border-gold/30 bg-ivory px-3.5 py-1.5 text-xs text-forestDeep placeholder:text-moss/70 focus:w-56 focus:outline-none focus:ring-1 focus:ring-gold"
+                  className="w-56 rounded-full border border-gold/40 bg-ivory px-4 py-2 text-sm text-forestDeep placeholder:text-moss/70 focus:outline-none focus:ring-1 focus:ring-gold xl:w-72"
                 />
               </form>
             ) : (
               <button
                 onClick={() => setSearchOpen(true)}
-                aria-label="Search"
+                aria-label={t('aria_search')}
                 className="flex h-11 w-11 items-center justify-center rounded-full text-forestDeep hover:bg-gold/15"
               >
                 <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
@@ -206,8 +256,8 @@ export default function Nav() {
           </Link>
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Menu"
-            className={`flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-sm border border-gold/30 ${wide ? 'lg:hidden' : 'md:hidden'}`}
+            aria-label={t('aria_menu')}
+            className={`flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-sm border border-gold/30 ${collapsed ? '' : 'hidden'}`}
           >
             <span className="h-px w-4 bg-forestDeep" />
             <span className="h-px w-4 bg-forestDeep" />
@@ -217,7 +267,7 @@ export default function Nav() {
       </div>
 
       {menuOpen && (
-        <nav className={`flex flex-col border-t border-gold/20 bg-ivory px-5 py-4 ${wide ? 'lg:hidden' : 'md:hidden'}`}>
+        <nav className={`flex flex-col border-t border-gold/20 bg-ivory px-5 py-4 ${collapsed ? '' : 'hidden'}`}>
           <form onSubmit={submitSearch} className="mb-3 flex items-center gap-2">
             <input
               type="search"

@@ -8,6 +8,8 @@ import FocalPointPicker from '../../components/admin/FocalPointPicker.jsx'
 import RichTextEditor from '../../components/admin/RichTextEditor.jsx'
 import TranslationFields from '../../components/admin/TranslationFields.jsx'
 import { formatLKR } from '../../lib/currency.js'
+import DiscountFields, { emptyDiscount, discountFromRow, discountPayload } from '../../components/admin/DiscountFields.jsx'
+import IngredientsInput from '../../components/admin/IngredientsInput.jsx'
 
 // Ingredient-based only — no web search, so this needs nothing beyond
 // the backend's GEMINI_API_KEY. `hint` is a quick, NOT-saved note
@@ -68,6 +70,8 @@ const emptyForm = {
   stock_qty: '',
   category_id: null,
   badges: [],
+  ingredients: [],
+  ...emptyDiscount,
   images: [],
   hover_video_url: '',
   hover_webp_url: '',
@@ -198,6 +202,12 @@ export default function ProductsPage() {
         stock_qty: Number(form.stock_qty || 0),
         category_id: form.category_id || null,
         badges: form.badges,
+        ingredients: form.ingredients,
+        ...discountPayload(form),
+        name_si: form.name_si || undefined,
+        name_ta: form.name_ta || undefined,
+        description_si: form.description_si || undefined,
+        description_ta: form.description_ta || undefined,
         images: form.images,
         hover_video_url: form.hover_video_url || undefined,
         hover_webp_url: form.hover_webp_url || undefined,
@@ -224,7 +234,13 @@ export default function ProductsPage() {
       description: p.description || '',
       price_lkr: p.price_lkr,
       category_id: p.category_id || null,
+      name_si: p.name_si || '',
+      name_ta: p.name_ta || '',
+      description_si: p.description_si || '',
+      description_ta: p.description_ta || '',
       badges: p.badges || [],
+      ingredients: p.ingredients || [],
+      ...discountFromRow(p),
       images: p.images || [],
       hover_video_url: p.hover_video_url || '',
       hover_webp_url: p.hover_webp_url || '',
@@ -245,6 +261,12 @@ export default function ProductsPage() {
         price_lkr: Number(editForm.price_lkr),
         category_id: editForm.category_id || null,
         badges: editForm.badges,
+        ingredients: editForm.ingredients,
+        ...discountPayload(editForm),
+        name_si: editForm.name_si || undefined,
+        name_ta: editForm.name_ta || undefined,
+        description_si: editForm.description_si || undefined,
+        description_ta: editForm.description_ta || undefined,
         images: editForm.images,
         hover_video_url: editForm.hover_video_url || undefined,
         hover_webp_url: editForm.hover_webp_url || undefined,
@@ -332,6 +354,12 @@ export default function ProductsPage() {
           <BadgesInput value={form.badges} onChange={(badges) => setForm({ ...form, badges })} />
         </div>
         <div className="col-span-2 md:col-span-5 border-t border-gold/20 pt-3">
+          <DiscountFields value={form} onChange={(d) => setForm({ ...form, ...d })} price={form.price_lkr} />
+        </div>
+        <div className="col-span-2 md:col-span-5 border-t border-gold/20 pt-3">
+          <IngredientsInput value={form.ingredients} onChange={(ingredients) => setForm({ ...form, ingredients })} />
+        </div>
+        <div className="col-span-2 md:col-span-5 border-t border-gold/20 pt-3">
           <AvailabilityFields value={form} onChange={setForm} />
           <p className="mt-1.5 text-[0.65rem] text-[#6a6656]">
             Only matters once stock qty reaches 0 — while stock is available, the product always shows as in stock.
@@ -371,25 +399,42 @@ export default function ProductsPage() {
           </thead>
           <tbody>
             {products.map((p) => (
-              <tr key={p.id} className="border-b border-gold/15 align-top">
-                {editingId === p.id ? (
-                  <>
-                    <td className="p-3">
-                      <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="w-full rounded-sm border border-gold/30 bg-cream px-2 py-1" />
-                      <div className="mt-2">
-                        <CategoryPicker kind="product" value={editForm.category_id} onChange={(category_id) => setEditForm({ ...editForm, category_id })} />
+              editingId === p.id ? (
+                <tr key={p.id} className="border-b border-gold/15">
+                  <td colSpan={6} className="p-0">
+                    <div className="border-l-4 border-gold bg-ivory p-6">
+                      <h3 className="mb-5 text-xl text-forestDeep">Editing: {p.name}</h3>
+
+                      <div className="grid gap-5 md:grid-cols-2">
+                        <label className="text-xs font-semibold uppercase tracking-wide text-moss">
+                          Name
+                          <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="mt-1 w-full rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-base font-normal normal-case" />
+                        </label>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-moss">
+                          Price (LKR)
+                          <input type="number" step="0.01" value={editForm.price_lkr} onChange={(e) => setEditForm({ ...editForm, price_lkr: e.target.value })} className="mt-1 w-full rounded-sm border border-gold/30 bg-cream px-3 py-2.5 text-base font-normal normal-case" />
+                        </label>
+                        <div>
+                          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">Category</p>
+                          <CategoryPicker kind="product" value={editForm.category_id} onChange={(category_id) => setEditForm({ ...editForm, category_id })} />
+                        </div>
+                        <div>
+                          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">When sold out · stock: {p.stock_qty}</p>
+                          <AvailabilityFields value={editForm} onChange={setEditForm} />
+                        </div>
                       </div>
-                      <div className="mt-2">
-                        <RichTextEditor value={editForm.description} onChange={(description) => setEditForm({ ...editForm, description })} placeholder="Description" rows={5} />
+
+                      <div className="mt-6"><DiscountFields value={editForm} onChange={(d) => setEditForm({ ...editForm, ...d })} price={editForm.price_lkr} /></div>
+
+                      <div className="mt-6">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-moss">Description</p>
+                        <RichTextEditor value={editForm.description} onChange={(description) => setEditForm({ ...editForm, description })} placeholder="Description" rows={9} />
+                        <div className="mt-2">
+                          <AiDescriptionButton name={editForm.name} category={editForm.category_id} onGenerated={(description) => setEditForm({ ...editForm, description })} />
+                        </div>
                       </div>
-                      <div className="mt-2">
-                        <AiDescriptionButton
-                          name={editForm.name}
-                          category={editForm.category_id}
-                          onGenerated={(description) => setEditForm({ ...editForm, description })}
-                        />
-                      </div>
-                      <div className="mt-2">
+
+                      <div className="mt-6">
                         <TranslationFields
                           values={editForm}
                           onChange={(patch) => setEditForm({ ...editForm, ...patch })}
@@ -399,34 +444,43 @@ export default function ProductsPage() {
                           ]}
                         />
                       </div>
-                      <div className="mt-2">
+
+                      <div className="mt-6 grid gap-6 md:grid-cols-2">
                         <BadgesInput value={editForm.badges} onChange={(badges) => setEditForm({ ...editForm, badges })} />
+                        <IngredientsInput value={editForm.ingredients} onChange={(ingredients) => setEditForm({ ...editForm, ingredients })} />
                       </div>
-                      <div className="mt-2 flex flex-wrap gap-4">
-                        <MultiImageUploader images={editForm.images} onChange={(images) => setEditForm({ ...editForm, images })} />
-                        <FocalPointPicker
-                          imageUrl={editForm.images[0]}
-                          x={editForm.image_focal_x}
-                          y={editForm.image_focal_y}
-                          onChange={(image_focal_x, image_focal_y) => setEditForm({ ...editForm, image_focal_x, image_focal_y })}
-                        />
+
+                      <div className="mt-6 border-t border-gold/25 pt-5">
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-moss">Photos</p>
+                        <div className="flex flex-wrap items-start gap-6">
+                          <MultiImageUploader images={editForm.images} onChange={(images) => setEditForm({ ...editForm, images })} />
+                          <FocalPointPicker
+                            imageUrl={editForm.images[0]}
+                            x={editForm.image_focal_x}
+                            y={editForm.image_focal_y}
+                            onChange={(image_focal_x, image_focal_y) => setEditForm({ ...editForm, image_focal_x, image_focal_y })}
+                          />
+                        </div>
+                        <p className="mb-3 mt-6 text-xs font-semibold uppercase tracking-wide text-moss">Videos &amp; animations</p>
                         <MediaFields value={editForm} onChange={setEditForm} />
                       </div>
-                    </td>
-                    <td className="p-3">
-                      <input type="number" step="0.01" value={editForm.price_lkr} onChange={(e) => setEditForm({ ...editForm, price_lkr: e.target.value })} className="w-24 rounded-sm border border-gold/30 bg-cream px-2 py-1" />
-                    </td>
-                    <td className="p-3">{p.stock_qty}</td>
-                    <td className="p-3">
-                      <AvailabilityFields value={editForm} onChange={setEditForm} />
-                    </td>
-                    <td className="p-3">{p.is_active ? 'Active' : 'Inactive'}</td>
-                    <td className="p-3">
-                      <button onClick={() => saveEdit(p.id)} className="mr-2 text-xs underline text-forestDeep">Save</button>
-                      <button onClick={() => setEditingId(null)} className="text-xs underline text-[#6a6656]">Cancel</button>
-                    </td>
-                  </>
-                ) : (
+
+                      {/* Save / Cancel live at the bottom, like the Services form */}
+                      <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-gold/30 pt-5">
+                        <button onClick={() => saveEdit(p.id)} className="rounded-full bg-forestDeep px-7 py-3 text-xs uppercase tracking-wide text-cream">
+                          Save changes
+                        </button>
+                        <button onClick={() => setEditingId(null)} className="rounded-full border border-gold/50 px-7 py-3 text-xs uppercase tracking-wide text-forestDeep">
+                          Cancel
+                        </button>
+                        {error && <span role="alert" className="text-sm text-[#a35a3a]">{error}</span>}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+              <tr key={p.id} className="border-b border-gold/15 align-top">
+                {(
                   <>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
@@ -484,6 +538,7 @@ export default function ProductsPage() {
                   </>
                 )}
               </tr>
+              )
             ))}
             {products.length === 0 && (
               <tr><td colSpan={6} className="p-4 text-center text-[#6a6656]">No products yet.</td></tr>

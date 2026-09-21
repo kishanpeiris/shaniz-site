@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiGet, apiPost, apiPut, apiDelete } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useConsent } from '../context/ConsentContext.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { LANGUAGES } from '../i18n/translations.js'
 import { formatLKR as fmt } from '../lib/currency.js'
@@ -9,6 +10,8 @@ import { formatCalendarDate } from '../lib/date.js'
 import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import AddressFields from '../components/AddressFields.jsx'
+import { useServiceProvider } from '../hooks/useServiceProvider.js'
+import { providerBranchLabel } from '../lib/serviceProvider.js'
 
 
 function Section({ title, children }) {
@@ -236,7 +239,7 @@ function AddressesSection() {
             <span>
               {a.line1}, {a.city} {a.postal_code} {a.phone ? `· ${a.phone}` : ''}
             </span>
-            <button onClick={() => remove(a.id)} className="text-xs text-[#a35a3a] underline">
+            <button onClick={() => remove(a.id)} className="text-sm text-[#a35a3a] underline">
               {t('common_remove')}
             </button>
           </li>
@@ -283,7 +286,7 @@ function PaymentMethodsSection() {
               <span className="capitalize">
                 {m.gateway.replace('_', ' ')} •••• {m.last4} {m.expiry ? `(exp ${m.expiry})` : ''}
               </span>
-              <button onClick={() => remove(m.id)} className="text-xs text-[#a35a3a] underline">
+              <button onClick={() => remove(m.id)} className="text-sm text-[#a35a3a] underline">
                 {t('common_remove')}
               </button>
             </li>
@@ -324,7 +327,7 @@ function OrderHistorySection() {
               </ul>
               <Link
                 to={`/orders/${o.id}`}
-                className="mt-2 inline-block text-xs font-semibold uppercase tracking-wide text-gold underline"
+                className="mt-2 inline-block text-sm font-semibold uppercase tracking-wide text-gold underline"
               >
                 {t('acct_view_details')}
               </Link>
@@ -338,6 +341,7 @@ function OrderHistorySection() {
 
 function BookingsSection() {
   const { t } = useLanguage()
+  const { provider } = useServiceProvider()
   const [bookings, setBookings] = useState([])
   useEffect(() => {
     apiGet('/api/account/bookings').then((r) => setBookings(r.bookings))
@@ -352,12 +356,154 @@ function BookingsSection() {
           {bookings.map((b) => (
             <li key={b.id} className="flex flex-col gap-2 rounded-sm border border-gold/20 bg-cream px-4 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between">
               <span>
-                {b.service_name} — {formatCalendarDate(b.booked_date)} at {b.booked_time.slice(0, 5)}
+                {b.service_name} — {formatCalendarDate(b.booked_date)} at {b.booked_time.slice(0, 5)}{b.branch_name ? ` · ${providerBranchLabel(provider, b.branch_name)}` : ''}
               </span>
               <span className="capitalize text-moss">{b.status}</span>
             </li>
           ))}
         </ul>
+      )}
+    </Section>
+  )
+}
+
+// Which optional emails the customer receives. Each toggle saves straight
+// away. Order, booking and account-security emails can't be switched off.
+function EmailNotificationsSection() {
+  const { t } = useLanguage()
+  const { openSettings } = useConsent()
+  const [prefs, setPrefs] = useState(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    apiGet('/api/account/email-prefs').then(setPrefs).catch((e) => setError(e.message))
+  }, [])
+
+  const toggle = async (type, enabled) => {
+    setPrefs((p) => ({ ...p, optional: p.optional.map((o) => (o.type === type ? { ...o, enabled } : o)) }))
+    try {
+      await apiPut('/api/account/email-prefs', { type, enabled })
+    } catch (e) {
+      setError(e.message)
+      apiGet('/api/account/email-prefs').then(setPrefs)
+    }
+  }
+
+  return (
+    <Section title={t('acct_notifications')}>
+      <p className="mb-4 text-sm text-[#5c5949]">{t('acct_notif_intro')}</p>
+      {error && <p role="alert" className="mb-3 text-sm text-[#a35a3a]">{error}</p>}
+      {!prefs ? (
+        <p className="text-sm text-[#6a6656]">{t('common_loading')}</p>
+      ) : (
+        <>
+          <ul className="space-y-3">
+            {prefs.optional.map((o) => (
+              <li key={o.type} className="flex items-start justify-between gap-4 border-t border-gold/20 pt-3">
+                <div>
+                  <p className="font-semibold text-forestDeep">{t(`email_type_${o.type}`)}</p>
+                  <p className="text-sm text-[#5c5949]">{t(`email_type_${o.type}_desc`)}</p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={o.enabled}
+                  aria-label={t(`email_type_${o.type}`)}
+                  onClick={() => toggle(o.type, !o.enabled)}
+                  className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${o.enabled ? 'bg-forestDeep' : 'bg-[#c9c3ac]'}`}
+                >
+                  <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${o.enabled ? 'left-[1.4rem]' : 'left-0.5'}`} />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-moss">{t('acct_always_title')}</p>
+          <ul className="mt-2 list-disc pl-5 text-sm text-[#5c5949]">
+            {[1, 2, 3].map((n) => (
+              <li key={n}>{t(`email_always_${n}`)}</li>
+            ))}
+          </ul>
+        </>
+      )}
+      <button type="button" onClick={openSettings} className="mt-5 text-base underline text-forestDeep">
+        {t('acct_cookie_settings')}
+      </button>
+    </Section>
+  )
+}
+
+// Privacy rights: get a copy of your data, or delete the account.
+function PrivacyDataSection() {
+  const { t } = useLanguage()
+  const { user } = useAuth()
+  const [open, setOpen] = useState(false)
+  const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  if (user && user.role !== 'customer') return null
+
+  const download = async () => {
+    setError('')
+    try {
+      const data = await apiGet('/api/account/export')
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'my-shaniz-data.json'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      setError(e.message)
+    }
+  }
+
+  const remove = async (e) => {
+    e.preventDefault()
+    setBusy(true)
+    setError('')
+    try {
+      await apiDelete('/api/account', { password })
+      localStorage.removeItem('shaniz_cart')
+      window.location.assign('/')
+    } catch (err) {
+      setError(err.message)
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Section title={t('acct_privacy_title')}>
+      <p className="mb-4 text-sm text-[#5c5949]">{t('acct_privacy_intro')}</p>
+      <div className="flex flex-wrap items-center gap-4">
+        <button type="button" onClick={download} className="rounded-full border border-forestDeep/40 px-5 py-2.5 text-xs uppercase tracking-wide text-forestDeep">
+          {t('acct_download_data')}
+        </button>
+        <Link to="/privacy" className="text-base underline text-forestDeep">{t('footer_privacy')}</Link>
+        <button type="button" onClick={() => setOpen((v) => !v)} className="text-base underline text-[#a35a3a]">
+          {t('acct_delete_title')}
+        </button>
+      </div>
+      {error && <p role="alert" className="mt-3 text-sm text-[#a35a3a]">{error}</p>}
+      {open && (
+        <form onSubmit={remove} className="mt-5 rounded-sm border border-[#a35a3a]/40 bg-cream p-4">
+          <p className="text-sm text-[#5c5949]">{t('acct_delete_warning')}</p>
+          <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-moss">
+            {t('acct_delete_password')}
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-sm border border-gold/30 bg-ivory px-3 py-2 text-sm normal-case"
+            />
+          </label>
+          <button type="submit" disabled={busy} className="mt-4 rounded-full bg-[#a35a3a] px-5 py-2.5 text-xs uppercase tracking-wide text-white disabled:opacity-60">
+            {t('acct_delete_button')}
+          </button>
+        </form>
       )}
     </Section>
   )
@@ -408,7 +554,7 @@ export default function AccountPage() {
             <h1 className="text-3xl">{t('nav_my_account')}</h1>
             <p className="text-sm text-[#6a6656]">Signed in as {user?.email}</p>
           </div>
-          <button onClick={logout} className="self-start text-xs uppercase tracking-wide text-[#a35a3a] underline sm:self-auto">
+          <button onClick={logout} className="self-start text-sm uppercase tracking-wide text-[#a35a3a] underline sm:self-auto">
             {t('acct_sign_out')}
           </button>
         </div>
@@ -421,6 +567,8 @@ export default function AccountPage() {
         <PaymentMethodsSection />
         <OrderHistorySection />
         <BookingsSection />
+        <EmailNotificationsSection />
+        <PrivacyDataSection />
 
         <p className="text-center text-xs text-[#6a6656]">
           <Link to="/" className="underline">

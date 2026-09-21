@@ -6,6 +6,7 @@ import { apiGet, apiPost, API_URL } from '../api/client.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { formatLKR as fmt } from '../lib/currency.js'
 import { formatCalendarDate } from '../lib/date.js'
+import ProviderBadge from '../components/ProviderBadge.jsx'
 
 const GATEWAY_LABELS = { koko: 'Koko', intpay: 'IntPay', payhere: 'Credit / Debit Card', dialog_genie: 'Credit / Debit Card (legacy)' }
 
@@ -179,7 +180,7 @@ export default function OrderDetailPage() {
     <>
       <Nav />
       <div className="mx-auto max-w-2xl px-6 py-16">
-        <Link to="/account" className="mb-6 inline-block text-xs uppercase tracking-wide text-moss underline">
+        <Link to="/account" className="mb-6 inline-block text-sm uppercase tracking-wide text-moss underline">
           ← {t('view_my_orders')}
         </Link>
 
@@ -200,6 +201,7 @@ export default function OrderDetailPage() {
               <li key={idx} className="flex justify-between">
                 <span>
                   {i.name} × {i.qty}
+                  {i.type === 'service' && <ProviderBadge variant="text" className="mt-0.5" />}
                   {i.is_preorder && (
                     <span className="block text-xs text-[#8a6d3b]">
                       {t('thankyou_preorder_arrival', { date: formatCalendarDate(i.preorder_eta_date) })}
@@ -242,7 +244,7 @@ export default function OrderDetailPage() {
               }
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-block text-sm text-forestDeep underline"
+              className="mt-2 inline-block text-base text-forestDeep underline"
             >
               {t('od_directions')}
             </a>

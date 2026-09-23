@@ -1,11 +1,25 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { apiGet, apiPost } from '../api/client.js'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { apiGet, apiPost, onUnauthorized } from '../api/client.js'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  // True once a background request comes back 401 while we still think
+  // someone is signed in — a session that quietly expired mid-task
+  // (see lib/session.js on the backend for the fix that makes this
+  // rare, and SessionExpiredModal.jsx for what shows when it still
+  // happens). Deliberately does NOT clear `user` — RequireRole redirects
+  // to /login the moment `user` is falsy, which would unmount whatever
+  // page the admin was on and wipe any unsaved form fields. Keeping the
+  // stale `user` object around avoids that; the modal handles getting a
+  // fresh session without a route change.
+  const [sessionExpired, setSessionExpired] = useState(false)
+  const userRef = useRef(null)
+  useEffect(() => {
+    userRef.current = user
+  }, [user])
 
   useEffect(() => {
     apiGet('/api/auth/me')
@@ -14,9 +28,14 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false))
   }, [])
 
-  const login = async (email, password) => {
-    const res = await apiPost('/api/auth/login', { email, password })
+  useEffect(() => onUnauthorized(() => {
+    if (userRef.current) setSessionExpired(true)
+  }), [])
+
+  const login = async (email, password, recaptchaToken) => {
+    const res = await apiPost('/api/auth/login', { email, password, recaptchaToken })
     setUser(res.user)
+    setSessionExpired(false)
     return res.user
   }
 
@@ -38,10 +57,11 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     await apiPost('/api/auth/logout')
     setUser(null)
+    setSessionExpired(false)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, sessionExpired, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

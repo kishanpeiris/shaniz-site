@@ -172,6 +172,7 @@ function MediaFields({ value, onChange }) {
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([])
+  const [showCreate, setShowCreate] = useState(false) // create form is hidden until "+ Add Product" is clicked
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
@@ -189,6 +190,7 @@ export default function ProductsPage() {
   const cancelCreate = () => {
     if (!isFormEmpty(form) && !window.confirm('Discard this new product? Anything you\u2019ve entered will be lost.')) return
     setForm(emptyForm)
+    setShowCreate(false)
   }
 
   const handleCreate = async (e) => {
@@ -221,6 +223,7 @@ export default function ProductsPage() {
             : null,
       })
       setForm(emptyForm)
+      setShowCreate(false)
       load()
     } catch (err) {
       setError(err.message)
@@ -328,9 +331,21 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <h2 className="mb-6 text-3xl">Products</h2>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-3xl">Products</h2>
+        {!showCreate && (
+          <button
+            type="button"
+            onClick={() => setShowCreate(true)}
+            className="rounded-full bg-forestDeep px-5 py-2 text-xs uppercase tracking-wide text-cream"
+          >
+            + Add Product
+          </button>
+        )}
+      </div>
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
+      {showCreate && (
       <form onSubmit={handleCreate} className="mb-8 grid grid-cols-2 gap-3 rounded-sm border border-gold/30 bg-ivory p-5 md:grid-cols-5">
         <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2" />
         <div>
@@ -384,9 +399,10 @@ export default function ProductsPage() {
           <button type="button" onClick={cancelCreate} className="text-xs underline text-[#6a6656]">Cancel</button>
         </div>
       </form>
+      )}
 
       <div className="overflow-x-auto rounded-sm border border-gold/30 bg-ivory">
-        <table className="w-full text-left text-sm">
+        <table className="w-full min-w-[760px] text-left text-sm">
           <thead className="border-b border-gold/30 text-xs uppercase tracking-wide text-moss">
             <tr>
               <th className="p-3">Name</th>

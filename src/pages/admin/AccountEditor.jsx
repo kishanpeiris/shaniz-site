@@ -139,7 +139,7 @@ export default function AccountEditor({ account, kind, canSetPassword, canSendRe
 
   return (
     <div className="rounded-sm border border-gold/30 bg-cream p-5">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-lg text-forestDeep">Edit {account.name}</h3>
         <button type="button" onClick={onClose} className="text-xs underline text-forestDeep">
           Close

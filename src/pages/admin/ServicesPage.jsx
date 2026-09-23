@@ -115,6 +115,7 @@ function HoverMediaFields({ values, onChange }) {
 
 export default function ServicesPage() {
   const [services, setServices] = useState([])
+  const [showCreate, setShowCreate] = useState(false) // create form is hidden until "+ Add Service" is clicked
   const [branches, setBranches] = useState([])
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
@@ -137,6 +138,7 @@ export default function ServicesPage() {
   const cancelCreate = () => {
     if (!isFormEmpty(form) && !window.confirm('Discard this new service? Anything you\u2019ve entered will be lost.')) return
     setForm(emptyForm)
+    setShowCreate(false)
   }
 
   const handleCreate = async (e) => {
@@ -164,6 +166,7 @@ export default function ServicesPage() {
         ...discountPayload(form),
       })
       setForm(emptyForm)
+      setShowCreate(false)
       load()
     } catch (err) {
       setError(err.message)
@@ -349,11 +352,23 @@ export default function ServicesPage() {
 
   return (
     <div>
-      <h2 className="mb-6 text-3xl">Services</h2>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-3xl">Services</h2>
+        {!showCreate && (
+          <button
+            type="button"
+            onClick={() => setShowCreate(true)}
+            className="rounded-full bg-forestDeep px-5 py-2 text-xs uppercase tracking-wide text-cream"
+          >
+            + Add Service
+          </button>
+        )}
+      </div>
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
       <ServiceProviderEditor />
 
+      {showCreate && (
       <form onSubmit={handleCreate} className="mb-8 grid grid-cols-2 gap-3 rounded-sm border border-gold/30 bg-ivory p-5 md:grid-cols-6">
         <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2" />
         <select value={form.service_type} onChange={(e) => setForm({ ...form, service_type: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm">
@@ -416,6 +431,7 @@ export default function ServicesPage() {
           <button type="button" onClick={cancelCreate} className="text-xs underline text-[#6a6656]">Cancel</button>
         </div>
       </form>
+      )}
 
       <div className="space-y-3">
         {services.map((s) => (

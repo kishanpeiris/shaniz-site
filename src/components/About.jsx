@@ -10,6 +10,7 @@ export default function About() {
   const { language } = useLanguage()
   // A photo uploaded in Admin → Settings → Our Story wins; otherwise the
   // illustrated herbal map of Sri Lanka is shown.
+  const usingDefaultMap = !content.about_image_url
   const sideImage = content.about_image_url || herbalMap
   return (
     <section id="about" className="relative scroll-mt-24 py-24">
@@ -27,11 +28,32 @@ export default function About() {
           </div>
 
           <div className="relative order-2 md:order-1">
-            <div className="pointer-events-none absolute -inset-3.5 -z-10 rounded-sm border border-gold" />
+            {usingDefaultMap ? (
+              // The default map is an illustration, not a photo, so a
+              // crisp rectangular frame makes it look pasted on top of
+              // this section's deep green background rather than part
+              // of it. A soft glow behind it, the illustration's own
+              // edges fading out (mask-image below), and slightly
+              // muted colors tie it into the page instead. Once a real
+              // photo is uploaded in Admin -> Settings -> Our Story,
+              // none of this applies -- it gets the classic crisp frame.
+              <div aria-hidden="true" className="pointer-events-none absolute -inset-10 -z-10 rounded-full bg-gold/25 blur-3xl" />
+            ) : (
+              <div className="pointer-events-none absolute -inset-3.5 -z-10 rounded-sm border border-gold" />
+            )}
             <img
               src={sideImage}
               alt="Illustrated map of Sri Lanka showing the ayurvedic herbs grown across the island"
               className="w-full rounded-sm shadow-brand"
+              style={
+                usingDefaultMap
+                  ? {
+                      filter: 'saturate(0.88) contrast(1.03)',
+                      WebkitMaskImage: 'radial-gradient(ellipse 82% 82% at center, black 58%, transparent 100%)',
+                      maskImage: 'radial-gradient(ellipse 82% 82% at center, black 58%, transparent 100%)',
+                    }
+                  : undefined
+              }
             />
           </div>
         </div>

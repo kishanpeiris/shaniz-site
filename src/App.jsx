@@ -12,6 +12,7 @@ import Visit from './components/Visit.jsx'
 import Footer from './components/Footer.jsx'
 import CartDrawer from './components/CartDrawer.jsx'
 import WhatsAppButton from './components/WhatsAppButton.jsx'
+import SessionExpiredModal from './components/SessionExpiredModal.jsx'
 import CookieBanner from './components/CookieBanner.jsx'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx'
 import UnsubscribePage from './pages/UnsubscribePage.jsx'
@@ -182,8 +183,9 @@ export default function App() {
           Storefront, so "Add to Basket" from any other page silently
           did nothing visible; moved here to fix that. */}
       <CartDrawer />
-      <WhatsAppButton />
+      {!location.pathname.startsWith('/admin') && <WhatsAppButton />}
       <CookieBanner />
+      <SessionExpiredModal />
     </>
   )
 }

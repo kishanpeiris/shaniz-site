@@ -65,7 +65,7 @@ export default function BlacklistPage() {
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
       <div className="overflow-x-auto rounded-sm border border-gold/30 bg-ivory">
-        <table className="w-full text-left text-sm">
+        <table className="w-full min-w-[680px] text-left text-sm">
           <thead className="border-b border-gold/30 text-xs uppercase tracking-wide text-moss">
             <tr>
               <th className="p-3">Email</th>

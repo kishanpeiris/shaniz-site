@@ -5,6 +5,7 @@ import Nav from '../components/Nav.jsx'
 import Footer from '../components/Footer.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { resolveReturnTo, queueScrollRestore } from '../lib/returnTo.js'
+import Recaptcha from '../components/Recaptcha.jsx'
 import matchaRitual from '../assets/textures/matcha-slate.jpg'
 
 export default function LoginPage() {
@@ -16,13 +17,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  // Stays hidden for everyone until the backend says otherwise (a
+  // couple of failed attempts for this email) — see
+  // shaniz-api/src/routes/auth.routes.js.
+  const [captchaRequired, setCaptchaRequired] = useState(false)
+  const [recaptchaToken, setRecaptchaToken] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (captchaRequired && !recaptchaToken) {
+      setError('Please complete the verification below.')
+      return
+    }
     setBusy(true)
     setError('')
     try {
-      const loggedInUser = await login(email, password)
+      const loggedInUser = await login(email, password, recaptchaToken)
       // Go back to the page (and scroll spot) they were on, not
       // automatically to the account/admin page.
       const dest = resolveReturnTo(location.state?.from, loggedInUser)
@@ -30,6 +40,8 @@ export default function LoginPage() {
       navigate(dest.url, { replace: true })
     } catch (err) {
       setError(err.message)
+      if (err.captchaRequired) setCaptchaRequired(true)
+      setRecaptchaToken('')
     } finally {
       setBusy(false)
     }
@@ -81,6 +93,14 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-sm border border-gold/30 bg-cream px-4 py-2.5 text-sm"
             />
+            {captchaRequired && (
+              <div className="flex justify-center">
+                <Recaptcha
+                  onVerify={setRecaptchaToken}
+                  onExpire={() => setRecaptchaToken('')}
+                />
+              </div>
+            )}
             {error && <p className="text-sm text-[#a35a3a]">{error}</p>}
             <button
               type="submit"

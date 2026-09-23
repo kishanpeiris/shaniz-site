@@ -21,6 +21,7 @@ export default function ServiceProviderEditor() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [showEdit, setShowEdit] = useState(false) // the fields are hidden until "Edit Service Provider" is clicked
 
   useEffect(() => {
     apiGet('/api/site/service-provider')
@@ -58,11 +59,39 @@ export default function ServiceProviderEditor() {
       setSaved(value)
       setServiceProvider(value) // update the rest of the admin panel straight away
       setMessage('Saved. The website now shows this on every service.')
+      setShowEdit(false)
     } catch (err) {
       setError(err.message)
     } finally {
       setBusy(false)
     }
+  }
+
+  // Collapsed: just enough to see who the provider is set to right now,
+  // plus a button to open the full editor below.
+  if (!showEdit) {
+    return (
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-gold/30 bg-ivory p-5">
+        <div className="flex items-center gap-3">
+          {form.logo_url ? (
+            <img src={form.logo_url} alt="" className="h-10 w-auto max-w-[7rem] rounded-sm border border-gold/30 bg-white object-contain p-1" />
+          ) : (
+            <span className="rounded-sm border border-gold/30 bg-cream px-2 py-1 text-xs text-[#6a6656]">No logo yet</span>
+          )}
+          <div>
+            <h3 className="text-lg">Service provider: {form.name}</h3>
+            <p className="text-xs text-[#6a6656]">Shown on every service — logo, wording, and appointment locations.</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowEdit(true)}
+          className="rounded-full bg-forestDeep px-5 py-2 text-xs uppercase tracking-wide text-cream"
+        >
+          Edit Service Provider
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -133,6 +162,17 @@ export default function ServiceProviderEditor() {
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <button type="submit" disabled={busy || !dirty} className="rounded-full bg-forestDeep px-5 py-2 text-xs uppercase tracking-wide text-cream disabled:opacity-50">
           {busy ? 'Saving…' : 'Save service provider'}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (dirty && !window.confirm('Discard these changes?')) return
+            setForm(saved)
+            setShowEdit(false)
+          }}
+          className="text-xs underline text-[#6a6656]"
+        >
+          Cancel
         </button>
         {dirty && !busy && <span className="text-xs text-[#8a6d3b]">Unsaved changes</span>}
         <span role="status" className="text-sm text-moss">{message}</span>

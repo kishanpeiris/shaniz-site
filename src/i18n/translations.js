@@ -520,6 +520,7 @@ export const TRANSLATIONS = {
   aria_language: { en: "Language", si: "භාෂාව", ta: "மொழி" },
   aria_search: { en: "Search", si: "සොයන්න", ta: "தேடு" },
   aria_menu: { en: "Menu", si: "මෙනුව", ta: "பட்டி" },
+  aria_close: { en: "Close", si: "වසන්න", ta: "மூடு" },
   ritual_watch_fb: { en: "Watch it directly on Facebook →", si: "Facebook හි කෙලින්ම නරඹන්න →", ta: "Facebook இல் நேரடியாகப் பாருங்கள் →" },
   aria_prev: { en: "Show previous", si: "පෙර එක පෙන්වන්න", ta: "முந்தையதைக் காட்டு" },
   aria_next: { en: "Show next", si: "ඊළඟ එක පෙන්වන්න", ta: "அடுத்ததைக் காட்டு" },

@@ -1,5 +1,15 @@
-node_modules
-dist
+# .env.example (no real values) is fine to commit; the real .env is not.
 .env
-.env.local
+.env.*
+!.env.example
+
+node_modules/
+
+# Vite build output — Vercel builds this itself on deploy, no need to
+# commit a pre-built copy.
+dist/
+
+# Editor/OS noise
 .DS_Store
+*.log
+npm-debug.log*

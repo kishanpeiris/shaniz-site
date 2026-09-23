@@ -33,7 +33,7 @@ export default function FraudPage() {
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-3xl">Fraud Alerts</h2>
         <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-moss">
           <input type="checkbox" checked={showResolved} onChange={(e) => setShowResolved(e.target.checked)} />
@@ -50,12 +50,12 @@ export default function FraudPage() {
         {flags.map((f) => (
           <div key={f.id} className="rounded-sm border border-gold/30 bg-ivory p-4">
             <div className="flex items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className={`text-xs font-semibold uppercase tracking-wide ${SEVERITY_STYLE[f.severity]}`}>
                   {f.severity}
                 </span>
-                <p className="mt-1">{f.message}</p>
-                <p className="mt-1 text-xs text-[#6a6656]">
+                <p className="mt-1 break-words">{f.message}</p>
+                <p className="mt-1 break-words text-xs text-[#6a6656]">
                   Order {f.order_id.slice(0, 8)} · {f.customer_first_name} {f.customer_last_name} ({f.customer_email}) ·{' '}
                   {formatLKR(f.total_lkr)} · {new Date(f.created_at).toLocaleString()}
                 </p>

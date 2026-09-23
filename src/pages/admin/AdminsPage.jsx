@@ -60,7 +60,7 @@ export default function AdminsPage() {
       </form>
 
       <div className="overflow-x-auto rounded-sm border border-gold/30 bg-ivory">
-        <table className="w-full text-left text-sm">
+        <table className="w-full min-w-[560px] text-left text-sm">
           <thead className="border-b border-gold/30 text-xs uppercase tracking-wide text-moss">
             <tr>
               <th className="p-3">Name</th>

@@ -75,7 +75,7 @@ export default function RefundRequestsPage() {
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-3xl">Refund Requests</h2>
         <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-moss">
           <input type="checkbox" checked={showResolved} onChange={(e) => setShowResolved(e.target.checked)} />
@@ -93,12 +93,12 @@ export default function RefundRequestsPage() {
         {requests.map((r) => (
           <div key={r.id} className="rounded-sm border border-gold/30 bg-ivory p-4">
             <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <span className="text-xs font-semibold uppercase tracking-wide text-forestDeep">
                   {TYPE_LABEL[r.type]}
                 </span>
-                <p className="mt-1 text-sm text-[#5c5949]">{r.reason}</p>
-                <p className="mt-1 text-xs text-[#6a6656]">
+                <p className="mt-1 break-words text-sm text-[#5c5949]">{r.reason}</p>
+                <p className="mt-1 break-words text-xs text-[#6a6656]">
                   Order {r.order_id.slice(0, 8)} · {r.customer_first_name} {r.customer_last_name} (
                   {r.requested_by_email}) · {formatLKR(r.total_lkr)} · order status: {r.order_status} ·{' '}
                   {new Date(r.created_at).toLocaleString()}

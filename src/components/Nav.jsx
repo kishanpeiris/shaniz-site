@@ -22,12 +22,19 @@ const LINK_KEYS = [
 // browser (see LanguageContext.jsx).
 function LanguageSwitcher({ className = '' }) {
   const { language, setLanguage, t } = useLanguage()
+  // Sinhala and Tamil script runs visibly wider than Latin at the same
+  // font size, which was crowding the header once translated (the
+  // dropdown itself, plus "Sign in" and "Basket" next to it, below).
+  // A slightly smaller size for those two languages buys back the room
+  // without needing to touch the collapse-detection logic at all.
+  const longScript = language === 'si' || language === 'ta'
+  const sizeClass = longScript ? 'px-1.5 py-0.5 text-[0.65rem]' : 'px-2 py-1 text-xs'
   return (
     <select
       value={language}
       onChange={(e) => setLanguage(e.target.value)}
       aria-label={t('aria_language')}
-      className={`rounded-full border border-gold/30 bg-transparent px-2 py-1 text-xs text-forestDeep ${className}`}
+      className={`rounded-full border border-gold/30 bg-transparent text-forestDeep ${sizeClass} ${className}`}
     >
       {Object.entries(LANGUAGES).map(([code, { native }]) => (
         <option key={code} value={code}>
@@ -163,6 +170,9 @@ export default function Nav() {
   }, [language, user, totalQty])
 
   const isStaff = ['admin', 'superadmin'].includes(user?.role)
+  // Same reasoning as LanguageSwitcher above — shrink the two other
+  // header labels that grow noticeably wider once translated.
+  const longScript = language === 'si' || language === 'ta'
 
   const submitSearch = (e) => {
     e.preventDefault()
@@ -175,9 +185,24 @@ export default function Nav() {
   return (
     <header className="sticky top-0 z-50 border-b border-gold/30 bg-cream/90 backdrop-blur">
       <div ref={rowRef} className="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-7">
-        <Link to="/" ref={logoRef} className="shrink-0">
-          <BrandLockup size="nav" taglineClassName="hidden 2xl:block" />
-        </Link>
+        {/* Menu icon sits to the LEFT of the logo on mobile (only
+            rendered once collapsed) — common mobile pattern, and it
+            keeps the logo from having to fight the hamburger for the
+            same corner as the basket/search icons on a narrow screen. */}
+        <div className="flex min-w-0 items-center gap-2">
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={t('aria_menu')}
+            className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1.5 rounded-sm border border-gold/30 ${collapsed ? '' : 'hidden'}`}
+          >
+            <span className="h-px w-4 bg-forestDeep" />
+            <span className="h-px w-4 bg-forestDeep" />
+            <span className="h-px w-4 bg-forestDeep" />
+          </button>
+          <Link to="/" ref={logoRef} className="min-w-0 shrink">
+            <BrandLockup size="nav" taglineClassName="hidden 2xl:block" />
+          </Link>
+        </div>
 
         {/* Invisible copy of the menu, used only to measure how wide it is. */}
         <nav ref={measureRef} aria-hidden="true" className="pointer-events-none invisible fixed -left-[9999px] top-0 -z-10 flex items-center gap-5 whitespace-nowrap xl:gap-8">
@@ -196,14 +221,14 @@ export default function Nav() {
         </nav>
 
         <div ref={rightRef} className="flex shrink-0 items-center gap-2.5 sm:gap-4">
-          <LanguageSwitcher className="hidden sm:inline-block" />
+          <LanguageSwitcher className={longScript ? 'hidden md:inline-block' : 'hidden sm:inline-block'} />
           {/* Desktop: an expanding search field so it doesn't permanently
               crowd the nav row. Click the icon to reveal an input. */}
           {/* The search icon keeps a fixed width; when opened, the field FLOATS
               over the menu instead of pushing the header wider (a wider header
               would make the menu collapse, which would close the search). */}
-          <div className={`relative h-11 w-11 shrink-0 items-center justify-center ${collapsed ? 'hidden' : 'flex'}`}>
-            {searchOpen ? (
+          <div className="relative flex h-11 w-11 shrink-0 items-center justify-center">
+            {searchOpen && !collapsed && (
               <form
                 onSubmit={submitSearch}
                 role="search"
@@ -221,7 +246,8 @@ export default function Nav() {
                   className="w-56 rounded-full border border-gold/40 bg-ivory px-4 py-2 text-sm text-forestDeep placeholder:text-moss/70 focus:outline-none focus:ring-1 focus:ring-gold xl:w-72"
                 />
               </form>
-            ) : (
+            )}
+            {!(searchOpen && !collapsed) && (
               <button
                 onClick={() => setSearchOpen(true)}
                 aria-label={t('aria_search')}
@@ -240,7 +266,11 @@ export default function Nav() {
           ) : (
             <Link
               to="/login"
-              className="hidden whitespace-nowrap text-xs uppercase leading-normal tracking-wide text-moss underline decoration-gold/50 sm:inline"
+              className={
+                longScript
+                  ? 'hidden whitespace-nowrap text-[0.65rem] uppercase leading-normal tracking-wide text-moss underline decoration-gold/50 md:inline'
+                  : 'hidden whitespace-nowrap text-xs uppercase leading-normal tracking-wide text-moss underline decoration-gold/50 sm:inline'
+              }
             >
               {t('nav_sign_in')}
             </Link>
@@ -249,22 +279,43 @@ export default function Nav() {
             to="/basket"
             className="flex items-center gap-2 whitespace-nowrap rounded-full bg-forestDeep px-3.5 py-2 text-xs uppercase leading-normal tracking-wide text-cream sm:px-4"
           >
-            <span className="hidden sm:inline">{t('nav_basket')}</span>
+            <span className={longScript ? 'hidden text-[0.65rem] md:inline' : 'hidden sm:inline'}>{t('nav_basket')}</span>
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[0.7rem] font-semibold text-forestDeep">
               {totalQty}
             </span>
           </Link>
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label={t('aria_menu')}
-            className={`flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-sm border border-gold/30 ${collapsed ? '' : 'hidden'}`}
-          >
-            <span className="h-px w-4 bg-forestDeep" />
-            <span className="h-px w-4 bg-forestDeep" />
-            <span className="h-px w-4 bg-forestDeep" />
-          </button>
         </div>
       </div>
+
+      {/* Mobile search: a full-screen takeover rather than a floating
+          dropdown, so it never has to guess the header's height or
+          squeeze itself between the hamburger and the basket button. */}
+      {collapsed && searchOpen && (
+        <div className="fixed inset-0 z-[60] bg-ivory">
+          <form onSubmit={submitSearch} role="search" className="flex items-center gap-2 border-b border-gold/20 px-4 py-3">
+            <button
+              type="button"
+              onClick={() => setSearchOpen(false)}
+              aria-label={t('aria_close')}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-forestDeep hover:bg-gold/15"
+            >
+              <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
+                <path d="M4 4L16 16M16 4L4 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
+            <input
+              autoFocus
+              type="search"
+              aria-label={t('aria_search')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Escape' && setSearchOpen(false)}
+              placeholder={t('nav_search_placeholder')}
+              className="flex-1 rounded-full border border-gold/40 bg-cream px-4 py-2.5 text-sm text-forestDeep placeholder:text-moss/70 focus:outline-none focus:ring-1 focus:ring-gold"
+            />
+          </form>
+        </div>
+      )}
 
       {menuOpen && (
         <nav className={`flex flex-col border-t border-gold/20 bg-ivory px-5 py-4 ${collapsed ? '' : 'hidden'}`}>

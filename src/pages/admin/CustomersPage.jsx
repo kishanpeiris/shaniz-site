@@ -22,7 +22,7 @@ export default function CustomersPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-3xl">Customers</h2>
         <a
           href={`${API_URL}/api/admin/export/customers.csv`}
@@ -34,7 +34,7 @@ export default function CustomersPage() {
       {error && <p className="mb-4 text-sm text-[#a35a3a]">{error}</p>}
 
       <div className="overflow-x-auto rounded-sm border border-gold/30 bg-ivory">
-        <table className="w-full text-left text-sm">
+        <table className="w-full min-w-[920px] text-left text-sm">
           <thead className="border-b border-gold/30 text-xs uppercase tracking-wide text-moss">
             <tr>
               <th className="p-3">Name</th>

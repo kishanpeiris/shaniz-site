@@ -113,7 +113,7 @@ export default function LocationPicker({ latitude, longitude, address, onChange 
 
   return (
     <div className="col-span-2 md:col-span-5">
-      <div className="mb-2 flex items-center gap-3">
+      <div className="mb-2 flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={findOnMap}

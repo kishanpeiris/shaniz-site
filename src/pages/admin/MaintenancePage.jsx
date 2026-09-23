@@ -247,7 +247,7 @@ export default function MaintenancePage() {
       </form>
 
       <div className="overflow-x-auto rounded-sm border border-gold/30 bg-ivory">
-        <table className="w-full text-left text-sm">
+        <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="border-b border-gold/30 text-xs uppercase tracking-wide text-moss">
             <tr><th className="p-3">Starts</th><th className="p-3">Ends</th><th className="p-3">Reason</th><th className="p-3">Status</th></tr>
           </thead>

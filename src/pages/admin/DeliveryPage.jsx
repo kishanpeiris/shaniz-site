@@ -157,8 +157,8 @@ export default function DeliveryPage() {
       {!regions ? (
         <p className="text-sm text-[#6a6656]">Loading…</p>
       ) : (
-        <div className="mb-8 overflow-hidden rounded-sm border border-gold/30 bg-ivory">
-          <table className="w-full text-left text-sm">
+        <div className="mb-8 overflow-x-auto rounded-sm border border-gold/30 bg-ivory">
+          <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-gold/30 bg-cream text-xs uppercase tracking-wide text-moss">
               <tr>
                 <th className="px-4 py-3">Region</th>

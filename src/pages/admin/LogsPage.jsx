@@ -18,14 +18,14 @@ export default function LogsPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-serif text-xl">Audit log <span className="text-xs font-sans text-[#6a6656]">(30 days)</span></h3>
             <a href={`${API_URL}/api/admin/export/audit-log.csv`} className="text-xs font-semibold uppercase tracking-wide text-forestDeep underline">
               Export CSV
             </a>
           </div>
           <div className="max-h-[28rem] overflow-x-auto overflow-y-auto rounded-sm border border-gold/30 bg-ivory">
-            <table className="w-full text-left text-xs">
+            <table className="w-full min-w-[480px] text-left text-xs">
               <tbody>
                 {audit.map((r) => (
                   <tr key={r.id} className="border-b border-gold/15">
@@ -41,14 +41,14 @@ export default function LogsPage() {
         </div>
 
         <div>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-serif text-xl">Activity feed <span className="text-xs font-sans text-[#6a6656]">(15 days)</span></h3>
             <a href={`${API_URL}/api/admin/export/activity-log.csv`} className="text-xs font-semibold uppercase tracking-wide text-forestDeep underline">
               Export CSV
             </a>
           </div>
           <div className="max-h-[28rem] overflow-x-auto overflow-y-auto rounded-sm border border-gold/30 bg-ivory">
-            <table className="w-full text-left text-xs">
+            <table className="w-full min-w-[380px] text-left text-xs">
               <tbody>
                 {activity.map((r) => (
                   <tr key={r.id} className="border-b border-gold/15">

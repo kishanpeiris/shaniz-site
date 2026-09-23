@@ -10,6 +10,24 @@ body {
   @apply bg-cream text-ink font-sans antialiased;
 }
 
+/* iOS Safari zooms the whole page in when a tapped input's computed
+   font-size is under 16px — happens on every iPhone, since most of
+   this site's form fields use Tailwind's text-sm (14px). Forcing 16px
+   specifically on small screens (where iPhones live) fixes the zoom
+   without changing how any form looks on tablet/desktop, where the
+   text-sm/text-xs classes still apply as designed. */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    /* !important is deliberate: Tailwind's text-sm/text-xs utility
+       classes (specificity beats a plain element selector) are what's
+       on these fields, and this rule needs to override them only in
+       this one narrow width range. */
+    font-size: 16px !important;
+  }
+}
+
 h1, h2, h3, .font-display {
   @apply font-serif font-semibold text-forestDeep;
 }

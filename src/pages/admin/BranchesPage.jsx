@@ -3,6 +3,7 @@ import BranchHoursEditor from './BranchHoursEditor.jsx'
 import BranchServicesEditor from './BranchServicesEditor.jsx'
 import { apiGet, apiPost, apiPut, apiDelete } from '../../api/client.js'
 import LocationPicker from '../../components/admin/LocationPicker.jsx'
+import BranchAddressAutocomplete from '../../components/admin/BranchAddressAutocomplete.jsx'
 
 const emptyForm = { name: '', address: '', latitude: '', longitude: '', phone: '' }
 
@@ -93,7 +94,12 @@ export default function BranchesPage() {
 
       <form onSubmit={create} className="mb-8 grid grid-cols-2 gap-3 rounded-sm border border-gold/30 bg-ivory p-5 md:grid-cols-5">
         <input required placeholder="Name (e.g. Colombo Branch)" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2" />
-        <input required placeholder="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-3" />
+        <BranchAddressAutocomplete
+          value={form.address}
+          onChange={(address) => setForm({ ...form, address })}
+          onPickCoordinates={(latitude, longitude) => setForm({ ...form, latitude, longitude })}
+          className="col-span-2 md:col-span-3"
+        />
         <input placeholder="Latitude (optional)" value={form.latitude} onChange={(e) => setForm({ ...form, latitude: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
         <input placeholder="Longitude (optional)" value={form.longitude} onChange={(e) => setForm({ ...form, longitude: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
         <input placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
@@ -112,7 +118,12 @@ export default function BranchesPage() {
             {editingId === b.id ? (
               <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
                 <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-2" />
-                <input value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} className="col-span-2 rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm md:col-span-3" />
+                <BranchAddressAutocomplete
+                  value={editForm.address}
+                  onChange={(address) => setEditForm({ ...editForm, address })}
+                  onPickCoordinates={(latitude, longitude) => setEditForm({ ...editForm, latitude, longitude })}
+                  className="col-span-2 md:col-span-3"
+                />
                 <input value={editForm.latitude} onChange={(e) => setEditForm({ ...editForm, latitude: e.target.value })} placeholder="Latitude" className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
                 <input value={editForm.longitude} onChange={(e) => setEditForm({ ...editForm, longitude: e.target.value })} placeholder="Longitude" className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />
                 <input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} placeholder="Phone" className="rounded-sm border border-gold/30 bg-cream px-3 py-2 text-sm" />

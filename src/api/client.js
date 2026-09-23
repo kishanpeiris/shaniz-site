@@ -12,6 +12,20 @@ export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000'
 // DELETE requests without it. GET requests don't need it.
 const CSRF_HEADER = { 'X-Requested-With': 'shaniz-frontend' }
 
+// A tiny pub/sub so AuthContext can find out about a 401 from ANY
+// request, anywhere in the app, without this plain module needing to
+// import React context. AuthContext only acts on this if it currently
+// believes someone is signed in (see the listener there) — a normal
+// logged-out visit, or a wrong password on the login page, both also
+// produce a 401 here but are not a "session expired" event.
+let unauthorizedListeners = []
+export function onUnauthorized(cb) {
+  unauthorizedListeners.push(cb)
+  return () => {
+    unauthorizedListeners = unauthorizedListeners.filter((fn) => fn !== cb)
+  }
+}
+
 async function handle(res) {
   const isJson = res.headers.get('content-type')?.includes('application/json')
   const body = isJson ? await res.json() : null
@@ -19,6 +33,11 @@ async function handle(res) {
     const message = body?.error || `Request failed (${res.status})`
     const err = new Error(message)
     err.status = res.status
+    // Carries extra flags a route may send alongside the error message
+    // (e.g. auth.routes.js login sending { captchaRequired: true }) so
+    // callers can react to more than just the text.
+    if (body?.captchaRequired) err.captchaRequired = true
+    if (res.status === 401) unauthorizedListeners.forEach((fn) => fn())
     throw err
   }
   return body

@@ -27,16 +27,23 @@ export default function ProviderBadge({ variant = 'text', tone = 'light', decora
   const logo = provider.logo_url
 
   if (variant === 'overlay') {
+    // No logo yet: the company name has to sit in this small pill
+    // instead, and a long name (e.g. "Miracles Hair and Skin Clinic")
+    // does not fit on one line on a narrow mobile card without
+    // truncating. Wrapping to up to two lines, in a rounded rectangle
+    // rather than a full pill, fixes that; a real logo (once uploaded
+    // in Admin -> Services) replaces this text entirely and doesn’t
+    // have the problem.
     return (
       <span
-        className={`absolute bottom-3 left-3 z-10 flex max-w-[75%] items-center rounded-full bg-ivory/95 px-3 py-1.5 shadow-md ${className}`}
+        className={`absolute bottom-3 left-3 z-10 flex max-w-[85%] items-center shadow-md ${logo ? 'rounded-full bg-ivory/95 px-3 py-1.5' : 'rounded-md bg-ivory/95 px-2.5 py-1.5'} ${className}`}
         title={wording}
         aria-hidden={decorative ? 'true' : undefined}
       >
         {logo ? (
           <img src={logo} alt="" loading="lazy" decoding="async" className="h-7 w-auto max-w-[9rem] object-contain" />
         ) : (
-          <span aria-hidden="true" className="truncate text-[0.7rem] font-semibold uppercase tracking-wide text-forestDeep">
+          <span aria-hidden="true" className="line-clamp-2 text-[0.62rem] font-semibold uppercase leading-tight tracking-wide text-forestDeep">
             {provider.name}
           </span>
         )}

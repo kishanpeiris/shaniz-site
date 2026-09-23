@@ -89,7 +89,7 @@ export default function CustomerDetailPage() {
       <Card title="Profile">
         <dl className="grid grid-cols-2 gap-y-2 text-sm md:grid-cols-4">
           <dt className="text-xs uppercase tracking-wide text-moss">Email</dt>
-          <dd>{customer.email}</dd>
+          <dd className="break-all">{customer.email}</dd>
           <dt className="text-xs uppercase tracking-wide text-moss">Mobile</dt>
           <dd>{customer.mobile || '—'}</dd>
           <dt className="text-xs uppercase tracking-wide text-moss">Verified</dt>
@@ -138,7 +138,7 @@ export default function CustomerDetailPage() {
         ) : (
           <ul className="space-y-2 text-sm">
             {orders.map((o) => (
-              <li key={o.id} className="flex items-center justify-between rounded-sm border border-gold/20 bg-cream px-3 py-2">
+              <li key={o.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-sm border border-gold/20 bg-cream px-3 py-2">
                 <span>
                   Order {o.id.slice(0, 8)} · {new Date(o.created_at).toLocaleDateString()}
                 </span>
@@ -156,11 +156,11 @@ export default function CustomerDetailPage() {
         ) : (
           <ul className="space-y-2 text-sm">
             {bookings.map((b) => (
-              <li key={b.id} className="flex items-center justify-between rounded-sm border border-gold/20 bg-cream px-3 py-2">
-                <span>
+              <li key={b.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-sm border border-gold/20 bg-cream px-3 py-2">
+                <span className="break-words">
                   {b.service_name} — {formatCalendarDate(b.booked_date)} at {String(b.booked_time).slice(0, 5)}
                 </span>
-                <span className="capitalize text-moss">{b.status}</span>
+                <span className="shrink-0 capitalize text-moss">{b.status}</span>
               </li>
             ))}
           </ul>

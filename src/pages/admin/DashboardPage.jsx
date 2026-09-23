@@ -82,7 +82,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="rounded-sm border border-gold/30 bg-ivory p-5">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-serif text-xl">Refund requests</h3>
             <Link to="/admin/refunds" className="text-xs uppercase tracking-wide text-forestDeep underline">
               View all →
@@ -110,13 +110,13 @@ export default function DashboardPage() {
         </div>
 
         <div className="rounded-sm border border-gold/30 bg-ivory p-5 md:col-span-2">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-serif text-xl">Security</h3>
             <Link to="/admin/fraud" className="text-xs uppercase tracking-wide text-forestDeep underline">
               View fraud alerts →
             </Link>
           </div>
-          <div className="mb-4 grid grid-cols-3 gap-3 text-center">
+          <div className="mb-4 grid grid-cols-1 gap-3 text-center sm:grid-cols-3">
             <div>
               <p className={`font-serif text-2xl ${data.security.open_fraud_flags > 0 ? 'text-[#a35a3a]' : 'text-forestDeep'}`}>
                 {data.security.open_fraud_flags}

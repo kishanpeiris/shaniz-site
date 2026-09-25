@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Nav from './components/Nav.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
@@ -55,6 +55,8 @@ import AdminsPage from './pages/admin/AdminsPage.jsx'
 import LogsPage from './pages/admin/LogsPage.jsx'
 import SettingsPage from './pages/admin/SettingsPage.jsx'
 import MaintenancePage from './pages/admin/MaintenancePage.jsx'
+import { useDocumentMeta } from './hooks/useDocumentMeta.js'
+import { trackPageView, initAnalytics } from './lib/analytics.js'
 
 // Routes that must ALWAYS be reachable regardless of maintenance mode —
 // otherwise turning maintenance mode on would lock the admin out of the
@@ -68,6 +70,12 @@ function isMaintenanceBypassPath(pathname) {
 
 function Storefront() {
   useScrollToHash()
+  useDocumentMeta({
+    title: undefined, // resets to the plain site title — see DEFAULT_TITLE in the hook
+    description:
+      "Small-batch herbal hair oils and hair masks blended in Sri Lanka. Amla, curry leaf, neem and rosemary — ayurvedic care, made by hand.",
+    path: '/',
+  })
   return (
     <>
       <Nav />
@@ -88,6 +96,22 @@ export default function App() {
   const location = useLocation()
   const { loading, maintenanceMode, maintenanceSchedule, upcomingOutage } = useSiteStatus()
   const bypass = isMaintenanceBypassPath(location.pathname)
+
+  // Loads Google Analytics once, only if VITE_GA_MEASUREMENT_ID is set
+  // (see src/lib/analytics.js — does nothing otherwise).
+  useEffect(() => {
+    initAnalytics()
+  }, [])
+
+  // React Router doesn't cause a real page load on navigation, so GA's
+  // own automatic pageview tracking never fires again after the first
+  // one — this sends one manually on every route change instead. Runs
+  // AFTER the routed page's own useDocumentMeta effect in the same
+  // commit (child effects run before the parent's), so document.title
+  // is already the new page's title by the time this reads it.
+  useEffect(() => {
+    trackPageView(location.pathname + location.search)
+  }, [location.pathname, location.search])
 
   // Never gate admin/login/password-reset — this is what lets an admin
   // actually get back in to turn maintenance mode off. Also never gate

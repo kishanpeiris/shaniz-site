@@ -3,6 +3,8 @@
 User-agent: *
 Allow: /
 
+Sitemap: https://shaniz-site.vercel.app/sitemap.xml
+
 # AI crawlers / data-scraping bots specifically disallowed. Note: this is
 # an honor-system request, not a technical block — a bot that ignores
 # robots.txt entirely (as some do) isn't stopped by this file. It won't

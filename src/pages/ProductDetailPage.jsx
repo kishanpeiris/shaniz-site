@@ -12,6 +12,7 @@ import { localizedField } from '../lib/localize.js'
 import StarRating from '../components/StarRating.jsx'
 import ProductReviews from '../components/ProductReviews.jsx'
 import Price from '../components/Price.jsx'
+import { useDocumentMeta, useJsonLd } from '../hooks/useDocumentMeta.js'
 
 function AvailabilityNote({ product }) {
   const { t } = useLanguage()
@@ -114,6 +115,38 @@ export default function ProductDetailPage() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [qty, setQty] = useState(1)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+
+  // Called unconditionally (before the loading/error early returns
+  // below) — that's a hard rule for hooks in React, not a style choice.
+  // Safe fallbacks are used while the product hasn't loaded yet.
+  const seoName = product ? localizedField(product, 'name', language) : ''
+  const seoDescription = product ? localizedField(product, 'description', language) : ''
+  useDocumentMeta({
+    title: seoName || undefined,
+    description: seoDescription ? seoDescription.slice(0, 160) : undefined,
+  })
+  useJsonLd(
+    product
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: seoName,
+          description: seoDescription,
+          image: product.images,
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'LKR',
+            price: product.price,
+            availability:
+              product.availability === 'out_of_stock'
+                ? 'https://schema.org/OutOfStock'
+                : product.availability === 'preorder'
+                  ? 'https://schema.org/PreOrder'
+                  : 'https://schema.org/InStock',
+          },
+        }
+      : null
+  )
 
   if (loading) {
     return (

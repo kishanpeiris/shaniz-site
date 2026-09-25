@@ -475,6 +475,11 @@ export const TRANSLATIONS = {
   unsub_invalid: { en: "This link is not valid any more. You can change your email preferences from your account instead.", si: "මෙම සබැඳිය තවදුරටත් වලංගු නැත. ඒ වෙනුවට ඔබේ ගිණුමෙන් ඊමේල් මනාප වෙනස් කළ හැක.", ta: "இந்த இணைப்பு இனி செல்லுபடியாகாது. அதற்குப் பதிலாக உங்கள் கணக்கிலிருந்து மின்னஞ்சல் விருப்பங்களை மாற்றலாம்." },
   email_type_cart_reminders: { en: "Basket reminders", si: "කූඩ සිහිකැඳවීම්", ta: "கூடை நினைவூட்டல்கள்" },
   email_type_cart_reminders_desc: { en: "One friendly reminder if you leave items in your basket for 3 days.", si: "ඔබේ කූඩයේ භාණ්ඩ දින 3ක් ඉතිරි කළහොත් එක් මෘදු සිහිකැඳවීමක්.", ta: "உங்கள் கூடையில் பொருட்களை 3 நாட்கள் விட்டுச் சென்றால், ஒரு அன்பான நினைவூட்டல்." },
+  // Machine-translated, same as the neighbouring cart/booking reminder
+  // keys — not yet checked by a native Sinhala/Tamil speaker (see
+  // SESSION-SUMMARY.md "STILL OPEN — LANGUAGE / TRANSLATION WORK").
+  email_type_checkout_reminders: { en: "Checkout reminders", si: "ගෙවීම් සිහිකැඳවීම්", ta: "பணம் செலுத்தல் நினைவூட்டல்கள்" },
+  email_type_checkout_reminders_desc: { en: "One reminder if you start checkout but the payment is never completed.", si: "ඔබ ගෙවීමේ ක්‍රියාවලිය ආරම්භ කර එය සම්පූර්ණ නොකළහොත් එක් සිහිකැඳවීමක්.", ta: "நீங்கள் பணம் செலுத்தும் செயல்முறையைத் தொடங்கி அதை முடிக்கவில்லை என்றால் ஒரு நினைவூட்டல்." },
   email_type_booking_reminders: { en: "Booking reminders", si: "වෙන්කිරීම් සිහිකැඳවීම්", ta: "முன்பதிவு நினைவூட்டல்கள்" },
   email_type_booking_reminders_desc: { en: "A reminder the day before an appointment you have booked.", si: "ඔබ වෙන්කර ඇති හමුවීමට පෙර දින සිහිකැඳවීමක්.", ta: "நீங்கள் முன்பதிவு செய்த சந்திப்புக்கு முந்தைய நாள் ஒரு நினைவூட்டல்." },
   email_always_1: { en: "Order confirmations, shipping updates and invoices", si: "ඇණවුම් තහවුරු කිරීම්, බෙදාහැරීම් යාවත්කාලීන සහ ඉන්වොයිස්", ta: "ஆர்டர் உறுதிப்படுத்தல்கள், ஷிப்பிங் புதுப்பிப்புகள் மற்றும் விலைப்பட்டியல்கள்" },

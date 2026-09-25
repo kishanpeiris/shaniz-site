@@ -15,6 +15,7 @@ import Price from '../components/Price.jsx'
 import ProviderBadge from '../components/ProviderBadge.jsx'
 import { useServiceProvider } from '../hooks/useServiceProvider.js'
 import { providerBranchLabel } from '../lib/serviceProvider.js'
+import { useDocumentMeta, useJsonLd } from '../hooks/useDocumentMeta.js'
 
 // Same full-screen gallery viewer as ProductDetailPage — kept as a
 // separate copy rather than a shared import so either page's gallery can
@@ -74,6 +75,31 @@ export default function ServiceDetailPage() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [bookingOpen, setBookingOpen] = useState(false)
+
+  // Same rule as ProductDetailPage: hooks must run before the
+  // loading/error early returns below, so safe fallbacks are used here.
+  const seoName = service ? localizedField(service, 'name', language) : ''
+  const seoDescription = service ? localizedField(service, 'description', language) : ''
+  useDocumentMeta({
+    title: seoName || undefined,
+    description: seoDescription ? seoDescription.slice(0, 160) : undefined,
+  })
+  useJsonLd(
+    service
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: seoName,
+          description: seoDescription,
+          image: service.images,
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'LKR',
+            price: service.price,
+          },
+        }
+      : null
+  )
 
   if (loading) {
     return (

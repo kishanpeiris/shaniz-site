@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shani'z — Herbal Hair &amp; Skin Care</title>
     <meta name="description" content="Small-batch herbal hair oils and hair masks blended in Sri Lanka. Amla, curry leaf, neem and rosemary — ayurvedic care, made by hand." />
+
+    <!-- Static, site-wide social preview tags. These are deliberately
+         the SAME on every page (not per-product) — WhatsApp, Facebook,
+         and most link-preview bots read only the raw HTML and do not
+         run this site's JavaScript, so per-page dynamic tags (see
+         src/hooks/useDocumentMeta.js, which DOES work for Google) never
+         reach them. True per-page social previews would need
+         server-side rendering — a bigger change than this pass covers.
+         Update the four *.vercel.app URLs below once a custom domain is
+         set up (Part 3, Step 8 of SETUP-AND-DEPLOYMENT.md). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Shani'z" />
+    <meta property="og:title" content="Shani'z — Herbal Hair &amp; Skin Care" />
+    <meta property="og:description" content="Small-batch herbal hair oils and hair masks blended in Sri Lanka. Amla, curry leaf, neem and rosemary — ayurvedic care, made by hand." />
+    <meta property="og:image" content="https://shaniz-site.vercel.app/og-image.jpg" />
+    <meta property="og:url" content="https://shaniz-site.vercel.app/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Shani'z — Herbal Hair &amp; Skin Care" />
+    <meta name="twitter:description" content="Small-batch herbal hair oils and hair masks blended in Sri Lanka. Amla, curry leaf, neem and rosemary — ayurvedic care, made by hand." />
+    <meta name="twitter:image" content="https://shaniz-site.vercel.app/og-image.jpg" />
   </head>
   <body>
     <div id="root"></div>

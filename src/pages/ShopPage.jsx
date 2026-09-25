@@ -7,6 +7,8 @@ import ProductCard from '../components/ProductCard.jsx'
 import ServiceCard from '../components/ServiceCard.jsx'
 import BookingWidget from '../components/BookingWidget.jsx'
 import PageHeroBand from '../components/PageHeroBand.jsx'
+import BackToTopButton from '../components/BackToTopButton.jsx'
+import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
 import { useCatalog } from '../hooks/useCatalog.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { localizedField } from '../lib/localize.js'
@@ -60,7 +62,7 @@ const PRICE_BANDS = {
   over_6000: { label: 'Over Rs. 6,000', test: (p) => p >= 6000 },
 }
 
-const PAGE_SIZE = 9
+const PAGE_SIZE_OPTIONS = [20, 100, 'all']
 
 export default function ShopPage() {
   const { loading, error, products, services } = useCatalog()
@@ -73,15 +75,28 @@ export default function ShopPage() {
   const [sort, setSort] = useState('best_match')
   const [inStockOnly, setInStockOnly] = useState(false)
   const [page, setPage] = useState(1)
+  // How many results per page — 20 / 100 / "all" — the same control and
+  // the same numbered pagination now works the same way on phones as on
+  // desktop (previously phones got an infinite-scroll list instead;
+  // that's gone in favour of one consistent, predictable pattern).
+  const [pageSize, setPageSize] = useState(20)
   const isMobile = useIsMobile()
-  // On phones, the grid grows as you scroll instead of showing numbered
-  // page buttons — this tracks how many items are currently shown.
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
-  const loadMoreRef = useRef(null)
   const [bookingService, setBookingService] = useState(null)
   // Seeded from ?q= (e.g. arriving from the nav search box) and kept in
   // sync with it, so the URL stays shareable/bookmarkable.
   const [search, setSearch] = useState(searchParams.get('q') || '')
+  // Where "back to top" (page changes, and the floating button below)
+  // scrolls to — the top of the filters/search/results row, not all the
+  // way up past the big hero banner.
+  const resultsTopRef = useRef(null)
+  const scrollToResultsTop = () => resultsTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+  useDocumentMeta({
+    title: search ? `Search: ${search}` : 'Shop',
+    description:
+      'The full Shani\'z collection — small-batch herbal hair oils, masks, and spa services made in Sri Lanka.',
+    path: '/shop',
+  })
 
   useEffect(() => {
     const next = new URLSearchParams(searchParams)
@@ -135,36 +150,11 @@ export default function ShopPage() {
   // results) rather than showing a stranded empty page.
   useEffect(() => {
     setPage(1)
-    setVisibleCount(PAGE_SIZE)
-  }, [type, category, priceBand, sort, inStockOnly, search])
+  }, [type, category, priceBand, sort, inStockOnly, search, pageSize])
 
-  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE))
-  const pageItems = visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  // Mobile infinite scroll: grow the visible list instead of paging.
-  // A tiny invisible "sentinel" div sits just below the grid; once it
-  // scrolls into view, we reveal the next batch — no click needed, and
-  // no separate "Load more" button to design/maintain.
-  const mobileItems = visible.slice(0, visibleCount)
-  const hasMoreMobile = visibleCount < visible.length
-
-  useEffect(() => {
-    if (!isMobile || !hasMoreMobile) return
-    const node = loadMoreRef.current
-    if (!node) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisibleCount((c) => Math.min(visible.length, c + PAGE_SIZE))
-        }
-      },
-      { rootMargin: '400px' } // start loading a bit before it's actually on-screen
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [isMobile, hasMoreMobile, visible.length])
-
-  const itemsToShow = isMobile ? mobileItems : pageItems
+  const pageCount = pageSize === 'all' ? 1 : Math.max(1, Math.ceil(visible.length / pageSize))
+  const pageItems = pageSize === 'all' ? visible : visible.slice((page - 1) * pageSize, page * pageSize)
+  const itemsToShow = pageItems
 
   const clearFilters = () => {
     setType('all')
@@ -265,9 +255,9 @@ export default function ShopPage() {
         subtitle={t('shop_subtitle')}
       />
 
-      <section className="bg-ivory pb-16 pt-10">
+      <section className="bg-ivory pb-16 pt-6 sm:pt-10">
         <div className="mx-auto max-w-6xl px-7">
-          <div className="flex flex-col gap-10 md:flex-row">
+          <div className="flex flex-col gap-6 md:flex-row md:gap-10">
             {/* Filters — a fixed sidebar on desktop, a collapsible
                 <details> panel on mobile so it doesn't push the results
                 far down the page on small screens. */}
@@ -283,7 +273,7 @@ export default function ShopPage() {
             </aside>
 
             <div className="min-w-0 flex-1">
-              <div className="mb-5">
+              <div ref={resultsTopRef} className="mb-5 scroll-mt-24">
                 <input
                   type="search"
                   value={search}
@@ -298,18 +288,35 @@ export default function ShopPage() {
                   {visible.length} {visible.length === 1 ? 'result' : 'results'}
                   {search && <> for &ldquo;{search}&rdquo;</>}
                 </p>
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  aria-label={t('shop_sort')}
-                  className="rounded-sm border border-gold/30 bg-cream px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep"
-                >
-                  {Object.entries(SORTS).map(([id, s]) => (
-                    <option key={id} value={id}>
-                      {t('shop_sort')}: {L(s.label)}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* "Show" isn't run through the translation system yet —
+                      same known gap as a few other newer controls (see
+                      SESSION-SUMMARY.md). */}
+                  <select
+                    value={pageSize}
+                    onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                    aria-label="Results per page"
+                    className="rounded-sm border border-gold/30 bg-cream px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep"
+                  >
+                    {PAGE_SIZE_OPTIONS.map((size) => (
+                      <option key={size} value={size}>
+                        Show: {size === 'all' ? 'All' : size}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    aria-label={t('shop_sort')}
+                    className="rounded-sm border border-gold/30 bg-cream px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep"
+                  >
+                    {Object.entries(SORTS).map(([id, s]) => (
+                      <option key={id} value={id}>
+                        {t('shop_sort')}: {L(s.label)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {loading && <p className="text-center text-sm text-[#6a6656]">{t('shop_loading_catalog')}</p>}
@@ -325,35 +332,32 @@ export default function ShopPage() {
 
               {!loading && !error && visible.length > 0 && (
                 <>
-                  <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-3">
                     {itemsToShow.map((item) =>
                       item.type === 'service' ? (
                         <ServiceCard
                           key={item.id}
                           service={item}
-                          large
+                          large={!isMobile}
                           onReserve={item.serviceType === 'bookable' ? () => setBookingService(item) : undefined}
                         />
                       ) : (
-                        <ProductCard key={item.id} product={item} large />
+                        <ProductCard key={item.id} product={item} large={!isMobile} />
                       )
                     )}
                   </div>
 
-                  {/* Phones: an invisible sentinel that loads the next
-                      batch of products as it scrolls into view, so the
-                      page keeps growing instead of stopping at numbered
-                      page buttons. */}
-                  {isMobile && (
-                    <div ref={loadMoreRef} className="mt-8 flex justify-center">
-                      {hasMoreMobile && <p className="text-xs uppercase tracking-wide text-moss">{t('shop_loading_more')}</p>}
-                    </div>
-                  )}
-
-                  {!isMobile && pageCount > 1 && (
-                    <nav className="mt-12 flex items-center justify-center gap-2" aria-label={t('shop_pagination_label')}>
+                  {pageCount > 1 && (
+                    <nav
+                      id="shop-pagination"
+                      className="mt-12 flex flex-wrap items-center justify-center gap-2"
+                      aria-label={t('shop_pagination_label')}
+                    >
                       <button
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        onClick={() => {
+                          setPage((p) => Math.max(1, p - 1))
+                          scrollToResultsTop()
+                        }}
                         disabled={page === 1}
                         className="rounded-full border border-gold/40 px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep transition-colors hover:border-forestDeep disabled:cursor-not-allowed disabled:opacity-30"
                       >
@@ -362,7 +366,10 @@ export default function ShopPage() {
                       {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
                         <button
                           key={n}
-                          onClick={() => setPage(n)}
+                          onClick={() => {
+                            setPage(n)
+                            scrollToResultsTop()
+                          }}
                           aria-current={page === n ? 'page' : undefined}
                           className={`h-10 w-10 rounded-full text-xs transition-colors ${
                             page === n ? 'bg-forestDeep text-cream' : 'text-forestDeep hover:bg-gold/20'
@@ -372,7 +379,10 @@ export default function ShopPage() {
                         </button>
                       ))}
                       <button
-                        onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                        onClick={() => {
+                          setPage((p) => Math.min(pageCount, p + 1))
+                          scrollToResultsTop()
+                        }}
                         disabled={page === pageCount}
                         className="rounded-full border border-gold/40 px-3 py-1.5 text-xs uppercase tracking-wide text-forestDeep transition-colors hover:border-forestDeep disabled:cursor-not-allowed disabled:opacity-30"
                       >
@@ -388,6 +398,8 @@ export default function ShopPage() {
       </section>
       <Footer />
 
+      <BackToTopButton onClick={scrollToResultsTop} />
+
       <BookingWidget
         service={bookingService}
         open={Boolean(bookingService)}
@@ -396,3 +408,4 @@ export default function ShopPage() {
     </>
   )
 }
+

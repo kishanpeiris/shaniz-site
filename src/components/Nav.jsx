@@ -264,36 +264,23 @@ export default function Nav() {
           {user ? (
             <UserMenu user={user} isStaff={isStaff} />
           ) : (
-            <>
-              {/* Mobile/narrow: an icon that's always visible, rather than
-                  relying on the hamburger menu or a text label that only
-                  shows once there's room for it (see the sm:/md: guards
-                  on the text link below). */}
-              <Link
-                to="/login"
-                aria-label={t('nav_sign_in')}
-                className={
-                  longScript
-                    ? 'flex h-11 w-11 items-center justify-center rounded-full text-forestDeep ring-1 ring-gold/40 hover:ring-gold md:hidden'
-                    : 'flex h-11 w-11 items-center justify-center rounded-full text-forestDeep ring-1 ring-gold/40 hover:ring-gold sm:hidden'
-                }
-              >
-                <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
-                  <circle cx="10" cy="6.5" r="3.25" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M3.5 17c1-3.5 4-5.25 6.5-5.25S15.5 13.5 16.5 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </Link>
-              <Link
-                to="/login"
-                className={
-                  longScript
-                    ? 'hidden whitespace-nowrap text-[0.65rem] uppercase leading-normal tracking-wide text-moss underline decoration-gold/50 md:inline'
-                    : 'hidden whitespace-nowrap text-xs uppercase leading-normal tracking-wide text-moss underline decoration-gold/50 sm:inline'
-                }
-              >
-                {t('nav_sign_in')}
-              </Link>
-            </>
+            // Always-visible text link, every screen size — no icon here
+            // at all. (An earlier version added a mobile-only icon
+            // alongside a width-gated text label, meant to be mutually
+            // exclusive by breakpoint; in practice both ended up visible
+            // together on a phone, which is exactly the redundant look
+            // this replaces.) Same /login destination as the desktop
+            // version always had — this isn't a second, different link.
+            <Link
+              to="/login"
+              className={
+                longScript
+                  ? 'whitespace-nowrap text-[0.65rem] uppercase leading-normal tracking-wide text-moss underline decoration-gold/50'
+                  : 'whitespace-nowrap text-xs uppercase leading-normal tracking-wide text-moss underline decoration-gold/50'
+              }
+            >
+              {t('nav_sign_in')}
+            </Link>
           )}
           <Link
             to="/basket"
